@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
-const apiKey = "" import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mblqywqp"; 
 
@@ -113,7 +113,7 @@ const TRANSLATIONS = {
       badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
       title1: "Ingénierie",
       title2: "Créative & Code",
-      desc: "Je suis Kristofer FAUVETTE. Je construis des ponts entre algorithmes complexes et expériences utilisateurs immersives. Spécialisé en Fullstack & Data.",
+      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis passionné depuis toujours par l'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
       btn_work: "Voir mes travaux",
       btn_contact: "Contact"
     },
@@ -155,7 +155,7 @@ const TRANSLATIONS = {
       badge: "INSA HAUTS-DE-FRANCE STUDENT",
       title1: "Engineering",
       title2: "Creative & Code",
-      desc: "I am Kristofer FAUVETTE. I build bridges between complex algorithms and immersive user experiences. Specialized in Fullstack & Data.",
+      desc: "Hello, I am Kristofer FAUVETTE. 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering. I am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications (Cisco) and my Blog. Feel free to write to me!",
       btn_work: "View my work",
       btn_contact: "Contact"
     },
@@ -638,6 +638,26 @@ const CertificationsSection = ({ t }: { t: any }) => {
   );
 };
 
+// --- LOGO COMPONENT ---
+const InteractiveLogo = () => {
+  const LetterGroup = ({ initial, full }: { initial: string, full: string }) => (
+    <div className="group flex items-center cursor-default">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{initial}</span>
+      <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-500 ease-in-out whitespace-nowrap text-slate-300 font-medium text-lg ml-0.5">
+        {full}
+      </span>
+    </div>
+  );
+
+  return (
+    <div className="flex items-center gap-1 text-2xl tracking-tighter font-bold">
+       <LetterGroup initial="K" full="ristofer" />
+       <LetterGroup initial="W" full="illiam" />
+       <LetterGroup initial="F" full="auvette" />
+    </div>
+  );
+};
+
 // --- MAIN APP COMPONENT ---
 export default function App() {
   const [lang, setLang] = useState<'fr' | 'en'>('fr');
@@ -675,10 +695,7 @@ export default function App() {
       {/* Navbar */}
       <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 py-4">
         <div className="container mx-auto px-6 flex justify-between items-center">
-          <div className="text-2xl font-bold tracking-tighter flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-orange-500 rounded flex items-center justify-center text-white font-mono text-sm">K</div>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">KRISTOFER.DEV</span>
-          </div>
+          <InteractiveLogo />
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#about" className="hover:text-cyan-400 transition-colors">{t.nav.about}</a>
