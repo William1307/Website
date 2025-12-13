@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { 
   Github, 
   Linkedin, 
@@ -37,6 +37,21 @@ const SOCIALS = {
   linkedin: "https://www.linkedin.com/in/kristofer-fauvette-040142311/",
   email: "kristofer.fauvette@kwol.cloud"
 };
+
+// --- DATA: CONTEXTE PERSONNE (POUR L'IA) ---
+const KRISTOFER_CONTEXT = `
+CONTEXTE PRIORITAIRE SUR L'AUTEUR :
+Nom : Kristofer FAUVETTE
+Rôle : Étudiant Ingénieur (1ère année à l'INSA Hauts-de-France) & Développeur Fullstack.
+Passion : Informatique, Réseaux, Bidouille technique, Cyber-sécurité, Auto-hébergement.
+Stack Technique : React, Vite, Tailwind CSS, TypeScript, Node.js, Python.
+Compétences Réseau : Cisco (Certification en cours), Packet Tracer, DNS (Pi-hole, Unbound), Serveurs (VPS, NAS).
+Projets notables :
+- Plex Server (Media server avec transcodage HW)
+- Pi-hole + Unbound (DNS privé et bloqueur de pub)
+- RustDesk (Infrastructure bureau à distance sécurisée)
+Style de communication : Professionnel mais passionné, précis, pédagogique.
+`;
 
 // --- DATA: CERTIFICATIONS ---
 const CERTIFICATIONS = [
@@ -342,6 +357,28 @@ const callGemini = async (prompt: string, systemInstruction: string = "") => {
   }
 };
 
+// --- UTILITAIRE FORMATAGE TEXTE IA ---
+const formatAIResponse = (text: string) => {
+  if (!text) return null;
+  return text.split('\n').map((line, i) => {
+    if (!line.trim()) return <br key={i} />;
+    
+    // Découpage pour détecter **gras**
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    
+    return (
+      <p key={i} className="mb-2 text-slate-300 leading-relaxed">
+        {parts.map((part, j) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={j} className="text-cyan-400 font-bold">{part.slice(2, -2)}</strong>;
+          }
+          return part;
+        })}
+      </p>
+    );
+  });
+};
+
 // --- COMPOSANT : BACKGROUND PARTICULES ---
 const ParticleNetwork = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -463,7 +500,8 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
     setLoading(true);
     
     const context = getArticleTextContext();
-    const systemPrompt = `Tu es un assistant expert. Langue de réponse : ${lang === 'fr' ? 'Français' : 'Anglais'}. Contexte: ${context}`;
+    // On ajoute le contexte perso aussi ici pour que l'IA sache qui a écrit l'article
+    const systemPrompt = `Tu es un assistant expert. Langue de réponse : ${lang === 'fr' ? 'Français' : 'Anglais'}. Contexte Article: ${context}. ${KRISTOFER_CONTEXT}. Utilise le gras (**texte**) pour les points importants.`;
     
     const response = await callGemini(question, systemPrompt);
     setAnswer(response);
@@ -517,9 +555,9 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
             </div>
 
             {answer && (
-              <div className="bg-slate-950 rounded-lg p-4 text-slate-300 border border-white/5 animate-in fade-in">
+              <div className="bg-slate-950 rounded-lg p-4 text-slate-300 border border-white/5 animate-in fade-in max-h-80 overflow-y-auto">
                 <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-2 block">Assistant IA</span>
-                {answer}
+                {formatAIResponse(answer)}
               </div>
             )}
           </div>
@@ -550,7 +588,8 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
     setInput("");
     setIsTyping(true);
 
-    const systemPrompt = `Tu es l'assistant de Kristofer. Réponds en ${lang === 'fr' ? 'Français' : 'Anglais'}.`;
+    // Injection du contexte KRISTOFER_CONTEXT pour que l'IA sache qui est le propriétaire
+    const systemPrompt = `Tu es l'assistant de Kristofer. Réponds en ${lang === 'fr' ? 'Français' : 'Anglais'}. ${KRISTOFER_CONTEXT}. Sois concis et utilise le formatage markdown (gras) si nécessaire.`;
     const response = await callGemini(userMsg, systemPrompt);
 
     setMessages(prev => [...prev, { role: 'ai', text: response }]);
@@ -563,21 +602,25 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
         {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
-          <div className="p-4 bg-slate-950 border-b border-white/10 flex items-center gap-3">
+        <div className="fixed bottom-24 right-6 z-50 w-80 h-[450px] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+          <div className="p-4 bg-slate-950 border-b border-white/10 flex items-center gap-3 flex-none">
             <Bot className="text-cyan-400" />
             <h3 className="font-bold text-white text-sm">Assistant</h3>
           </div>
-          <div className="flex-1 h-80 overflow-y-auto p-4 space-y-4">
+          
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/50">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-200'}`}>{msg.text}</div>
+                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-200'}`}>
+                  {msg.role === 'ai' ? formatAIResponse(msg.text) : msg.text}
+                </div>
               </div>
             ))}
             {isTyping && <div className="text-slate-500 text-xs ml-4">...</div>}
             <div ref={messagesEndRef} />
           </div>
-          <div className="p-3 border-t border-white/10 flex gap-2">
+
+          <div className="p-3 border-t border-white/10 flex gap-2 flex-none bg-slate-950">
             <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={t.assistant.placeholder} className="flex-1 bg-slate-800 rounded-full px-4 text-sm text-white focus:outline-none" />
             <button onClick={handleSend} className="text-cyan-400"><Send size={18} /></button>
           </div>
@@ -664,6 +707,15 @@ export default function App() {
   const [readingArticle, setReadingArticle] = useState<number | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  
+  // -- CORRECTION SCROLL AU CHARGEMENT --
+  useLayoutEffect(() => {
+    // Force le scroll en haut au chargement/rafraîchissement
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
   
   const t = TRANSLATIONS[lang];
   const activeArticleData = BLOG_CONTENT.find(a => a.id === readingArticle);
