@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Github, 
   Linkedin, 
@@ -24,7 +25,16 @@ import {
   BookOpen,
   MessageSquare,
   Languages,
-  Award
+  Award,
+  Play,
+  Film,
+  Cast,
+  Activity,
+  Shield,
+  Monitor,
+  Server,
+  Lock,
+  Wifi
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -37,21 +47,6 @@ const SOCIALS = {
   linkedin: "https://www.linkedin.com/in/kristofer-fauvette-040142311/",
   email: "kristofer.fauvette@kwol.cloud"
 };
-
-// --- DATA: CONTEXTE PERSONNE (POUR L'IA) ---
-const KRISTOFER_CONTEXT = `
-CONTEXTE PRIORITAIRE SUR L'AUTEUR :
-Nom : Kristofer FAUVETTE
-Rôle : Étudiant Ingénieur (1ère année à l'INSA Hauts-de-France) & Développeur Fullstack.
-Passion : Informatique, Réseaux, Bidouille technique, Cyber-sécurité, Auto-hébergement.
-Stack Technique : React, Vite, Tailwind CSS, TypeScript, Node.js, Python.
-Compétences Réseau : Cisco (Certification en cours), Packet Tracer, DNS (Pi-hole, Unbound), Serveurs (VPS, NAS).
-Projets notables :
-- Plex Server (Media server avec transcodage HW)
-- Pi-hole + Unbound (DNS privé et bloqueur de pub)
-- RustDesk (Infrastructure bureau à distance sécurisée)
-Style de communication : Professionnel mais passionné, précis, pédagogique.
-`;
 
 // --- DATA: CERTIFICATIONS ---
 const CERTIFICATIONS = [
@@ -321,11 +316,103 @@ const BLOG_CONTENT = [
       ),
       en: (
         <>
-           <p className="lead text-lg text-slate-300 mb-6">
+          <p className="lead text-lg text-slate-300 mb-6">
             Today, we're tackling a big one: taking back total control of our internet requests. We're going to install <strong>Pi-hole</strong> (the ad blocker) coupled with <strong>Unbound</strong> (a recursive DNS resolver). All on my Raspberry Pi 5 8GB. Spoiler: it's totally overkill (a Pi Zero would suffice), but we love it.
           </p>
-          <p className="text-slate-400 italic">
-            [Content available in French above. English translation coming soon.]
+
+          <h3 className="text-2xl font-bold text-white mt-8 mb-4">Why are we doing this? (The theory minute)</h3>
+          
+          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">1. What is a DNS?</h4>
+          <p className="text-slate-400 mb-4">
+            Imagine that DNS (Domain Name System) is the phonebook of the Internet. When you type <code>google.com</code>, your computer doesn't know where it is. It asks a DNS server: "Hey, what is Google's IP address?". The server answers <code>142.250.xxx.xxx</code>, and boom, the page appears.
+          </p>
+
+          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Why a "Recursive" DNS?</h4>
+          <p className="text-slate-400 mb-4">
+            By default, your internet box uses your ISP's DNS (or Google 8.8.8.8). Basically, you're asking a middleman to search for you. So, they know everything you visit.
+            <br/><br/>
+            With <strong>Unbound</strong> in recursive mode, we cut out the middleman. Your Raspberry Pi will talk directly to the "Root Servers" (the big bosses of the Internet).
+          </p>
+
+          <div className="my-8 p-4 bg-slate-800 rounded-lg border border-slate-700 text-center italic text-slate-500">
+            [Diagram: Difference between a standard and recursive request]
+          </div>
+
+          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
+            <li><strong>Privacy:</strong> Nobody (not Google, nor your ISP) sees your DNS requests.</li>
+            <li><strong>Security:</strong> We use DNSSEC to validate that the answers are authentic.</li>
+            <li><strong>Zero Ads:</strong> Pi-hole filters requests before they even leave.</li>
+          </ul>
+
+          <hr className="border-white/10 my-8" />
+
+          <h3 className="text-2xl font-bold text-white mb-4">Step 1: Prepare the beast</h3>
+          <p className="text-slate-400 mb-4">
+            We are on a Raspberry Pi 5. Make sure you have Raspberry Pi OS installed and up to date. Open the terminal (or connect via SSH) and run the classic update:
+          </p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>sudo apt update && sudo apt upgrade -y</code>
+          </pre>
+
+          <h3 className="text-2xl font-bold text-white mb-4">Step 2: Install Pi-hole</h3>
+          <p className="text-slate-400 mb-4">
+            The Pi-hole installation is automated. This is the "Network-wide Ad Blocking" that will protect all devices in the house.
+          </p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>curl -sSL https://install.pi-hole.net | bash</code>
+          </pre>
+          <p className="text-slate-400 mb-4">
+            Follow the steps on the screen. <strong>Tip:</strong> Set a static IP address for your Raspberry Pi to prevent it from changing address on the next reboot.
+          </p>
+
+          <h3 className="text-2xl font-bold text-white mb-4">Step 3: Install Unbound</h3>
+          <p className="text-slate-400 mb-4">This is where the magic happens. We install Unbound so we no longer depend on Google's DNS.</p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>sudo apt install unbound</code>
+          </pre>
+          
+          <p className="text-slate-400 mb-4">Specific configuration for Pi-hole:</p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>sudo nano /etc/unbound/unbound.conf.d/pi-hole.conf</code>
+          </pre>
+          
+          <pre className="bg-slate-900 p-4 rounded-lg border border-white/10 text-slate-300 font-mono text-xs mb-6 overflow-x-auto">
+{`server:
+    verbosity: 0
+    interface: 127.0.0.1
+    port: 5335
+    do-ip4: yes
+    do-udp: yes
+    do-tcp: yes
+    do-ip6: no
+    root-hints: "/usr/share/dns/root.hints"
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    use-caps-for-id: no
+    edns-buffer-size: 1232
+    prefetch: yes
+    num-threads: 1
+    so-rcvbuf: 1m
+    private-address: 192.168.0.0/16`}
+          </pre>
+
+          <p className="text-slate-400 mb-4">Restart the service:</p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>sudo service unbound restart</code>
+          </pre>
+
+          <h3 className="text-2xl font-bold text-white mb-4">Step 4: Link the two</h3>
+          <p className="text-slate-400 mb-4">
+            Go to your Pi-hole's web interface (<code>http://192.168.x.x/admin</code>). Head to <strong>Settings &gt; DNS</strong>.
+          </p>
+          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
+            <li>Uncheck all public DNS (Google, OpenDNS, etc).</li>
+            <li>In "Custom 1 (IPv4)", enter: <code>127.0.0.1#5335</code></li>
+            <li>Check "Use DNSSEC".</li>
+          </ul>
+          
+          <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
+            And there you go! Your Pi-hole now queries your local Unbound instance. It's clean, private, and runs perfectly on the Pi 5.
           </p>
         </>
       )
@@ -355,28 +442,6 @@ const callGemini = async (prompt: string, systemInstruction: string = "") => {
     console.error("Erreur Gemini:", error);
     return "Erreur communication IA.";
   }
-};
-
-// --- UTILITAIRE FORMATAGE TEXTE IA ---
-const formatAIResponse = (text: string) => {
-  if (!text) return null;
-  return text.split('\n').map((line, i) => {
-    if (!line.trim()) return <br key={i} />;
-    
-    // Découpage pour détecter **gras**
-    const parts = line.split(/(\*\*.*?\*\*)/g);
-    
-    return (
-      <p key={i} className="mb-2 text-slate-300 leading-relaxed">
-        {parts.map((part, j) => {
-          if (part.startsWith('**') && part.endsWith('**')) {
-            return <strong key={j} className="text-cyan-400 font-bold">{part.slice(2, -2)}</strong>;
-          }
-          return part;
-        })}
-      </p>
-    );
-  });
 };
 
 // --- COMPOSANT : BACKGROUND PARTICULES ---
@@ -482,6 +547,202 @@ const ParticleNetwork = () => {
   );
 };
 
+// --- COMPOSANTS VISUELS ANIMÉS ---
+
+// 1. PLEX VISUAL (CRAZY CINEMATIC VERSION)
+const PlexVisual = () => {
+  return (
+    <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700">
+      {/* Cinematic Background Gradient */}
+      <motion.div 
+        animate={{ 
+          backgroundPosition: ['0% 0%', '100% 100%'],
+        }}
+        transition={{ duration: 15, repeat: Infinity, repeatType: "mirror" }}
+        className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-amber-700/20 to-slate-900 z-0 bg-[length:200%_200%]"
+      />
+      {/* Noise Texture Overlay */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+
+      {/* 3D Scrolling Movie Posters */}
+      <div className="absolute top-1/2 left-0 w-[150%] -translate-y-1/2 -rotate-6 opacity-60 flex gap-4">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-24 h-36 rounded-lg bg-gradient-to-b from-white/10 to-white/5 border border-white/10 shadow-xl backdrop-blur-sm flex-shrink-0"
+            animate={{ x: [-100, -500] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+             <div className="w-full h-2/3 bg-white/5 rounded-t-lg"></div>
+             <div className="p-2 gap-1 flex flex-col">
+                <div className="h-2 w-3/4 bg-white/20 rounded"></div>
+                <div className="h-2 w-1/2 bg-white/10 rounded"></div>
+             </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Central "Media Player" Interface */}
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="relative">
+          {/* Glowing Play Button */}
+          <motion.div 
+             className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.5)] z-20 relative"
+             whileHover={{ scale: 1.1 }}
+             animate={{ boxShadow: ['0 0 30px rgba(249,115,22,0.5)', '0 0 60px rgba(249,115,22,0.8)', '0 0 30px rgba(249,115,22,0.5)'] }}
+             transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Play fill="white" className="text-white ml-1 w-8 h-8" />
+          </motion.div>
+          {/* Ripples */}
+          <motion.div 
+            className="absolute inset-0 rounded-full border border-orange-500/50"
+            animate={{ scale: [1, 2], opacity: [1, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        </div>
+      </div>
+
+      {/* Transcoding Status */}
+      <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-orange-500/30">
+        <Activity className="w-3 h-3 text-orange-400 animate-pulse" />
+        <span className="text-[10px] font-mono text-orange-100 font-bold uppercase tracking-wider">Transcoding (HW)</span>
+      </div>
+
+      {/* Floating Particles */}
+      {[...Array(5)].map((_, i) => (
+         <motion.div
+           key={i}
+           className="absolute w-1 h-1 bg-orange-200 rounded-full blur-[1px]"
+           initial={{ y: 200, x: Math.random() * 300, opacity: 0 }}
+           animate={{ y: -50, opacity: [0, 1, 0] }}
+           transition={{ duration: Math.random() * 3 + 4, repeat: Infinity, delay: Math.random() * 2 }}
+         />
+      ))}
+    </div>
+  );
+};
+
+// 2. PI-HOLE VISUAL (DIGITAL VORTEX)
+const PiHoleVisual = () => {
+  return (
+    <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 flex items-center justify-center">
+       {/* Radar Grid Background */}
+       <div className="absolute inset-0 z-0 opacity-20" style={{ 
+          backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', 
+          backgroundSize: '30px 30px' 
+       }}></div>
+
+       {/* Spinning Radar Scan */}
+       <motion.div 
+         animate={{ rotate: 360 }}
+         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+         className="absolute w-[400px] h-[400px] bg-gradient-to-r from-transparent via-red-500/10 to-transparent z-0 opacity-30"
+         style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 100%)', transformOrigin: 'center' }}
+       />
+
+       {/* Central Black Hole / Shield */}
+       <div className="relative z-10">
+          <motion.div 
+             animate={{ boxShadow: ['0 0 20px rgba(239,68,68,0.2)', '0 0 50px rgba(239,68,68,0.6)', '0 0 20px rgba(239,68,68,0.2)'] }}
+             transition={{ duration: 2, repeat: Infinity }}
+             className="w-16 h-16 bg-slate-900 border-2 border-red-500 rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-red-900/20"
+          >
+             <Shield className="text-red-500 w-8 h-8 relative z-10" />
+             {/* Inner Spin */}
+             <motion.div 
+               animate={{ rotate: -360 }}
+               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+               className="absolute inset-0 border border-red-500/30 border-dashed rounded-full" 
+             />
+          </motion.div>
+       </div>
+
+       {/* Incoming "Ad" Particles being destroyed */}
+       {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_5px_red]"
+            initial={{ scale: 1, opacity: 1, x: 150 * Math.cos(i), y: 150 * Math.sin(i) }}
+            animate={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2, ease: "easeIn" }}
+          />
+       ))}
+    </div>
+  );
+};
+
+// 3. RUSTDESK VISUAL (ENCRYPTED TUNNEL)
+const RustDeskVisual = () => {
+  return (
+    <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 perspective-500">
+       {/* 3D Grid Tunnel Effect */}
+       <motion.div 
+         initial={{ opacity: 0 }}
+         animate={{ opacity: 0.2 }}
+         className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-slate-900 z-0"
+       />
+       
+       <div className="absolute inset-0 flex items-center justify-center z-10 gap-16">
+          {/* Client Node */}
+          <motion.div 
+            animate={{ y: [-5, 5, -5] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="flex flex-col items-center gap-2 z-10"
+          >
+             <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/30 backdrop-blur-sm">
+                <Monitor className="text-blue-400 w-6 h-6" />
+             </div>
+          </motion.div>
+
+          {/* Server Node */}
+          <motion.div 
+            animate={{ y: [5, -5, 5] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+            className="flex flex-col items-center gap-2 z-10"
+          >
+             <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/30 backdrop-blur-sm">
+                <Server className="text-indigo-400 w-6 h-6" />
+             </div>
+          </motion.div>
+       </div>
+
+       {/* Connecting Data Beam */}
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-0.5 bg-slate-800 overflow-hidden z-0">
+          <motion.div 
+            className="w-16 h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+            animate={{ x: [-100, 200] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+       </div>
+
+       {/* Floating Lock Icons */}
+       <motion.div 
+         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-slate-950 p-1.5 rounded-full border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+         animate={{ scale: [1, 1.1, 1] }}
+         transition={{ duration: 2, repeat: Infinity }}
+       >
+          <Lock className="text-white w-3 h-3" />
+       </motion.div>
+
+       {/* Flying Binary Code */}
+       {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-[10px] font-mono text-blue-500/40 font-bold select-none"
+            initial={{ y: 200, opacity: 0 }}
+            animate={{ y: -50, opacity: [0, 1, 0] }}
+            transition={{ duration: 2, repeat: Infinity, delay: Math.random() * 2 }}
+            style={{ left: `${20 + Math.random() * 60}%` }}
+          >
+             {Math.random() > 0.5 ? '101' : '010'}
+          </motion.div>
+       ))}
+    </div>
+  );
+};
+
+
 // --- COMPOSANT : LECTEUR D'ARTICLE ---
 const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTENT[0], lang: 'fr'|'en', onClose: () => void }) => {
   const [question, setQuestion] = useState("");
@@ -500,8 +761,7 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
     setLoading(true);
     
     const context = getArticleTextContext();
-    // On ajoute le contexte perso aussi ici pour que l'IA sache qui a écrit l'article
-    const systemPrompt = `Tu es un assistant expert. Langue de réponse : ${lang === 'fr' ? 'Français' : 'Anglais'}. Contexte Article: ${context}. ${KRISTOFER_CONTEXT}. Utilise le gras (**texte**) pour les points importants.`;
+    const systemPrompt = `Tu es un assistant expert. Langue de réponse : ${lang === 'fr' ? 'Français' : 'Anglais'}. Contexte: ${context}`;
     
     const response = await callGemini(question, systemPrompt);
     setAnswer(response);
@@ -555,9 +815,9 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
             </div>
 
             {answer && (
-              <div className="bg-slate-950 rounded-lg p-4 text-slate-300 border border-white/5 animate-in fade-in max-h-80 overflow-y-auto">
+              <div className="bg-slate-950 rounded-lg p-4 text-slate-300 border border-white/5 animate-in fade-in">
                 <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-2 block">Assistant IA</span>
-                {formatAIResponse(answer)}
+                {answer}
               </div>
             )}
           </div>
@@ -588,8 +848,7 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
     setInput("");
     setIsTyping(true);
 
-    // Injection du contexte KRISTOFER_CONTEXT pour que l'IA sache qui est le propriétaire
-    const systemPrompt = `Tu es l'assistant de Kristofer. Réponds en ${lang === 'fr' ? 'Français' : 'Anglais'}. ${KRISTOFER_CONTEXT}. Sois concis et utilise le formatage markdown (gras) si nécessaire.`;
+    const systemPrompt = `Tu es l'assistant de Kristofer. Réponds en ${lang === 'fr' ? 'Français' : 'Anglais'}.`;
     const response = await callGemini(userMsg, systemPrompt);
 
     setMessages(prev => [...prev, { role: 'ai', text: response }]);
@@ -602,25 +861,21 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
         {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 h-[450px] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
-          <div className="p-4 bg-slate-950 border-b border-white/10 flex items-center gap-3 flex-none">
+        <div className="fixed bottom-24 right-6 z-50 w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+          <div className="p-4 bg-slate-950 border-b border-white/10 flex items-center gap-3">
             <Bot className="text-cyan-400" />
             <h3 className="font-bold text-white text-sm">Assistant</h3>
           </div>
-          
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/50">
+          <div className="flex-1 h-80 overflow-y-auto p-4 space-y-4">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-200'}`}>
-                  {msg.role === 'ai' ? formatAIResponse(msg.text) : msg.text}
-                </div>
+                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-200'}`}>{msg.text}</div>
               </div>
             ))}
             {isTyping && <div className="text-slate-500 text-xs ml-4">...</div>}
             <div ref={messagesEndRef} />
           </div>
-
-          <div className="p-3 border-t border-white/10 flex gap-2 flex-none bg-slate-950">
+          <div className="p-3 border-t border-white/10 flex gap-2">
             <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={t.assistant.placeholder} className="flex-1 bg-slate-800 rounded-full px-4 text-sm text-white focus:outline-none" />
             <button onClick={handleSend} className="text-cyan-400"><Send size={18} /></button>
           </div>
@@ -708,15 +963,6 @@ export default function App() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   
-  // -- CORRECTION SCROLL AU CHARGEMENT --
-  useLayoutEffect(() => {
-    // Force le scroll en haut au chargement/rafraîchissement
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);
-  }, []);
-  
   const t = TRANSLATIONS[lang];
   const activeArticleData = BLOG_CONTENT.find(a => a.id === readingArticle);
 
@@ -730,6 +976,44 @@ export default function App() {
       if (response.ok) { setContactStatus('success'); form.reset(); } 
       else { setContactStatus('error'); }
     } catch (error) { setContactStatus('error'); }
+  };
+
+  const PROJECTS = [
+    { 
+      id: 1, 
+      title: "Plex Server", 
+      cat: "Self-Hosting", 
+      tech: ["Docker", "Linux"], 
+      desc: "Media server with HW transcoding.", 
+      Visual: PlexVisual,
+      action: { type: 'link', url: 'https://github.com/plexinc/pms-docker' }
+    },
+    { 
+      id: 2, 
+      title: "Pi-hole DNS", 
+      cat: "Cybersecurity", 
+      tech: ["DNSSEC", "Unbound"], 
+      desc: "Network-wide ad blocking.", 
+      Visual: PiHoleVisual,
+      action: { type: 'internal', articleId: 1 }
+    },
+    { 
+      id: 3, 
+      title: "RustDesk", 
+      cat: "SysAdmin", 
+      tech: ["VPS", "Encrypted"], 
+      desc: "Secure remote desktop infrastructure.", 
+      Visual: RustDeskVisual,
+      action: { type: 'link', url: 'https://rustdesk.com/docs/en/self-host/' }
+    }
+  ];
+
+  const handleProjectClick = (project: typeof PROJECTS[0]) => {
+    if (project.action.type === 'link') {
+      window.open(project.action.url, '_blank');
+    } else if (project.action.type === 'internal') {
+      setReadingArticle(project.action.articleId!);
+    }
   };
 
   return (
@@ -852,18 +1136,21 @@ export default function App() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { id: 1, title: "Plex Server", cat: "Self-Hosting", tech: ["Docker", "Linux"], desc: "Media server with HW transcoding.", color: "from-orange-500 to-amber-500" },
-              { id: 2, title: "Pi-hole DNS", cat: "Cybersecurity", tech: ["DNSSEC", "Unbound"], desc: "Network-wide ad blocking.", color: "from-red-500 to-rose-600" },
-              { id: 3, title: "RustDesk", cat: "SysAdmin", tech: ["VPS", "Encrypted"], desc: "Secure remote desktop infrastructure.", color: "from-blue-500 to-indigo-600" }
-            ].map((project) => (
-              <div key={project.id} className="group relative bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all hover:-translate-y-2 flex flex-col">
-                <div className={`h-48 w-full bg-gradient-to-br ${project.color} relative`}>
-                  <div className="absolute inset-0 bg-slate-950/20"></div>
-                  <div className="absolute bottom-4 left-4"><span className="px-3 py-1 bg-black/50 backdrop-blur rounded text-xs font-bold text-white uppercase">{project.cat}</span></div>
+            {PROJECTS.map((project) => (
+              <div 
+                key={project.id} 
+                onClick={() => handleProjectClick(project)}
+                className="group relative bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all hover:-translate-y-2 flex flex-col cursor-pointer"
+              >
+                <div className="h-48 w-full relative">
+                  <project.Visual />
+                  <div className="absolute bottom-4 left-4 z-10"><span className="px-3 py-1 bg-black/50 backdrop-blur rounded text-xs font-bold text-white uppercase">{project.cat}</span></div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
+                  <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                    {project.title}
+                    {project.action.type === 'link' && <ExternalLink size={14} className="text-slate-500 group-hover:text-cyan-400" />}
+                  </h3>
                   <p className="text-slate-400 text-sm mb-4">{project.desc}</p>
                   <div className="flex gap-2">{project.tech.map(te => <span key={te} className="text-xs font-mono text-slate-500 px-2 py-1 bg-slate-950 rounded border border-white/5">{te}</span>)}</div>
                 </div>
