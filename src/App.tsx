@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   Github, 
   Linkedin, 
@@ -27,14 +27,11 @@ import {
   Languages,
   Award,
   Play,
-  Film,
-  Cast,
   Activity,
   Shield,
   Monitor,
   Server,
-  Lock,
-  Wifi
+  Lock
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
