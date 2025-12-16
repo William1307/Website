@@ -30,7 +30,6 @@ import {
   Activity,
   Shield,
   Monitor,
-  Server,
   Lock
 } from 'lucide-react';
 
@@ -669,72 +668,101 @@ const PiHoleVisual = () => {
   );
 };
 
-// 3. RUSTDESK VISUAL (ENCRYPTED TUNNEL)
+// 3. RUSTDESK VISUAL (HOLOGRAPHIC SECURE INTERFACE)
 const RustDeskVisual = () => {
   return (
-    <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 perspective-500">
-       {/* 3D Grid Tunnel Effect */}
-       <motion.div 
-         initial={{ opacity: 0 }}
-         animate={{ opacity: 0.2 }}
-         className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-slate-900 z-0"
-       />
-       
-       <div className="absolute inset-0 flex items-center justify-center z-10 gap-16">
-          {/* Client Node */}
-          <motion.div 
-            animate={{ y: [-5, 5, -5] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="flex flex-col items-center gap-2 z-10"
-          >
-             <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/30 backdrop-blur-sm">
-                <Monitor className="text-blue-400 w-6 h-6" />
-             </div>
-          </motion.div>
-
-          {/* Server Node */}
-          <motion.div 
-            animate={{ y: [5, -5, 5] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-            className="flex flex-col items-center gap-2 z-10"
-          >
-             <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/30 backdrop-blur-sm">
-                <Server className="text-indigo-400 w-6 h-6" />
-             </div>
-          </motion.div>
-       </div>
-
-       {/* Connecting Data Beam */}
-       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-0.5 bg-slate-800 overflow-hidden z-0">
-          <motion.div 
-            className="w-16 h-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
-            animate={{ x: [-100, 200] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-          />
-       </div>
-
-       {/* Floating Lock Icons */}
-       <motion.div 
-         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-slate-950 p-1.5 rounded-full border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-         animate={{ scale: [1, 1.1, 1] }}
-         transition={{ duration: 2, repeat: Infinity }}
-       >
-          <Lock className="text-white w-3 h-3" />
-       </motion.div>
-
-       {/* Flying Binary Code */}
-       {[...Array(6)].map((_, i) => (
+    <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 perspective-1000">
+      {/* Background Matrix Rain Effect */}
+      <div className="absolute inset-0 opacity-20 flex justify-around pointer-events-none">
+        {[...Array(10)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-[10px] font-mono text-blue-500/40 font-bold select-none"
-            initial={{ y: 200, opacity: 0 }}
-            animate={{ y: -50, opacity: [0, 1, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: Math.random() * 2 }}
-            style={{ left: `${20 + Math.random() * 60}%` }}
-          >
-             {Math.random() > 0.5 ? '101' : '010'}
-          </motion.div>
-       ))}
+            className="w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent h-full"
+            initial={{ y: -200 }}
+            animate={{ y: '100%' }}
+            transition={{
+              duration: Math.random() * 2 + 1,
+              repeat: Infinity,
+              ease: "linear",
+              delay: Math.random() * 2
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Central Holographic Interface */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Spinning Rings */}
+        <motion.div
+          className="absolute w-40 h-40 rounded-full border border-blue-500/30 border-dashed"
+          animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute w-56 h-56 rounded-full border border-cyan-500/20"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* The Remote Monitor */}
+        <motion.div
+          className="relative z-10 bg-slate-900/80 backdrop-blur-md border border-blue-500/50 p-4 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+          initial={{ rotateX: 10 }}
+          animate={{ y: [-5, 5, -5] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="flex flex-col items-center gap-2">
+             <div className="relative">
+                <Monitor className="text-blue-400 w-12 h-12" />
+                {/* Secure Badge */}
+                <motion.div 
+                  className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 border-2 border-slate-900"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Lock className="text-white w-3 h-3" />
+                </motion.div>
+             </div>
+             <div className="flex gap-1 mt-2">
+                <div className="w-12 h-1 bg-blue-500/30 rounded overflow-hidden">
+                   <motion.div 
+                     className="w-full h-full bg-blue-400"
+                     animate={{ x: [-50, 50] }}
+                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                   />
+                </div>
+             </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Floating Connection Nodes */}
+      {[...Array(4)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          initial={{ 
+            x: Math.random() * 400 - 200, 
+            y: Math.random() * 200 - 100,
+            opacity: 0 
+          }}
+          animate={{ 
+            x: 0, 
+            y: 0, 
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            delay: i * 0.8,
+            ease: "circIn"
+          }}
+          style={{ top: '50%', left: '50%' }}
+        >
+           <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_10px_cyan]" />
+        </motion.div>
+      ))}
     </div>
   );
 };
