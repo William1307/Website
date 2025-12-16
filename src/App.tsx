@@ -33,9 +33,12 @@ import {
   Lock,
   FileText,
   Download,
-  Server,
   Zap,
-  HardDrive
+  MousePointer2,
+  Server,
+  Wifi,
+  HardDrive,
+  Cloud
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -148,6 +151,13 @@ const TRANSLATIONS = {
       level: "Maîtrise",
       status: "Statut"
     },
+    homelab: {
+      title: "Statut Homelab & VPS",
+      subtitle: "Monitoring temps réel de l'infrastructure.",
+      uptime: "Uptime",
+      cpu: "Charge CPU",
+      ram: "RAM"
+    },
     projects: {
       title: "Projets Sélectionnés",
       link: "VOIR TOUT LE REPO"
@@ -206,6 +216,13 @@ const TRANSLATIONS = {
       subtitle: "Modules loaded and operational.",
       level: "Proficiency",
       status: "Status"
+    },
+    homelab: {
+      title: "Homelab & VPS Status",
+      subtitle: "Real-time infrastructure monitoring.",
+      uptime: "Uptime",
+      cpu: "CPU Load",
+      ram: "RAM"
     },
     projects: {
       title: "Selected Projects",
@@ -370,6 +387,57 @@ const callGemini = async (prompt: string, systemInstruction: string = "") => {
   }
 };
 
+// --- WOW ADDITION: TYPING EFFECT COMPONENT ---
+const TypingEffect = ({ text, delay = 0 }: { text: string, delay?: number }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  useEffect(() => {
+    if (!started) return;
+    if (displayedText.length < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(text.slice(0, displayedText.length + 1));
+      }, 50 + Math.random() * 50); // Random typing speed
+      return () => clearTimeout(timeout);
+    }
+  }, [displayedText, started, text]);
+
+  return <span>{displayedText}</span>;
+};
+
+// --- WOW ADDITION: SCROLL PROGRESS BAR ---
+const ScrollProgress = () => {
+  const { scrollYProgress } = import.meta.env ? useTransform(useMotionValue(0), v => v) : { scrollYProgress: 0 }; // Mock for SSR safety if needed
+  // Using actual framer motion hook for scroll
+  const { scrollYProgress: realScroll } = androidxScrollHook(); 
+  
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-cyan-500 origin-left z-[100]"
+      style={{ scaleX: realScroll }}
+    />
+  );
+};
+// Helper hook for scroll since useScroll is common
+const androidxScrollHook = () => {
+   const [scroll, setScroll] = useState(0);
+   useEffect(() => {
+     const updateScroll = () => {
+       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+       setScroll(window.scrollY / totalHeight);
+     }
+     window.addEventListener('scroll', updateScroll);
+     return () => window.removeEventListener('scroll', updateScroll);
+   }, []);
+   return { scrollYProgress: scroll };
+}
+
+
 // --- COMPOSANT : BACKGROUND PARTICULES ---
 const ParticleNetwork = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -442,6 +510,7 @@ const ParticleNetwork = () => {
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(mouse.x, mouse.y);
             ctx.stroke();
+            // Subtle attraction effect
             p.x -= dx * 0.005;
             p.y -= dy * 0.005;
         }
@@ -753,16 +822,16 @@ const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: 
   );
 };
 
-// --- COMPOSANT : MODALE CERTIFICATION (REDESIGNED) ---
+// --- COMPOSANT : MODALE CERTIFICATION (REDESIGNED FOR VISIBILITY) ---
 const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[0], t: any, onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose}></div>
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-5xl h-[85vh] relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
+        className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-6xl h-[90vh] relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
       >
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-slate-950">
           <div className="flex items-center gap-3">
@@ -775,28 +844,46 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-           {/* Image Container */}
-           <div className="md:w-5/12 bg-black/50 p-6 flex items-center justify-center relative border-r border-white/5">
-             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-             <img src={cert.certImage} alt="Certificate" className="w-full h-auto max-h-full object-contain rounded-lg shadow-2xl border border-white/10 relative z-10" />
+           {/* Image Container - Expanded to 60% Width for better visibility */}
+           <div className="md:w-7/12 bg-slate-950/50 p-6 flex items-center justify-center relative border-r border-white/5 group">
+             {/* Subtle Pattern Background */}
+             <div className="absolute inset-0 opacity-10" style={{ 
+                backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', 
+                backgroundSize: '20px 20px' 
+             }}></div>
+             
+             {/* Zoomable Image */}
+             <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-lg">
+                <img 
+                  src={cert.certImage} 
+                  alt="Certificate" 
+                  className="max-w-full max-h-full object-contain rounded shadow-2xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in" 
+                />
+             </div>
+             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-xs text-slate-300 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                Hover to Zoom
+             </div>
            </div>
 
-           {/* Content Container */}
-           <div className="md:w-7/12 p-8 overflow-y-auto">
-             <div className="flex items-start justify-between mb-6">
-               <div className="w-20 h-20 bg-white/5 rounded-xl flex items-center justify-center p-2 border border-white/10">
+           {/* Content Container - Condensed to 40% Width */}
+           <div className="md:w-5/12 p-8 overflow-y-auto bg-slate-900">
+             <div className="flex items-center gap-4 mb-6">
+               <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center p-2 border border-white/10 shrink-0">
                  <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
                </div>
-               <div className="text-right">
-                  <span className="inline-block px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono mb-2">
-                    <CheckCircle size={12} className="inline mr-1" /> Authenticated
-                  </span>
-                  <p className="text-slate-400 text-sm font-mono">{cert.issuer}</p>
+               <div>
+                  <h2 className="text-xl font-bold text-white leading-tight">{cert.title}</h2>
+                  <p className="text-slate-400 text-sm font-mono mt-1">{cert.issuer}</p>
                </div>
              </div>
 
-             <h2 className="text-2xl font-bold text-white mb-4">{cert.title}</h2>
-             <p className="text-slate-300 leading-relaxed mb-8 text-sm">{cert.description}</p>
+             <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono mb-6">
+                <CheckCircle size={12} className="inline mr-1" /> Verified Credential
+             </div>
+
+             <p className="text-slate-300 leading-relaxed mb-8 text-sm border-l-2 border-white/10 pl-4">
+                {cert.description}
+             </p>
 
              <div className="mb-8">
                <h4 className="text-cyan-400 font-bold mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
@@ -804,7 +891,7 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
                </h4>
                <div className="flex flex-wrap gap-2">
                  {cert.skills.map(skill => (
-                   <span key={skill} className="px-3 py-1.5 bg-slate-800 border border-white/10 rounded hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors text-xs text-slate-300 font-mono cursor-default">
+                   <span key={skill} className="px-2 py-1 bg-slate-800 border border-white/10 rounded text-xs text-slate-400 font-mono">
                      {skill}
                    </span>
                  ))}
@@ -815,9 +902,9 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
                href={cert.verificationLink} 
                target="_blank" 
                rel="noreferrer"
-               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-cyan-500/20"
+               className="w-full flex items-center justify-center gap-2 bg-white text-slate-950 py-3 rounded-lg font-bold hover:bg-cyan-50 transition-colors"
              >
-               <ExternalLink size={18} /> {t.certs.modal.verify}
+               <ExternalLink size={16} /> {t.certs.modal.verify}
              </a>
            </div>
         </div>
@@ -825,6 +912,48 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
     </div>
   );
 };
+
+// --- WOW ADDITION: 3D TILT CARD ---
+const TiltCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
+  const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const xPct = (clientX - left) / width - 0.5;
+    const yPct = (clientY - top) / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  }
+
+  function handleMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
+  const brightness = useTransform(mouseY, [-0.5, 0.5], [1.2, 0.8]);
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className={`relative transition-all duration-200 ease-linear ${className}`}
+    >
+      <div style={{ transform: "translateZ(50px)" }}>{children}</div>
+      {/* Glare Effect */}
+      <motion.div 
+         style={{ opacity: useTransform(mouseX, [-0.5, 0.5], [0, 0.4]), rotate: 45 }}
+         className="absolute inset-0 bg-gradient-to-tr from-transparent via-white to-transparent pointer-events-none z-20"
+      />
+    </motion.div>
+  );
+};
+
 
 // --- GLOBAL CHATBOT COMPONENT ---
 const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
@@ -884,14 +1013,15 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
   );
 };
 
-// --- NOUVELLE SECTION CERTIFICATIONS (HOLOGRAPHIC TILES) ---
+// --- NOUVELLE SECTION CERTIFICATIONS (TRUE 3D HOLOGRAPHIC) ---
 const CertificationsSection = ({ t }: { t: any }) => {
   const [selectedCert, setSelectedCert] = useState<typeof CERTIFICATIONS[0] | null>(null);
 
   return (
     <section id="certifications" className="py-24 bg-slate-900/30 border-y border-white/5 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* Dynamic Digital Rain Background */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%2322d3ee\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'1\'/%3E%3C/g%3E%3C/svg%3E")' }}></div>
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
@@ -907,51 +1037,35 @@ const CertificationsSection = ({ t }: { t: any }) => {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 perspective-1000">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-10 perspective-1000">
           {CERTIFICATIONS.map((cert) => (
-            <motion.div 
-              key={cert.id} 
-              whileHover={{ scale: 1.05, rotateY: 5, zIndex: 10 }}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              onClick={() => setSelectedCert(cert)}
-              className="group cursor-pointer relative h-80 rounded-2xl bg-gradient-to-b from-slate-800/80 to-slate-950/80 border border-white/10 backdrop-blur-md flex flex-col items-center justify-between p-6 shadow-xl overflow-hidden"
-            >
-              {/* Dynamic Border Gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-b ${cert.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-              
-              {/* Scanning Laser Line */}
-              <motion.div 
-                className="absolute top-0 left-0 w-full h-1 bg-white/20 blur-sm"
-                initial={{ top: '-10%' }}
-                whileHover={{ top: ['0%', '100%'] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              />
-
-              {/* Floating Badge */}
-              <motion.div 
-                className="relative z-10 w-32 h-32 flex items-center justify-center drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            <TiltCard key={cert.id}>
+              <div 
+                onClick={() => setSelectedCert(cert)}
+                className="group cursor-pointer h-80 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border border-white/10 flex flex-col items-center justify-between p-6 shadow-2xl relative overflow-hidden"
               >
-                 <img src={cert.badge} alt={cert.title} className="w-full h-full object-contain" />
-              </motion.div>
-              
-              <div className="relative z-10 text-center w-full mt-4">
-                <h3 className="text-sm font-bold text-white mb-1 leading-tight group-hover:text-cyan-300 transition-colors">
-                  {cert.title}
-                </h3>
-                <p className="text-slate-500 text-xs font-mono mt-1 border-t border-white/5 pt-2 inline-block px-2">
-                  {cert.issuer}
-                </p>
-              </div>
+                {/* Internal Border Gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-b ${cert.color} opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
+                
+                {/* Floating Badge (Parallax Z-Index) */}
+                <div className="relative z-10 w-32 h-32 flex items-center justify-center drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform translate-z-20 group-hover:scale-110 transition-transform duration-300">
+                   <img src={cert.badge} alt={cert.title} className="w-full h-full object-contain" />
+                </div>
+                
+                <div className="relative z-10 text-center w-full mt-4 transform translate-z-10">
+                  <h3 className="text-sm font-bold text-white mb-1 leading-tight group-hover:text-cyan-300 transition-colors">
+                    {cert.title}
+                  </h3>
+                  <p className="text-slate-500 text-xs font-mono mt-1 pt-2 inline-block px-2">
+                    {cert.issuer}
+                  </p>
+                </div>
 
-              {/* "Click to View" Hint */}
-              <div className="absolute bottom-0 left-0 w-full p-2 bg-white/5 backdrop-blur text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                <span className="text-[10px] uppercase font-bold text-white tracking-widest">View Details</span>
+                {/* Cyberpunk Decor */}
+                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-white/20"></div>
+                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-white/20"></div>
               </div>
-            </motion.div>
+            </TiltCard>
           ))}
         </div>
       </div>
@@ -1051,6 +1165,116 @@ const TechStackSection = ({ t, lang }: { t: any, lang: 'fr'|'en' }) => {
   );
 };
 
+// --- NOUVELLE SECTION: LIVE HOMELAB DASHBOARD (PROPOSITION 2) ---
+const HomelabDashboard = ({ t }: { t: any }) => {
+  // --- FAKE DATA START (Replace with API calls) ---
+  // Suggestions for real data:
+  // 1. VPS Services: Use a simple API endpoint on your VPS (Node/Python) that runs 'docker ps' or 'docker stats'
+  // 2. Uptime/Ping: Use Uptime Kuma API if you install it, or a custom ping script.
+  // 3. Pi-hole: Pi-hole has a built-in API at http://pi.hole/admin/api.php
+  const VPS_SERVICES = [
+    { name: 'Nextcloud', status: 'online', uptime: '99.9%', cpu: '12%', icon: Cloud, ip: 'Docker Internal' },
+    { name: 'Mailserver', status: 'online', uptime: '99.9%', cpu: '5%', icon: Mail, ip: 'Docker Internal' },
+    { name: 'RustDesk', status: 'online', uptime: '99.5%', cpu: '8%', icon: Monitor, ip: 'Docker Internal' },
+    { name: 'Speedtest', status: 'online', uptime: '100%', cpu: '2%', icon: Zap, ip: 'speedtest.kwol.cloud', link: 'https://speedtest.kwol.cloud/' }
+  ];
+
+  const HOME_SERVICES = [
+    { name: 'Pi-hole DNS', status: 'online', queries: '24k', blocked: '12%', icon: Shield },
+    { name: 'Unbound', status: 'online', latency: '15ms', secure: true, icon: Globe },
+  ];
+  // --- FAKE DATA END ---
+
+  return (
+    <section className="py-24 bg-slate-900/30 border-y border-white/5 relative">
+      <div className="container mx-auto px-6">
+        <div className="mb-12 flex items-center gap-4">
+          <div className="p-3 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
+            <Server className="text-cyan-400" size={32} />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-white">{t.homelab.title}</h2>
+            <p className="text-slate-400">{t.homelab.subtitle}</p>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* VPS RACK */}
+          <div className="bg-slate-950/50 rounded-2xl border border-white/10 p-6 backdrop-blur-md relative overflow-hidden group">
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 p-4 opacity-50"><HardDrive className="text-slate-700" size={100} /></div>
+            
+            <h3 className="text-xl font-mono font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> VPS-9A9A64B5 (Ubuntu)
+            </h3>
+
+            <div className="space-y-4 relative z-10">
+              {VPS_SERVICES.map((srv) => (
+                <div key={srv.name} className="bg-slate-900/80 border border-white/5 p-4 rounded-lg flex items-center justify-between hover:border-cyan-500/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <srv.icon className="text-slate-400" size={20} />
+                    <div>
+                      <h4 className="font-bold text-white text-sm">{srv.name}</h4>
+                      <div className="text-xs text-slate-500 font-mono flex gap-2">
+                         <span>{t.homelab.uptime}: {srv.uptime}</span>
+                         <span className="text-slate-600">|</span>
+                         <span>{t.homelab.cpu}: {srv.cpu}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 uppercase tracking-wider">
+                       {srv.status}
+                     </span>
+                     {srv.link && (
+                       <a href={srv.link} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-white transition-colors">
+                         <ExternalLink size={16} />
+                       </a>
+                     )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* HOME RACK */}
+          <div className="bg-slate-950/50 rounded-2xl border border-white/10 p-6 backdrop-blur-md relative overflow-hidden">
+             {/* Decoration */}
+             <div className="absolute top-0 right-0 p-4 opacity-50"><Wifi className="text-slate-700" size={100} /></div>
+
+             <h3 className="text-xl font-mono font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> HOME_LAB (Raspberry Pi 5)
+            </h3>
+
+            <div className="grid sm:grid-cols-2 gap-4 relative z-10">
+              {HOME_SERVICES.map((srv) => (
+                <div key={srv.name} className="bg-slate-900/80 border border-white/5 p-4 rounded-lg flex flex-col gap-3 hover:border-purple-500/30 transition-colors">
+                   <div className="flex justify-between items-start">
+                      <srv.icon className="text-purple-400" size={24} />
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                   </div>
+                   <div>
+                      <h4 className="font-bold text-white">{srv.name}</h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {srv.queries && `Queries: ${srv.queries}`}
+                        {srv.latency && `Latency: ${srv.latency}`}
+                      </p>
+                   </div>
+                </div>
+              ))}
+              
+              {/* Placeholder for future expansion */}
+              <div className="border border-dashed border-white/10 rounded-lg flex items-center justify-center p-4 text-slate-600 text-sm font-mono hover:text-slate-400 hover:border-white/20 transition-all cursor-pointer">
+                 + Add Service
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // --- LOGO COMPONENT ---
 const InteractiveLogo = () => {
   const LetterGroup = ({ initial, full }: { initial: string, full: string }) => (
@@ -1134,6 +1358,7 @@ export default function App() {
 
   return (
     <div className="bg-slate-950 min-h-screen text-slate-200 selection:bg-cyan-500/30 selection:text-cyan-200 font-sans">
+      <ScrollProgress />
       <ParticleNetwork />
       
       {activeArticleData && (
@@ -1198,7 +1423,7 @@ export default function App() {
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               {t.hero.title1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
-                {t.hero.title2}
+                <TypingEffect text={t.hero.title2} delay={500} />
               </span>
             </h1>
             <p className="text-slate-400 text-lg mb-8 max-w-lg leading-relaxed">{t.hero.desc}</p>
@@ -1235,7 +1460,10 @@ export default function App() {
       {/* TECH STACK SECTION (Updated) */}
       <TechStackSection t={t} lang={lang} />
 
-      {/* CERTIFICATIONS SECTION (Updated) */}
+      {/* LIVE HOMELAB DASHBOARD (NEW SECTION) */}
+      <HomelabDashboard t={t} />
+
+      {/* CERTIFICATIONS SECTION (Updated 3D) */}
       <CertificationsSection t={t} />
 
       <section id="projects" className="py-24 relative">
