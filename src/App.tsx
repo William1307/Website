@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Github, 
   Linkedin, 
@@ -30,7 +30,9 @@ import {
   Activity,
   Shield,
   Monitor,
-  Lock
+  Lock,
+  FileText,
+  Download
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -41,91 +43,91 @@ const FORMSPREE_ENDPOINT = "https://formspree.io/f/mblqywqp";
 const SOCIALS = {
   github: "https://github.com/William1307",
   linkedin: "https://www.linkedin.com/in/kristofer-fauvette-040142311/",
-  email: "kristofer.fauvette@kwol.cloud"
+  email: "kristofer.fauvette@kwol.cloud",
+  credlyProfile: "https://www.credly.com/users/kristofer-fauvette"
 };
 
 // --- DATA: CERTIFICATIONS ---
 const CERTIFICATIONS = [
   {
-    id: 1,
+    id: "net-tech",
     title: "Network Technician Career Path",
     issuer: "Cisco",
-    date: "Nov 26, 2025",
-    type: "EXAM",
-    icon: <Award className="text-yellow-400" />,
-    color: "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
+    badge: "/Images/Badges/network-technician-career-path.png",
+    certImage: "/Images/Course_completion_cert/NetworkTechnicianCareerPathUpdate20251129-33-qj43gq_page-0001.jpg",
+    description: "Cisco verifies the earner of this badge successfully completed the Networking Technician career path and achieved this student level credential. Earner has knowledge of networking fundamentals, how devices communicate, cabling, network addressing and services, basics of configuring Cisco devices, troubleshooting and support of endpoints, networks, and users including diagnostics and documentation as a member of a help desk team, and basic wireless. Participated in up to 50 practice activities.",
+    skills: ["Application Layer Services", "Binary Systems", "Cisco Devices", "Cisco IOS", "Cisco Routers", "Cisco Switches", "Cloud Services", "Copper and Fiber Cabling", "Documentation", "Endpoint Devices", "Ethernet", "Help Desk", "Hierarchical Network Design", "IPv4 Addressing", "IPv6 Addressing", "Network Layer Protocols", "Network Media", "Network Troubleshooting", "NetWork Types", "Protocols Standards", "Support", "Transport Layer Protocols", "Troubleshooting", "User Support", "Wireless Access"],
+    verificationLink: "https://www.credly.com/badges/463abac1-c0fe-467b-bc02-6dc2ce9a971c/public_url",
+    color: "border-blue-500/30 bg-blue-500/10 text-blue-400"
   },
   {
-    id: 2,
-    title: "Getting Started with Cisco Packet Tracer",
+    id: "net-essentials",
+    title: "Networking Essentials",
     issuer: "Cisco",
-    date: "Oct 13, 2025",
-    type: "MODULE",
-    icon: <Terminal className="text-cyan-400" />,
+    badge: "/Images/Badges/networking-essentials-badge.png",
+    certImage: "/Images/Course_completion_cert/cert-networking-essentials-FULL.png",
+    description: "Cisco verifies the earner of this badge successfully completed the Networking Essentials course and achieved this student level credential. Earner has knowledge of fundamentals of networking, how devices communicate, network addressing and services, how to build a home or small office network and configure basic security, basics of configuring Cisco devices, and the basics of testing and troubleshooting network problems. Participated in up to 19 labs and 24 Cisco Packet Tracer activities.",
+    skills: ["Basic Network Security", "DHCP", "Ethernet Networks", "Integrated Wireless Router", "IPv4 And IPv6 Fundamentals", "Networking Concepts", "SOHO Networks", "Standards And Protocols", "Wireless PC"],
+    verificationLink: "https://www.credly.com/badges/a334dfd4-8e55-4099-a8f5-1a5913029acf/linked_in_profile",
     color: "border-cyan-500/30 bg-cyan-500/10 text-cyan-400"
   },
   {
-    id: 3,
-    title: "Operating Systems Basics",
-    issuer: "Cisco",
-    date: "Oct 13, 2025",
-    type: "COURSE",
-    icon: <Cpu className="text-blue-400" />,
-    color: "border-blue-500/30 bg-blue-500/10 text-blue-400"
-  },
-  {
-    id: 4,
-    title: "Computer Hardware Basics",
-    issuer: "Cisco",
-    date: "Oct 12, 2025",
-    type: "COURSE",
-    icon: <Cpu className="text-blue-400" />,
-    color: "border-blue-500/30 bg-blue-500/10 text-blue-400"
-  },
-  {
-    id: 5,
-    title: "Python Essentials 1",
-    issuer: "Cisco",
-    date: "Oct 12, 2025",
-    type: "COURSE",
-    icon: <Code2 className="text-green-400" />,
-    color: "border-green-500/30 bg-green-500/10 text-green-400"
-  },
-  {
-    id: 6,
-    title: "Networking Essentials",
-    issuer: "Cisco",
-    date: "Oct 11, 2025",
-    type: "COURSE",
-    icon: <Globe className="text-purple-400" />,
-    color: "border-purple-500/30 bg-purple-500/10 text-purple-400"
-  },
-  {
-    id: 7,
+    id: "net-basics",
     title: "Networking Basics",
     issuer: "Cisco",
-    date: "Oct 11, 2025",
-    type: "COURSE",
-    icon: <Globe className="text-purple-400" />,
-    color: "border-purple-500/30 bg-purple-500/10 text-purple-400"
+    badge: "/Images/Badges/networking-basics-badge.png",
+    certImage: "/Images/Course_completion_cert/cert-networking-basics-FULL.png",
+    description: "Cisco verifies the earner of this badge successfully completed the Networking Basics course and achieved this student level credential. Earner has knowledge of the types of networks, how they work, how devices send and receive data, the types of network cabling, how IP addresses find information on the Internet, how transport and applications operate, and has practiced building a home wireless network. Participated in up to 13 Cisco Packet Tracer activities.",
+    skills: ["Application Layer Services", "IPv4 Addresses", "Network Media", "NetWork Types", "Protocols Standards", "Wireless Access"],
+    verificationLink: "https://www.credly.com/badges/45d4f330-cc09-4ce8-9cb5-b0670eef3add/linked_in_profile",
+    color: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
+  },
+  {
+    id: "cloud-infra",
+    title: "Introduction to Cloud Infrastructures",
+    issuer: "Microsoft",
+    badge: "/Images/Badges/Microsoft_logo.png",
+    certImage: "/Images/Course_completion_cert/cert-cloud-infra-FULL.png",
+    description: "New to the cloud? Introduction to Cloud Infrastructure is a three-part series that teaches you basic cloud concepts, provides a streamlined overview of many Azure services, and guides you with hands-on exercises to deploy your first services for free. Complete all of the learning paths in the series if you're preparing for Exam AZ-900: Microsoft Azure Fundamentals.",
+    skills: ["Cloud Concepts", "Infrastructure", "Architecture", "Cloud computing", "Technical infrastructure"],
+    verificationLink: "https://learn.microsoft.com/en-us/users/kristoferfauvette-9446/achievements/pgsskld4?ref=https%3A%2F%2Fwww.linkedin.com%2F",
+    color: "border-blue-600/30 bg-blue-600/10 text-blue-300"
+  },
+  {
+    id: "gen-ai",
+    title: "Introduction to Generative AI",
+    issuer: "Google",
+    badge: "/Images/Badges/Google__G__logo.png",
+    certImage: "/Images/Course_completion_cert/cert-generative-ai-introduction.png",
+    description: "Il s'agit d'un micro-cours d'introduction visant à expliquer ce qu'est l'IA générative, comment elle est utilisée et en quoi elle diffère des méthodes traditionnelles d'apprentissage automatique. Il couvre également les outils Google pour vous aider à développer vos propres applications d'IA générative.",
+    skills: ["IA Générative", "LLM"],
+    verificationLink: "https://www.skills.google/public_profiles/ec684137-9170-4a05-b02f-0d74407ba2ab/badges/19919725?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share",
+    color: "border-red-500/30 bg-red-500/10 text-red-400"
   }
 ];
 
 // --- TRADUCTIONS ---
 const TRANSLATIONS = {
   fr: {
-    nav: { about: "À Propos", certs: "Certifs", projects: "Projets", blog: "Blog", contact: "Contact", lang: "EN" },
+    nav: { about: "À Propos", certs: "Certifs", projects: "Projets", blog: "Blog", contact: "Contact", cv: "Mon CV", lang: "EN" },
     hero: {
       badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
       title1: "Ingénierie",
       title2: "Créative & Code",
-      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis passionné depuis toujours par l'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
+      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis depuis toujours passioné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
       btn_work: "Voir mes travaux",
-      btn_contact: "Contact"
+      btn_contact: "Contact",
+      btn_cv: "Voir mon CV"
     },
     certs: {
       title: "Certifications & Parcours",
-      subtitle: "Compétences validées par l'industrie."
+      subtitle: "Compétences validées par l'industrie. Cliquez sur une tuile pour voir les détails.",
+      more: "Voir toutes mes certifications sur Credly",
+      modal: {
+        skills: "Compétences acquises :",
+        verify: "Vérifier l'authenticité",
+        close: "Fermer"
+      }
     },
     projects: {
       title: "Projets Sélectionnés",
@@ -153,21 +155,32 @@ const TRANSLATIONS = {
       placeholder: "Ex: Pourquoi utiliser Unbound ?",
       btn: "Analyser l'article",
       thinking: "Analyse en cours..."
+    },
+    cv: {
+      title: "Curriculum Vitae",
+      download: "Télécharger le PDF"
     }
   },
   en: {
-    nav: { about: "About", certs: "Certs", projects: "Projects", blog: "Blog", contact: "Contact", lang: "FR" },
+    nav: { about: "About", certs: "Certs", projects: "Projects", blog: "Blog", contact: "Contact", cv: "My CV", lang: "FR" },
     hero: {
       badge: "INSA HAUTS-DE-FRANCE STUDENT",
       title1: "Engineering",
       title2: "Creative & Code",
       desc: "Hello, I am Kristofer FAUVETTE. 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering. I am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications (Cisco) and my Blog. Feel free to write to me!",
       btn_work: "View my work",
-      btn_contact: "Contact"
+      btn_contact: "Contact",
+      btn_cv: "View my CV"
     },
     certs: {
       title: "Certifications & Path",
-      subtitle: "Industry validated skills."
+      subtitle: "Industry validated skills. Click on a tile for details.",
+      more: "View all my certifications on Credly",
+      modal: {
+        skills: "Learned Skills:",
+        verify: "Verify Authenticity",
+        close: "Close"
+      }
     },
     projects: {
       title: "Selected Projects",
@@ -195,11 +208,15 @@ const TRANSLATIONS = {
       placeholder: "Ex: Why use Unbound?",
       btn: "Analyze Article",
       thinking: "Analyzing..."
+    },
+    cv: {
+      title: "Curriculum Vitae",
+      download: "Download PDF"
     }
   }
 };
 
-// --- CONTENU DU BLOG ---
+// --- CONTENU DU BLOG (unchanged) ---
 const BLOG_CONTENT = [
   {
     id: 1,
@@ -213,33 +230,23 @@ const BLOG_CONTENT = [
           <p className="lead text-lg text-slate-300 mb-6">
             Aujourd'hui, on s'attaque à un gros morceau : reprendre le contrôle total de nos requêtes internet. On va installer <strong>Pi-hole</strong> (le bloqueur de pub) couplé à <strong>Unbound</strong> (un résolveur DNS récursif). Le tout sur mon Raspberry Pi 5 8GB. Spoiler : c'est totalement overkill (un Pi Zero suffirait), mais on adore ça.
           </p>
-
           <h3 className="text-2xl font-bold text-white mt-8 mb-4">Pourquoi on fait ça ? (La minute théorie)</h3>
-          
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">1. C'est quoi un DNS ?</h4>
           <p className="text-slate-400 mb-4">
             Imaginez que le DNS (Domain Name System), c'est l'annuaire téléphonique d'Internet. Quand vous tapez <code>google.com</code>, votre ordi ne sait pas où c'est. Il demande à un serveur DNS : "Eh, c'est quoi l'adresse IP de Google ?". Le serveur répond <code>142.250.xxx.xxx</code>, et hop, la page s'affiche.
           </p>
-
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Pourquoi un DNS "Récursif" ?</h4>
           <p className="text-slate-400 mb-4">
             Par défaut, votre box internet utilise les DNS de votre opérateur (ou Google 8.8.8.8). En gros, vous demandez à un intermédiaire de chercher pour vous. Il sait donc tout ce que vous visitez.
             <br/><br/>
             Avec <strong>Unbound</strong> en mode récursif, on vire l'intermédiaire. Votre Raspberry Pi va discuter directement avec les "Root Servers" (les grands patrons d'Internet).
           </p>
-
-          <div className="my-8 p-4 bg-slate-800 rounded-lg border border-slate-700 text-center italic text-slate-500">
-            [Schéma : Différence entre une requête standard et récursive]
-          </div>
-
           <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
             <li><strong>Confidentialité :</strong> Personne (ni Google, ni votre FAI) ne voit vos requêtes DNS.</li>
             <li><strong>Sécurité :</strong> On utilise DNSSEC pour valider que les réponses sont authentiques.</li>
             <li><strong>Zéro Pub :</strong> Pi-hole filtre les requêtes avant même qu'elles ne partent.</li>
           </ul>
-
           <hr className="border-white/10 my-8" />
-
           <h3 className="text-2xl font-bold text-white mb-4">Étape 1 : Préparer la bête</h3>
           <p className="text-slate-400 mb-4">
             On est sur un Raspberry Pi 5. Assurez-vous d'avoir Raspberry Pi OS installé et à jour. On ouvre le terminal (ou on se connecte en SSH) et on lance la classique mise à jour :
@@ -247,7 +254,6 @@ const BLOG_CONTENT = [
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>sudo apt update && sudo apt upgrade -y</code>
           </pre>
-
           <h3 className="text-2xl font-bold text-white mb-4">Étape 2 : Installer Pi-hole</h3>
           <p className="text-slate-400 mb-4">
             L'installation de Pi-hole est automatisée. C'est le "Network-wide Ad Blocking" qui va protéger tous les appareils de la maison.
@@ -255,56 +261,11 @@ const BLOG_CONTENT = [
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>curl -sSL https://install.pi-hole.net | bash</code>
           </pre>
-          <p className="text-slate-400 mb-4">
-            Suivez les étapes à l'écran. <strong>Astuce :</strong> Mettez une adresse IP statique à votre Raspberry Pi pour éviter qu'il change d'adresse au prochain redémarrage.
-          </p>
-
           <h3 className="text-2xl font-bold text-white mb-4">Étape 3 : Installer Unbound</h3>
           <p className="text-slate-400 mb-4">C'est là que la magie opère. On installe Unbound pour ne plus dépendre des DNS de Google.</p>
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>sudo apt install unbound</code>
           </pre>
-          
-          <p className="text-slate-400 mb-4">Configuration spécifique pour Pi-hole :</p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo nano /etc/unbound/unbound.conf.d/pi-hole.conf</code>
-          </pre>
-          
-          <pre className="bg-slate-900 p-4 rounded-lg border border-white/10 text-slate-300 font-mono text-xs mb-6 overflow-x-auto">
-{`server:
-    verbosity: 0
-    interface: 127.0.0.1
-    port: 5335
-    do-ip4: yes
-    do-udp: yes
-    do-tcp: yes
-    do-ip6: no
-    root-hints: "/usr/share/dns/root.hints"
-    harden-glue: yes
-    harden-dnssec-stripped: yes
-    use-caps-for-id: no
-    edns-buffer-size: 1232
-    prefetch: yes
-    num-threads: 1
-    so-rcvbuf: 1m
-    private-address: 192.168.0.0/16`}
-          </pre>
-
-          <p className="text-slate-400 mb-4">Redémarrage du service :</p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo service unbound restart</code>
-          </pre>
-
-          <h3 className="text-2xl font-bold text-white mb-4">Étape 4 : Relier les deux</h3>
-          <p className="text-slate-400 mb-4">
-            Allez sur l'interface web de votre Pi-hole (<code>http://192.168.x.x/admin</code>). Direction <strong>Settings &gt; DNS</strong>.
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
-            <li>Décochez tous les DNS publics (Google, OpenDNS, etc).</li>
-            <li>Dans "Custom 1 (IPv4)", mettez : <code>127.0.0.1#5335</code></li>
-            <li>Cochez "Use DNSSEC".</li>
-          </ul>
-          
           <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
             Et voilà ! Votre Pi-hole interroge maintenant votre instance locale Unbound. C'est propre, c'est privé, et ça tourne nickel sur le Pi 5.
           </p>
@@ -315,33 +276,23 @@ const BLOG_CONTENT = [
           <p className="lead text-lg text-slate-300 mb-6">
             Today, we're tackling a big one: taking back total control of our internet requests. We're going to install <strong>Pi-hole</strong> (the ad blocker) coupled with <strong>Unbound</strong> (a recursive DNS resolver). All on my Raspberry Pi 5 8GB. Spoiler: it's totally overkill (a Pi Zero would suffice), but we love it.
           </p>
-
           <h3 className="text-2xl font-bold text-white mt-8 mb-4">Why are we doing this? (The theory minute)</h3>
-          
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">1. What is a DNS?</h4>
           <p className="text-slate-400 mb-4">
             Imagine that DNS (Domain Name System) is the phonebook of the Internet. When you type <code>google.com</code>, your computer doesn't know where it is. It asks a DNS server: "Hey, what is Google's IP address?". The server answers <code>142.250.xxx.xxx</code>, and boom, the page appears.
           </p>
-
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Why a "Recursive" DNS?</h4>
           <p className="text-slate-400 mb-4">
             By default, your internet box uses your ISP's DNS (or Google 8.8.8.8). Basically, you're asking a middleman to search for you. So, they know everything you visit.
             <br/><br/>
             With <strong>Unbound</strong> in recursive mode, we cut out the middleman. Your Raspberry Pi will talk directly to the "Root Servers" (the big bosses of the Internet).
           </p>
-
-          <div className="my-8 p-4 bg-slate-800 rounded-lg border border-slate-700 text-center italic text-slate-500">
-            [Diagram: Difference between a standard and recursive request]
-          </div>
-
           <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
             <li><strong>Privacy:</strong> Nobody (not Google, nor your ISP) sees your DNS requests.</li>
             <li><strong>Security:</strong> We use DNSSEC to validate that the answers are authentic.</li>
             <li><strong>Zero Ads:</strong> Pi-hole filters requests before they even leave.</li>
           </ul>
-
           <hr className="border-white/10 my-8" />
-
           <h3 className="text-2xl font-bold text-white mb-4">Step 1: Prepare the beast</h3>
           <p className="text-slate-400 mb-4">
             We are on a Raspberry Pi 5. Make sure you have Raspberry Pi OS installed and up to date. Open the terminal (or connect via SSH) and run the classic update:
@@ -349,7 +300,6 @@ const BLOG_CONTENT = [
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>sudo apt update && sudo apt upgrade -y</code>
           </pre>
-
           <h3 className="text-2xl font-bold text-white mb-4">Step 2: Install Pi-hole</h3>
           <p className="text-slate-400 mb-4">
             The Pi-hole installation is automated. This is the "Network-wide Ad Blocking" that will protect all devices in the house.
@@ -357,56 +307,11 @@ const BLOG_CONTENT = [
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>curl -sSL https://install.pi-hole.net | bash</code>
           </pre>
-          <p className="text-slate-400 mb-4">
-            Follow the steps on the screen. <strong>Tip:</strong> Set a static IP address for your Raspberry Pi to prevent it from changing address on the next reboot.
-          </p>
-
           <h3 className="text-2xl font-bold text-white mb-4">Step 3: Install Unbound</h3>
           <p className="text-slate-400 mb-4">This is where the magic happens. We install Unbound so we no longer depend on Google's DNS.</p>
           <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
             <code>sudo apt install unbound</code>
           </pre>
-          
-          <p className="text-slate-400 mb-4">Specific configuration for Pi-hole:</p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo nano /etc/unbound/unbound.conf.d/pi-hole.conf</code>
-          </pre>
-          
-          <pre className="bg-slate-900 p-4 rounded-lg border border-white/10 text-slate-300 font-mono text-xs mb-6 overflow-x-auto">
-{`server:
-    verbosity: 0
-    interface: 127.0.0.1
-    port: 5335
-    do-ip4: yes
-    do-udp: yes
-    do-tcp: yes
-    do-ip6: no
-    root-hints: "/usr/share/dns/root.hints"
-    harden-glue: yes
-    harden-dnssec-stripped: yes
-    use-caps-for-id: no
-    edns-buffer-size: 1232
-    prefetch: yes
-    num-threads: 1
-    so-rcvbuf: 1m
-    private-address: 192.168.0.0/16`}
-          </pre>
-
-          <p className="text-slate-400 mb-4">Restart the service:</p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo service unbound restart</code>
-          </pre>
-
-          <h3 className="text-2xl font-bold text-white mb-4">Step 4: Link the two</h3>
-          <p className="text-slate-400 mb-4">
-            Go to your Pi-hole's web interface (<code>http://192.168.x.x/admin</code>). Head to <strong>Settings &gt; DNS</strong>.
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
-            <li>Uncheck all public DNS (Google, OpenDNS, etc).</li>
-            <li>In "Custom 1 (IPv4)", enter: <code>127.0.0.1#5335</code></li>
-            <li>Check "Use DNSSEC".</li>
-          </ul>
-          
           <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
             And there you go! Your Pi-hole now queries your local Unbound instance. It's clean, private, and runs perfectly on the Pi 5.
           </p>
@@ -544,23 +449,15 @@ const ParticleNetwork = () => {
 };
 
 // --- COMPOSANTS VISUELS ANIMÉS ---
-
-// 1. PLEX VISUAL (CRAZY CINEMATIC VERSION)
 const PlexVisual = () => {
   return (
     <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700">
-      {/* Cinematic Background Gradient */}
       <motion.div 
-        animate={{ 
-          backgroundPosition: ['0% 0%', '100% 100%'],
-        }}
+        animate={{ backgroundPosition: ['0% 0%', '100% 100%'], }}
         transition={{ duration: 15, repeat: Infinity, repeatType: "mirror" }}
         className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-amber-700/20 to-slate-900 z-0 bg-[length:200%_200%]"
       />
-      {/* Noise Texture Overlay */}
       <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-
-      {/* 3D Scrolling Movie Posters */}
       <div className="absolute top-1/2 left-0 w-[150%] -translate-y-1/2 -rotate-6 opacity-60 flex gap-4">
         {[...Array(8)].map((_, i) => (
           <motion.div
@@ -577,11 +474,8 @@ const PlexVisual = () => {
           </motion.div>
         ))}
       </div>
-
-      {/* Central "Media Player" Interface */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="relative">
-          {/* Glowing Play Button */}
           <motion.div 
              className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.5)] z-20 relative"
              whileHover={{ scale: 1.1 }}
@@ -590,7 +484,6 @@ const PlexVisual = () => {
           >
             <Play fill="white" className="text-white ml-1 w-8 h-8" />
           </motion.div>
-          {/* Ripples */}
           <motion.div 
             className="absolute inset-0 rounded-full border border-orange-500/50"
             animate={{ scale: [1, 2], opacity: [1, 0] }}
@@ -598,14 +491,10 @@ const PlexVisual = () => {
           />
         </div>
       </div>
-
-      {/* Transcoding Status */}
       <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-orange-500/30">
         <Activity className="w-3 h-3 text-orange-400 animate-pulse" />
         <span className="text-[10px] font-mono text-orange-100 font-bold uppercase tracking-wider">Transcoding (HW)</span>
       </div>
-
-      {/* Floating Particles */}
       {[...Array(5)].map((_, i) => (
          <motion.div
            key={i}
@@ -619,25 +508,16 @@ const PlexVisual = () => {
   );
 };
 
-// 2. PI-HOLE VISUAL (DIGITAL VORTEX)
 const PiHoleVisual = () => {
   return (
     <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 flex items-center justify-center">
-       {/* Radar Grid Background */}
-       <div className="absolute inset-0 z-0 opacity-20" style={{ 
-          backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', 
-          backgroundSize: '30px 30px' 
-       }}></div>
-
-       {/* Spinning Radar Scan */}
+       <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
        <motion.div 
          animate={{ rotate: 360 }}
          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
          className="absolute w-[400px] h-[400px] bg-gradient-to-r from-transparent via-red-500/10 to-transparent z-0 opacity-30"
          style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 100%)', transformOrigin: 'center' }}
        />
-
-       {/* Central Black Hole / Shield */}
        <div className="relative z-10">
           <motion.div 
              animate={{ boxShadow: ['0 0 20px rgba(239,68,68,0.2)', '0 0 50px rgba(239,68,68,0.6)', '0 0 20px rgba(239,68,68,0.2)'] }}
@@ -645,7 +525,6 @@ const PiHoleVisual = () => {
              className="w-16 h-16 bg-slate-900 border-2 border-red-500 rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-red-900/20"
           >
              <Shield className="text-red-500 w-8 h-8 relative z-10" />
-             {/* Inner Spin */}
              <motion.div 
                animate={{ rotate: -360 }}
                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
@@ -653,8 +532,6 @@ const PiHoleVisual = () => {
              />
           </motion.div>
        </div>
-
-       {/* Incoming "Ad" Particles being destroyed */}
        {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
@@ -668,11 +545,9 @@ const PiHoleVisual = () => {
   );
 };
 
-// 3. RUSTDESK VISUAL (HOLOGRAPHIC SECURE INTERFACE)
 const RustDeskVisual = () => {
   return (
     <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 perspective-1000">
-      {/* Background Matrix Rain Effect */}
       <div className="absolute inset-0 opacity-20 flex justify-around pointer-events-none">
         {[...Array(10)].map((_, i) => (
           <motion.div
@@ -680,19 +555,11 @@ const RustDeskVisual = () => {
             className="w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent h-full"
             initial={{ y: -200 }}
             animate={{ y: '100%' }}
-            transition={{
-              duration: Math.random() * 2 + 1,
-              repeat: Infinity,
-              ease: "linear",
-              delay: Math.random() * 2
-            }}
+            transition={{ duration: Math.random() * 2 + 1, repeat: Infinity, ease: "linear", delay: Math.random() * 2 }}
           />
         ))}
       </div>
-
-      {/* Central Holographic Interface */}
       <div className="absolute inset-0 flex items-center justify-center">
-        {/* Spinning Rings */}
         <motion.div
           className="absolute w-40 h-40 rounded-full border border-blue-500/30 border-dashed"
           animate={{ rotate: 360, scale: [1, 1.1, 1] }}
@@ -703,8 +570,6 @@ const RustDeskVisual = () => {
           animate={{ rotate: -360 }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         />
-
-        {/* The Remote Monitor */}
         <motion.div
           className="relative z-10 bg-slate-900/80 backdrop-blur-md border border-blue-500/50 p-4 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.3)]"
           initial={{ rotateX: 10 }}
@@ -714,7 +579,6 @@ const RustDeskVisual = () => {
           <div className="flex flex-col items-center gap-2">
              <div className="relative">
                 <Monitor className="text-blue-400 w-12 h-12" />
-                {/* Secure Badge */}
                 <motion.div 
                   className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 border-2 border-slate-900"
                   animate={{ scale: [1, 1.2, 1] }}
@@ -735,29 +599,13 @@ const RustDeskVisual = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Floating Connection Nodes */}
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute"
-          initial={{ 
-            x: Math.random() * 400 - 200, 
-            y: Math.random() * 200 - 100,
-            opacity: 0 
-          }}
-          animate={{ 
-            x: 0, 
-            y: 0, 
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            delay: i * 0.8,
-            ease: "circIn"
-          }}
+          initial={{ x: Math.random() * 400 - 200, y: Math.random() * 200 - 100, opacity: 0 }}
+          animate={{ x: 0, y: 0, opacity: [0, 1, 0], scale: [0, 1, 0] }}
+          transition={{ duration: 3, repeat: Infinity, delay: i * 0.8, ease: "circIn" }}
           style={{ top: '50%', left: '50%' }}
         >
            <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_10px_cyan]" />
@@ -852,6 +700,100 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
   );
 };
 
+// --- COMPOSANT : VISUALISEUR CV ---
+const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-[60] bg-slate-950 flex flex-col animate-in slide-in-from-bottom-10 duration-300">
+      <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/80 backdrop-blur">
+        <button onClick={onClose} className="flex items-center gap-2 text-cyan-400 hover:text-white transition-colors font-mono">
+          <ArrowLeft size={18} /> {lang === 'fr' ? 'Retour' : 'Back'}
+        </button>
+        <h2 className="text-white font-bold hidden md:block">{t.cv.title}</h2>
+        <a 
+          href="/Images/Kristofer_FAUVETTE_CV.pdf" 
+          download 
+          className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-500 transition-colors text-sm font-bold"
+        >
+          <Download size={16} /> {t.cv.download}
+        </a>
+      </div>
+      <div className="flex-1 w-full bg-slate-900">
+        <iframe 
+          src="/Images/Kristofer_FAUVETTE_CV.pdf" 
+          className="w-full h-full border-none" 
+          title="CV Kristofer Fauvette"
+        />
+      </div>
+    </div>
+  );
+};
+
+// --- COMPOSANT : MODALE CERTIFICATION ---
+const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[0], t: any, onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-slate-900 border border-white/10 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-10 shadow-2xl flex flex-col md:flex-row"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white z-20 bg-black/50 rounded-full p-2">
+          <X size={20} />
+        </button>
+
+        {/* Colonne Gauche : Images */}
+        <div className="md:w-1/3 bg-slate-950 p-6 flex flex-col items-center gap-6 border-b md:border-b-0 md:border-r border-white/10">
+          <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center p-4 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+            <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
+          </div>
+          <div className="w-full aspect-[4/3] bg-white/5 rounded-lg border border-white/10 overflow-hidden group relative">
+             <img src={cert.certImage} alt="Certificate" className="w-full h-full object-cover" />
+             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <a href={cert.certImage} target="_blank" rel="noreferrer" className="text-white bg-cyan-600 px-3 py-1 rounded text-sm">Voir en grand</a>
+             </div>
+          </div>
+        </div>
+
+        {/* Colonne Droite : Infos */}
+        <div className="md:w-2/3 p-8">
+          <h2 className="text-2xl font-bold text-white mb-2">{cert.title}</h2>
+          <p className="text-cyan-400 font-mono text-sm mb-6 flex items-center gap-2">
+            <CheckCircle size={14} /> {cert.issuer} Verified
+          </p>
+
+          <div className="prose prose-invert prose-sm mb-8 text-slate-300">
+            <p>{cert.description}</p>
+          </div>
+
+          <div className="mb-8">
+            <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">{t.certs.modal.skills}</h4>
+            <div className="flex flex-wrap gap-2">
+              {cert.skills.map(skill => (
+                <span key={skill} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-slate-300 font-mono">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+             <a 
+               href={cert.verificationLink} 
+               target="_blank" 
+               rel="noreferrer"
+               className="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-bold transition-all"
+             >
+               <Award size={18} /> {t.certs.modal.verify}
+             </a>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 // --- GLOBAL CHATBOT COMPONENT ---
 const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -912,10 +854,12 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
 
 // --- NOUVELLE SECTION CERTIFICATIONS ---
 const CertificationsSection = ({ t }: { t: any }) => {
+  const [selectedCert, setSelectedCert] = useState<typeof CERTIFICATIONS[0] | null>(null);
+
   return (
     <section id="certifications" className="py-24 bg-slate-900/30 border-y border-white/5">
       <div className="container mx-auto px-6">
-        <div className="flex justify-between items-end mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
           <div>
             <h2 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
               <Award className="text-yellow-400" /> {t.certs.title}
@@ -923,40 +867,43 @@ const CertificationsSection = ({ t }: { t: any }) => {
             <div className="h-1 w-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded"></div>
             <p className="text-slate-400 mt-4 max-w-xl">{t.certs.subtitle}</p>
           </div>
+          <a href={SOCIALS.credlyProfile} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors border border-white/10 px-4 py-2 rounded-full hover:bg-white/5">
+            <ExternalLink size={16} /> {t.certs.more}
+          </a>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {CERTIFICATIONS.map((cert) => (
-            <div key={cert.id} className="group flex flex-col p-6 rounded-2xl border border-white/10 bg-slate-900/50 hover:bg-slate-900 hover:border-cyan-500/30 transition-all hover:-translate-y-1">
-              <div className="flex items-start justify-between mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold font-mono border ${cert.color}`}>
-                  {cert.type}
-                </span>
-                <span className="text-slate-500 text-xs font-mono">{cert.date}</span>
+            <motion.div 
+              key={cert.id} 
+              whileHover={{ y: -5 }}
+              onClick={() => setSelectedCert(cert)}
+              className="cursor-pointer group flex flex-col p-4 rounded-2xl border border-white/10 bg-slate-900/50 hover:bg-slate-800 hover:border-cyan-500/30 transition-all backdrop-blur-md relative overflow-hidden"
+            >
+              <div className={`absolute top-0 left-0 w-full h-1 ${cert.color.split(' ')[0].replace('border-', 'bg-')}`}></div>
+              
+              <div className="flex items-center justify-center h-24 mb-4 p-2 bg-white/5 rounded-xl group-hover:bg-white/10 transition-colors">
+                 <img src={cert.badge} alt={cert.title} className="max-h-full max-w-full object-contain drop-shadow-lg" />
               </div>
               
-              <div className="flex-grow">
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+              <div className="flex-grow text-center">
+                <h3 className="text-sm font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors leading-tight">
                   {cert.title}
                 </h3>
-                <p className="text-slate-400 text-sm flex items-center gap-2">
-                  <CheckCircle size={14} className="text-green-500" />
+                <p className="text-slate-500 text-xs font-mono mt-2">
                   {cert.issuer}
                 </p>
               </div>
-
-              <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                <div className="p-2 rounded-full bg-white/5 text-slate-300">
-                  {cert.icon}
-                </div>
-                <div className="h-1 flex-grow mx-4 bg-white/5 rounded overflow-hidden">
-                  <div className="h-full bg-cyan-500/50 w-full"></div>
-                </div>
-              </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedCert && (
+          <CertificationModal cert={selectedCert} t={t} onClose={() => setSelectedCert(null)} />
+        )}
+      </AnimatePresence>
     </section>
   );
 };
@@ -985,6 +932,7 @@ const InteractiveLogo = () => {
 export default function App() {
   const [lang, setLang] = useState<'fr' | 'en'>('fr');
   const [readingArticle, setReadingArticle] = useState<number | null>(null);
+  const [viewingResume, setViewingResume] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   
@@ -1053,6 +1001,10 @@ export default function App() {
         />
       )}
 
+      {viewingResume && (
+        <ResumeViewer lang={lang} t={t} onClose={() => setViewingResume(false)} />
+      )}
+
       {/* Navbar */}
       <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 py-4">
         <div className="container mx-auto px-6 flex justify-between items-center">
@@ -1063,6 +1015,9 @@ export default function App() {
             <a href="#certifications" className="hover:text-cyan-400 transition-colors">{t.nav.certs}</a>
             <a href="#projects" className="hover:text-cyan-400 transition-colors">{t.nav.projects}</a>
             <a href="#blog" className="hover:text-cyan-400 transition-colors">{t.nav.blog}</a>
+            <button onClick={() => setViewingResume(true)} className="hover:text-cyan-400 transition-colors flex items-center gap-1">
+               <FileText size={16} /> {t.nav.cv}
+            </button>
             <a href="#contact" className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all border border-white/5">{t.nav.contact}</a>
             
             <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="flex items-center gap-2 px-3 py-1 rounded border border-white/10 hover:bg-white/5 transition-all text-xs font-mono text-cyan-400">
@@ -1081,6 +1036,7 @@ export default function App() {
              <a href="#certifications" className="text-slate-300 block py-2">{t.nav.certs}</a>
              <a href="#projects" className="text-slate-300 block py-2">{t.nav.projects}</a>
              <a href="#blog" className="text-slate-300 block py-2">{t.nav.blog}</a>
+             <button onClick={() => { setViewingResume(true); setIsNavOpen(false); }} className="text-slate-300 block py-2 text-left">{t.nav.cv}</button>
              <a href="#contact" className="text-red-400 block py-2 font-bold">{t.nav.contact}</a>
              <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="text-cyan-400 py-2 flex items-center gap-2">
                 <Languages size={14} /> {t.nav.lang}
@@ -1107,9 +1063,9 @@ export default function App() {
               <a href="#projects" className="group px-8 py-3 bg-white text-slate-950 font-bold rounded hover:bg-cyan-50 transition-all flex items-center gap-2">
                 {t.hero.btn_work} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </a>
-              <a href="#contact" className="px-8 py-3 rounded border border-white/20 text-white hover:bg-white/5 transition-all font-mono">
-                {t.hero.btn_contact}
-              </a>
+              <button onClick={() => setViewingResume(true)} className="px-8 py-3 rounded border border-white/20 text-white hover:bg-white/5 transition-all font-mono">
+                {t.hero.btn_cv}
+              </button>
             </div>
           </div>
           
