@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { 
   Github, 
   Linkedin, 
@@ -32,7 +32,10 @@ import {
   Monitor,
   Lock,
   FileText,
-  Download
+  Download,
+  Server,
+  Zap,
+  HardDrive
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -47,6 +50,16 @@ const SOCIALS = {
   credlyProfile: "https://www.credly.com/users/kristofer-fauvette"
 };
 
+// --- DATA: TECH STACK ---
+const TECH_STACK = [
+  { id: 'linux', name: 'Linux / Bash', icon: Terminal, type: 'Kernel', level: '90%', status: 'Active', desc: 'Debian, RHEL, Scripting & Automation' },
+  { id: 'docker', name: 'Docker', icon: Layers, type: 'Container', level: '85%', status: 'Running', desc: 'Compose, Swarm, Containerization' },
+  { id: 'network', name: 'Networking', icon: Globe, type: 'Infrastructure', level: '80%', status: 'Online', desc: 'OSI Model, TCP/IP, DNS, Routing' },
+  { id: 'python', name: 'Python', icon: Code2, type: 'Language', level: '85%', status: 'Compiled', desc: 'Automation, APIs, Backend Dev' },
+  { id: 'react', name: 'React / TS', icon: Cpu, type: 'Frontend', level: '75%', status: 'Rendering', desc: 'Modern Web Apps, TypeScript, Tailwind' },
+  { id: 'db', name: 'SQL / DB', icon: Database, type: 'Storage', level: '70%', status: 'Mounted', desc: 'MariaDB, PostgreSQL, Data Design' },
+];
+
 // --- DATA: CERTIFICATIONS ---
 const CERTIFICATIONS = [
   {
@@ -58,7 +71,7 @@ const CERTIFICATIONS = [
     description: "Cisco verifies the earner of this badge successfully completed the Networking Technician career path and achieved this student level credential. Earner has knowledge of networking fundamentals, how devices communicate, cabling, network addressing and services, basics of configuring Cisco devices, troubleshooting and support of endpoints, networks, and users including diagnostics and documentation as a member of a help desk team, and basic wireless. Participated in up to 50 practice activities.",
     skills: ["Application Layer Services", "Binary Systems", "Cisco Devices", "Cisco IOS", "Cisco Routers", "Cisco Switches", "Cloud Services", "Copper and Fiber Cabling", "Documentation", "Endpoint Devices", "Ethernet", "Help Desk", "Hierarchical Network Design", "IPv4 Addressing", "IPv6 Addressing", "Network Layer Protocols", "Network Media", "Network Troubleshooting", "NetWork Types", "Protocols Standards", "Support", "Transport Layer Protocols", "Troubleshooting", "User Support", "Wireless Access"],
     verificationLink: "https://www.credly.com/badges/463abac1-c0fe-467b-bc02-6dc2ce9a971c/public_url",
-    color: "border-blue-500/30 bg-blue-500/10 text-blue-400"
+    color: "from-blue-500/20 to-blue-600/5 border-blue-500/50"
   },
   {
     id: "net-essentials",
@@ -69,7 +82,7 @@ const CERTIFICATIONS = [
     description: "Cisco verifies the earner of this badge successfully completed the Networking Essentials course and achieved this student level credential. Earner has knowledge of fundamentals of networking, how devices communicate, network addressing and services, how to build a home or small office network and configure basic security, basics of configuring Cisco devices, and the basics of testing and troubleshooting network problems. Participated in up to 19 labs and 24 Cisco Packet Tracer activities.",
     skills: ["Basic Network Security", "DHCP", "Ethernet Networks", "Integrated Wireless Router", "IPv4 And IPv6 Fundamentals", "Networking Concepts", "SOHO Networks", "Standards And Protocols", "Wireless PC"],
     verificationLink: "https://www.credly.com/badges/a334dfd4-8e55-4099-a8f5-1a5913029acf/linked_in_profile",
-    color: "border-cyan-500/30 bg-cyan-500/10 text-cyan-400"
+    color: "from-cyan-500/20 to-cyan-600/5 border-cyan-500/50"
   },
   {
     id: "net-basics",
@@ -80,7 +93,7 @@ const CERTIFICATIONS = [
     description: "Cisco verifies the earner of this badge successfully completed the Networking Basics course and achieved this student level credential. Earner has knowledge of the types of networks, how they work, how devices send and receive data, the types of network cabling, how IP addresses find information on the Internet, how transport and applications operate, and has practiced building a home wireless network. Participated in up to 13 Cisco Packet Tracer activities.",
     skills: ["Application Layer Services", "IPv4 Addresses", "Network Media", "NetWork Types", "Protocols Standards", "Wireless Access"],
     verificationLink: "https://www.credly.com/badges/45d4f330-cc09-4ce8-9cb5-b0670eef3add/linked_in_profile",
-    color: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
+    color: "from-indigo-500/20 to-indigo-600/5 border-indigo-500/50"
   },
   {
     id: "cloud-infra",
@@ -91,7 +104,7 @@ const CERTIFICATIONS = [
     description: "New to the cloud? Introduction to Cloud Infrastructure is a three-part series that teaches you basic cloud concepts, provides a streamlined overview of many Azure services, and guides you with hands-on exercises to deploy your first services for free. Complete all of the learning paths in the series if you're preparing for Exam AZ-900: Microsoft Azure Fundamentals.",
     skills: ["Cloud Concepts", "Infrastructure", "Architecture", "Cloud computing", "Technical infrastructure"],
     verificationLink: "https://learn.microsoft.com/en-us/users/kristoferfauvette-9446/achievements/pgsskld4?ref=https%3A%2F%2Fwww.linkedin.com%2F",
-    color: "border-blue-600/30 bg-blue-600/10 text-blue-300"
+    color: "from-sky-600/20 to-sky-700/5 border-sky-600/50"
   },
   {
     id: "gen-ai",
@@ -102,7 +115,7 @@ const CERTIFICATIONS = [
     description: "Il s'agit d'un micro-cours d'introduction visant à expliquer ce qu'est l'IA générative, comment elle est utilisée et en quoi elle diffère des méthodes traditionnelles d'apprentissage automatique. Il couvre également les outils Google pour vous aider à développer vos propres applications d'IA générative.",
     skills: ["IA Générative", "LLM"],
     verificationLink: "https://www.skills.google/public_profiles/ec684137-9170-4a05-b02f-0d74407ba2ab/badges/19919725?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share",
-    color: "border-red-500/30 bg-red-500/10 text-red-400"
+    color: "from-red-500/20 to-red-600/5 border-red-500/50"
   }
 ];
 
@@ -114,7 +127,7 @@ const TRANSLATIONS = {
       badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
       title1: "Ingénierie",
       title2: "Créative & Code",
-      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis depuis toujours passioné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
+      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis passionné depuis toujours par l'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
       btn_work: "Voir mes travaux",
       btn_contact: "Contact",
       btn_cv: "Voir mon CV"
@@ -128,6 +141,12 @@ const TRANSLATIONS = {
         verify: "Vérifier l'authenticité",
         close: "Fermer"
       }
+    },
+    stack: {
+      title: "Noyau Système & Outils",
+      subtitle: "Modules chargés et opérationnels.",
+      level: "Maîtrise",
+      status: "Statut"
     },
     projects: {
       title: "Projets Sélectionnés",
@@ -181,6 +200,12 @@ const TRANSLATIONS = {
         verify: "Verify Authenticity",
         close: "Close"
       }
+    },
+    stack: {
+      title: "System Kernel & Tools",
+      subtitle: "Modules loaded and operational.",
+      level: "Proficiency",
+      status: "Status"
     },
     projects: {
       title: "Selected Projects",
@@ -728,66 +753,73 @@ const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: 
   );
 };
 
-// --- COMPOSANT : MODALE CERTIFICATION ---
+// --- COMPOSANT : MODALE CERTIFICATION (REDESIGNED) ---
 const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[0], t: any, onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose}></div>
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-slate-900 border border-white/10 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-10 shadow-2xl flex flex-col md:flex-row"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-5xl h-[85vh] relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white z-20 bg-black/50 rounded-full p-2">
-          <X size={20} />
-        </button>
-
-        {/* Colonne Gauche : Images */}
-        <div className="md:w-1/3 bg-slate-950 p-6 flex flex-col items-center gap-6 border-b md:border-b-0 md:border-r border-white/10">
-          <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center p-4 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-            <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
+        <div className="flex justify-between items-center p-4 border-b border-white/10 bg-slate-950">
+          <div className="flex items-center gap-3">
+             <div className="p-1 bg-white/10 rounded-full"><Award size={16} className="text-yellow-400" /></div>
+             <h3 className="font-bold text-white">{cert.title}</h3>
           </div>
-          <div className="w-full aspect-[4/3] bg-white/5 rounded-lg border border-white/10 overflow-hidden group relative">
-             <img src={cert.certImage} alt="Certificate" className="w-full h-full object-cover" />
-             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <a href={cert.certImage} target="_blank" rel="noreferrer" className="text-white bg-cyan-600 px-3 py-1 rounded text-sm">Voir en grand</a>
-             </div>
-          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors">
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Colonne Droite : Infos */}
-        <div className="md:w-2/3 p-8">
-          <h2 className="text-2xl font-bold text-white mb-2">{cert.title}</h2>
-          <p className="text-cyan-400 font-mono text-sm mb-6 flex items-center gap-2">
-            <CheckCircle size={14} /> {cert.issuer} Verified
-          </p>
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+           {/* Image Container */}
+           <div className="md:w-5/12 bg-black/50 p-6 flex items-center justify-center relative border-r border-white/5">
+             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+             <img src={cert.certImage} alt="Certificate" className="w-full h-auto max-h-full object-contain rounded-lg shadow-2xl border border-white/10 relative z-10" />
+           </div>
 
-          <div className="prose prose-invert prose-sm mb-8 text-slate-300">
-            <p>{cert.description}</p>
-          </div>
+           {/* Content Container */}
+           <div className="md:w-7/12 p-8 overflow-y-auto">
+             <div className="flex items-start justify-between mb-6">
+               <div className="w-20 h-20 bg-white/5 rounded-xl flex items-center justify-center p-2 border border-white/10">
+                 <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
+               </div>
+               <div className="text-right">
+                  <span className="inline-block px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono mb-2">
+                    <CheckCircle size={12} className="inline mr-1" /> Authenticated
+                  </span>
+                  <p className="text-slate-400 text-sm font-mono">{cert.issuer}</p>
+               </div>
+             </div>
 
-          <div className="mb-8">
-            <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">{t.certs.modal.skills}</h4>
-            <div className="flex flex-wrap gap-2">
-              {cert.skills.map(skill => (
-                <span key={skill} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs text-slate-300 font-mono">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
+             <h2 className="text-2xl font-bold text-white mb-4">{cert.title}</h2>
+             <p className="text-slate-300 leading-relaxed mb-8 text-sm">{cert.description}</p>
 
-          <div className="flex gap-4">
+             <div className="mb-8">
+               <h4 className="text-cyan-400 font-bold mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
+                 <Zap size={14} /> {t.certs.modal.skills}
+               </h4>
+               <div className="flex flex-wrap gap-2">
+                 {cert.skills.map(skill => (
+                   <span key={skill} className="px-3 py-1.5 bg-slate-800 border border-white/10 rounded hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors text-xs text-slate-300 font-mono cursor-default">
+                     {skill}
+                   </span>
+                 ))}
+               </div>
+             </div>
+
              <a 
                href={cert.verificationLink} 
                target="_blank" 
                rel="noreferrer"
-               className="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-bold transition-all"
+               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-cyan-500/20"
              >
-               <Award size={18} /> {t.certs.modal.verify}
+               <ExternalLink size={18} /> {t.certs.modal.verify}
              </a>
-          </div>
+           </div>
         </div>
       </motion.div>
     </div>
@@ -852,13 +884,16 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
   );
 };
 
-// --- NOUVELLE SECTION CERTIFICATIONS ---
+// --- NOUVELLE SECTION CERTIFICATIONS (HOLOGRAPHIC TILES) ---
 const CertificationsSection = ({ t }: { t: any }) => {
   const [selectedCert, setSelectedCert] = useState<typeof CERTIFICATIONS[0] | null>(null);
 
   return (
-    <section id="certifications" className="py-24 bg-slate-900/30 border-y border-white/5">
-      <div className="container mx-auto px-6">
+    <section id="certifications" className="py-24 bg-slate-900/30 border-y border-white/5 relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
           <div>
             <h2 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
@@ -867,32 +902,54 @@ const CertificationsSection = ({ t }: { t: any }) => {
             <div className="h-1 w-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded"></div>
             <p className="text-slate-400 mt-4 max-w-xl">{t.certs.subtitle}</p>
           </div>
-          <a href={SOCIALS.credlyProfile} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors border border-white/10 px-4 py-2 rounded-full hover:bg-white/5">
+          <a href={SOCIALS.credlyProfile} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors border border-white/10 px-4 py-2 rounded-full hover:bg-white/5 bg-slate-900/50">
             <ExternalLink size={16} /> {t.certs.more}
           </a>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 perspective-1000">
           {CERTIFICATIONS.map((cert) => (
             <motion.div 
               key={cert.id} 
-              whileHover={{ y: -5 }}
+              whileHover={{ scale: 1.05, rotateY: 5, zIndex: 10 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               onClick={() => setSelectedCert(cert)}
-              className="cursor-pointer group flex flex-col p-4 rounded-2xl border border-white/10 bg-slate-900/50 hover:bg-slate-800 hover:border-cyan-500/30 transition-all backdrop-blur-md relative overflow-hidden"
+              className="group cursor-pointer relative h-80 rounded-2xl bg-gradient-to-b from-slate-800/80 to-slate-950/80 border border-white/10 backdrop-blur-md flex flex-col items-center justify-between p-6 shadow-xl overflow-hidden"
             >
-              <div className={`absolute top-0 left-0 w-full h-1 ${cert.color.split(' ')[0].replace('border-', 'bg-')}`}></div>
+              {/* Dynamic Border Gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${cert.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
               
-              <div className="flex items-center justify-center h-24 mb-4 p-2 bg-white/5 rounded-xl group-hover:bg-white/10 transition-colors">
-                 <img src={cert.badge} alt={cert.title} className="max-h-full max-w-full object-contain drop-shadow-lg" />
-              </div>
+              {/* Scanning Laser Line */}
+              <motion.div 
+                className="absolute top-0 left-0 w-full h-1 bg-white/20 blur-sm"
+                initial={{ top: '-10%' }}
+                whileHover={{ top: ['0%', '100%'] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              />
+
+              {/* Floating Badge */}
+              <motion.div 
+                className="relative z-10 w-32 h-32 flex items-center justify-center drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                 <img src={cert.badge} alt={cert.title} className="w-full h-full object-contain" />
+              </motion.div>
               
-              <div className="flex-grow text-center">
-                <h3 className="text-sm font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors leading-tight">
+              <div className="relative z-10 text-center w-full mt-4">
+                <h3 className="text-sm font-bold text-white mb-1 leading-tight group-hover:text-cyan-300 transition-colors">
                   {cert.title}
                 </h3>
-                <p className="text-slate-500 text-xs font-mono mt-2">
+                <p className="text-slate-500 text-xs font-mono mt-1 border-t border-white/5 pt-2 inline-block px-2">
                   {cert.issuer}
                 </p>
+              </div>
+
+              {/* "Click to View" Hint */}
+              <div className="absolute bottom-0 left-0 w-full p-2 bg-white/5 backdrop-blur text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <span className="text-[10px] uppercase font-bold text-white tracking-widest">View Details</span>
               </div>
             </motion.div>
           ))}
@@ -904,6 +961,92 @@ const CertificationsSection = ({ t }: { t: any }) => {
           <CertificationModal cert={selectedCert} t={t} onClose={() => setSelectedCert(null)} />
         )}
       </AnimatePresence>
+    </section>
+  );
+};
+
+// --- NOUVELLE SECTION TECH STACK (INTERACTIVE SYSTEM KERNEL) ---
+const TechStackSection = ({ t, lang }: { t: any, lang: 'fr'|'en' }) => {
+  const [activeTech, setActiveTech] = useState<typeof TECH_STACK[0] | null>(null);
+
+  return (
+    <section className="py-20 bg-slate-950 border-t border-white/5">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-12">
+           <h2 className="text-2xl font-mono font-bold text-slate-200 mb-2 flex items-center justify-center gap-2">
+             <Terminal size={20} className="text-green-500 animate-pulse" /> {t.stack.title}
+           </h2>
+           <p className="text-slate-500 text-sm font-mono">
+             {t.stack.subtitle} <span className="text-green-500">[{TECH_STACK.length} OK]</span>
+           </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {TECH_STACK.map((tech) => (
+            <motion.div
+              key={tech.id}
+              onClick={() => setActiveTech(tech)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`cursor-pointer relative p-4 rounded-xl border transition-all duration-300 ${activeTech?.id === tech.id ? 'bg-slate-800 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'bg-slate-900/50 border-white/10 hover:border-white/20'}`}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <tech.icon size={28} className={activeTech?.id === tech.id ? 'text-cyan-400' : 'text-slate-400'} />
+                <span className={`text-xs font-bold font-mono ${activeTech?.id === tech.id ? 'text-white' : 'text-slate-400'}`}>
+                  {tech.name}
+                </span>
+                <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    whileInView={{ width: tech.level }}
+                    viewport={{ once: true }}
+                    className="h-full bg-cyan-500/50" 
+                  />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <AnimatePresence mode='wait'>
+          {activeTech && (
+            <motion.div
+              key={activeTech.id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-8 overflow-hidden"
+            >
+              <div className="bg-slate-900 border border-cyan-500/30 rounded-xl p-6 relative max-w-3xl mx-auto">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
+                <div className="grid md:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                       <activeTech.icon className="text-cyan-400" /> {activeTech.name}
+                    </h3>
+                    <p className="text-slate-400 text-sm font-mono mb-4">{activeTech.type}</p>
+                    <p className="text-slate-300">{activeTech.desc}</p>
+                  </div>
+                  <div className="space-y-4 font-mono text-xs">
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <span className="text-slate-500">KERNEL_PID</span>
+                        <span className="text-white">0x{activeTech.id.toUpperCase()}</span>
+                     </div>
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <span className="text-slate-500">{t.stack.status}</span>
+                        <span className="text-green-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> {activeTech.status}</span>
+                     </div>
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <span className="text-slate-500">{t.stack.level}</span>
+                        <span className="text-cyan-400">{activeTech.level}</span>
+                     </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </section>
   );
 };
@@ -1089,19 +1232,10 @@ export default function App() {
         </div>
       </section>
 
-      <section className="py-20 bg-slate-950/50">
-        <div className="container mx-auto px-6">
-          <p className="text-center text-slate-500 font-mono text-sm mb-8">STACK TECHNIQUE & OUTILS</p>
-          <div className="flex flex-wrap justify-center gap-12 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-            {[Code2, Terminal, Database, Layers, Cpu, Globe].map((Icon, idx) => (
-              <div key={idx} className="group relative flex items-center justify-center p-4 rounded-xl bg-white/5 border border-white/5 hover:border-cyan-500/30 transition-all hover:scale-110 cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-                 <Icon size={32} className="text-slate-300 group-hover:text-cyan-400" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* TECH STACK SECTION (Updated) */}
+      <TechStackSection t={t} lang={lang} />
 
+      {/* CERTIFICATIONS SECTION (Updated) */}
       <CertificationsSection t={t} />
 
       <section id="projects" className="py-24 relative">
