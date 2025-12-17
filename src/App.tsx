@@ -129,7 +129,7 @@ const TRANSLATIONS = {
       badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
       title1: "Ingénierie",
       title2: "Créative & Code",
-      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis passionné depuis toujours par l'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
+      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
       btn_work: "Voir mes travaux",
       btn_contact: "Contact",
       btn_cv: "Voir mon CV"
@@ -257,7 +257,7 @@ const TRANSLATIONS = {
   }
 };
 
-// --- CONTENU DU BLOG (unchanged) ---
+// --- CONTENU DU BLOG (FIXED: Single 'en' property) ---
 const BLOG_CONTENT = [
   {
     id: 1,
@@ -309,52 +309,6 @@ const BLOG_CONTENT = [
           </pre>
           <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
             Et voilà ! Votre Pi-hole interroge maintenant votre instance locale Unbound. C'est propre, c'est privé, et ça tourne nickel sur le Pi 5.
-          </p>
-        </>
-      ),
-      en: (
-        <>
-          <p className="lead text-lg text-slate-300 mb-6">
-            Today, we're tackling a big one: taking back total control of our internet requests. We're going to install <strong>Pi-hole</strong> (the ad blocker) coupled with <strong>Unbound</strong> (a recursive DNS resolver). All on my Raspberry Pi 5 8GB. Spoiler: it's totally overkill (a Pi Zero would suffice), but we love it.
-          </p>
-          <h3 className="text-2xl font-bold text-white mt-8 mb-4">Why are we doing this? (The theory minute)</h3>
-          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">1. What is a DNS?</h4>
-          <p className="text-slate-400 mb-4">
-            Imagine that DNS (Domain Name System) is the phonebook of the Internet. When you type <code>google.com</code>, your computer doesn't know where it is. It asks a DNS server: "Hey, what is Google's IP address?". The server answers <code>142.250.xxx.xxx</code>, and boom, the page appears.
-          </p>
-          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Why a "Recursive" DNS?</h4>
-          <p className="text-slate-400 mb-4">
-            By default, your internet box uses your ISP's DNS (or Google 8.8.8.8). Basically, you're asking a middleman to search for you. So, they know everything you visit.
-            <br/><br/>
-            With <strong>Unbound</strong> in recursive mode, we cut out the middleman. Your Raspberry Pi will talk directly to the "Root Servers" (the big bosses of the Internet).
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
-            <li><strong>Privacy:</strong> Nobody (not Google, nor your ISP) sees your DNS requests.</li>
-            <li><strong>Security:</strong> We use DNSSEC to validate that the answers are authentic.</li>
-            <li><strong>Zero Ads:</strong> Pi-hole filters requests before they even leave.</li>
-          </ul>
-          <hr className="border-white/10 my-8" />
-          <h3 className="text-2xl font-bold text-white mb-4">Step 1: Prepare the beast</h3>
-          <p className="text-slate-400 mb-4">
-            We are on a Raspberry Pi 5. Make sure you have Raspberry Pi OS installed and up to date. Open the terminal (or connect via SSH) and run the classic update:
-          </p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo apt update && sudo apt upgrade -y</code>
-          </pre>
-          <h3 className="text-2xl font-bold text-white mb-4">Step 2: Install Pi-hole</h3>
-          <p className="text-slate-400 mb-4">
-            The Pi-hole installation is automated. This is the "Network-wide Ad Blocking" that will protect all devices in the house.
-          </p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>curl -sSL https://install.pi-hole.net | bash</code>
-          </pre>
-          <h3 className="text-2xl font-bold text-white mb-4">Step 3: Install Unbound</h3>
-          <p className="text-slate-400 mb-4">This is where the magic happens. We install Unbound so we no longer depend on Google's DNS.</p>
-          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
-            <code>sudo apt install unbound</code>
-          </pre>
-          <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
-            And there you go! Your Pi-hole now queries your local Unbound instance. It's clean, private, and runs perfectly on the Pi 5.
           </p>
         </>
       ),
