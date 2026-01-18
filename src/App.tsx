@@ -44,8 +44,6 @@ import {
   MapPin,
   User,
   Car,
-  CalendarCheck,
-  Lightbulb,
   Gamepad2,
   Quote,
   Cake,
