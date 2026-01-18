@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { 
-  Github, 
-  Linkedin, 
-  Mail, 
-  Code2, 
-  Terminal, 
-  Cpu, 
-  Globe, 
-  ExternalLink, 
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Code2,
+  Terminal,
+  Cpu,
+  Globe,
+  ExternalLink,
   ChevronRight,
   Menu,
   X,
-  Database,
   Layers,
   Sparkles,
   Send,
@@ -37,13 +36,14 @@ import {
   Server,
   Wifi,
   HardDrive,
-  Cloud
+  Cloud,
+  Youtube
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mblqywqp"; 
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mblqywqp";
 
 const SOCIALS = {
   github: "https://github.com/William1307",
@@ -52,14 +52,97 @@ const SOCIALS = {
   credlyProfile: "https://www.credly.com/users/kristofer-fauvette"
 };
 
+// --- ALGORITHMS FOR DYNAMIC DATA ---
+// CPU Load Algorithm: Varies based on time of day and day of week
+const getCPULoad = (serviceName: string): string => {
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+
+  // Base load varies by service
+  const baseLoads: { [key: string]: number } = {
+    'Nextcloud': 8,
+    'Mailserver': 3,
+    'RustDesk': 5,
+    'Speedtest': 1
+  };
+
+  let baseLoad = baseLoads[serviceName] || 5;
+
+  // Time of day variation (higher during business hours)
+  const timeVariation = hour >= 9 && hour <= 17 ?
+    Math.sin((hour - 9) / 8 * Math.PI) * 8 :
+    Math.random() * 3;
+
+  // Day of week variation (higher on weekdays)
+  const dayVariation = dayOfWeek >= 1 && dayOfWeek <= 5 ? 2 : -1;
+
+  // Random noise
+  const noise = (Math.random() - 0.5) * 4;
+
+  const load = Math.max(1, Math.min(95, baseLoad + timeVariation + dayVariation + noise));
+  return `${Math.round(load)}%`;
+};
+
+// Queries Algorithm: Increases over time (100-500 queries/day, accumulates)
+const getPiHoleQueries = (): string => {
+  // Use a fixed start date (e.g., January 1, 2025) to ensure consistency
+  const startDate = new Date('2025-01-01');
+  const now = new Date();
+  const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Base queries per day increases over time (100-500 range)
+  const baseQueriesPerDay = 100 + (daysSinceStart % 400); // Cycles through 100-500
+  const dailyQueries = Math.min(500, Math.max(100, baseQueriesPerDay));
+
+  // Total queries = days * average queries per day
+  // Use a formula that makes Monday lower than Thursday
+  const dayOfWeek = now.getDay(); // 0 = Sunday
+  const weekProgress = (dayOfWeek === 0 ? 7 : dayOfWeek) / 7; // 0-1 scale
+  const weeklyMultiplier = 0.7 + (weekProgress * 0.6); // 0.7-1.3 multiplier
+
+  const totalQueries = Math.floor(daysSinceStart * dailyQueries * weeklyMultiplier);
+
+  // Format: 24k, 125k, 1.2M, etc.
+  if (totalQueries >= 1000000) {
+    return `${(totalQueries / 1000000).toFixed(1)}M`;
+  } else if (totalQueries >= 1000) {
+    return `${(totalQueries / 1000).toFixed(0)}k`;
+  }
+  return totalQueries.toString();
+};
+
 // --- DATA: TECH STACK ---
 const TECH_STACK = [
-  { id: 'linux', name: 'Linux / Bash', icon: Terminal, type: 'Kernel', level: '90%', status: 'Active', desc: 'Debian, RHEL, Scripting & Automation' },
-  { id: 'docker', name: 'Docker', icon: Layers, type: 'Container', level: '85%', status: 'Running', desc: 'Compose, Swarm, Containerization' },
-  { id: 'network', name: 'Networking', icon: Globe, type: 'Infrastructure', level: '80%', status: 'Online', desc: 'OSI Model, TCP/IP, DNS, Routing' },
+  {
+    id: 'raspberry-pi',
+    name: 'Raspberry Pi 5',
+    icon: Cpu,
+    type: 'Hardware',
+    level: '100%',
+    status: 'Active',
+    desc: '8GB RAM, ARM64 Architecture. Home Lab Server running Pi-hole, Unbound, Prometheus, and Grafana on Raspberry Pi OS (Debian-based).'
+  },
+  {
+    id: 'ovh-vps',
+    name: 'OVH VPS',
+    icon: Server,
+    type: 'Cloud Infrastructure',
+    level: '95%',
+    status: 'Running',
+    desc: 'VPS-1: 4 vCores, 8GB RAM, 75GB SSD. Automated backup (1 day), unlimited traffic, 400 Mbit/s public bandwidth. Learn more at ovhcloud.com'
+  },
   { id: 'python', name: 'Python', icon: Code2, type: 'Language', level: '85%', status: 'Compiled', desc: 'Automation, APIs, Backend Dev' },
-  { id: 'react', name: 'React / TS', icon: Cpu, type: 'Frontend', level: '75%', status: 'Rendering', desc: 'Modern Web Apps, TypeScript, Tailwind' },
-  { id: 'db', name: 'SQL / DB', icon: Database, type: 'Storage', level: '70%', status: 'Mounted', desc: 'MariaDB, PostgreSQL, Data Design' },
+  { id: 'network', name: 'Networking', icon: Globe, type: 'Infrastructure', level: '80%', status: 'Online', desc: 'OSI Model, TCP/IP, DNS, Routing' },
+  {
+    id: 'youtube',
+    name: 'YouTube Channel',
+    icon: Youtube,
+    type: 'Content',
+    level: 'Active',
+    status: 'Publishing',
+    desc: 'KrisRetroLab - Tech tutorials and projects covering homelab setups, networking, and self-hosting solutions.'
+  },
 ];
 
 // --- DATA: CERTIFICATIONS ---
@@ -70,7 +153,10 @@ const CERTIFICATIONS = [
     issuer: "Cisco",
     badge: "/Images/Badges/network-technician-career-path.png",
     certImage: "/Images/Course_completion_cert/NetworkTechnicianCareerPathUpdate20251129-33-qj43gq_page-0001.jpg",
-    description: "Cisco verifies the earner of this badge successfully completed the Networking Technician career path and achieved this student level credential. Earner has knowledge of networking fundamentals, how devices communicate, cabling, network addressing and services, basics of configuring Cisco devices, troubleshooting and support of endpoints, networks, and users including diagnostics and documentation as a member of a help desk team, and basic wireless. Participated in up to 50 practice activities.",
+    description: {
+      en: "Cisco verifies the earner of this badge successfully completed the Networking Technician career path and achieved this student level credential. Earner has knowledge of networking fundamentals, how devices communicate, cabling, network addressing and services, basics of configuring Cisco devices, troubleshooting and support of endpoints, networks, and users including diagnostics and documentation as a member of a help desk team, and basic wireless. Participated in up to 50 practice activities.",
+      fr: "Cisco vérifie que le titulaire de ce badge a réussi le parcours de Technicien Réseau et obtenu ce titre de niveau étudiant. Le titulaire possède des connaissances sur les fondamentaux des réseaux, la communication entre appareils, le câblage, l'adressage réseau et les services, la configuration de base des appareils Cisco, le dépannage et le support des terminaux, des réseaux et des utilisateurs (y compris diagnostics et documentation au sein d'une équipe de support), ainsi que les bases du sans-fil. Participation à jusqu'à 50 activités pratiques."
+    },
     skills: ["Application Layer Services", "Binary Systems", "Cisco Devices", "Cisco IOS", "Cisco Routers", "Cisco Switches", "Cloud Services", "Copper and Fiber Cabling", "Documentation", "Endpoint Devices", "Ethernet", "Help Desk", "Hierarchical Network Design", "IPv4 Addressing", "IPv6 Addressing", "Network Layer Protocols", "Network Media", "Network Troubleshooting", "NetWork Types", "Protocols Standards", "Support", "Transport Layer Protocols", "Troubleshooting", "User Support", "Wireless Access"],
     verificationLink: "https://www.credly.com/badges/463abac1-c0fe-467b-bc02-6dc2ce9a971c/public_url",
     color: "from-blue-500/20 to-blue-600/5 border-blue-500/50"
@@ -81,7 +167,10 @@ const CERTIFICATIONS = [
     issuer: "Cisco",
     badge: "/Images/Badges/networking-essentials-badge.png",
     certImage: "/Images/Course_completion_cert/cert-networking-essentials-FULL.png",
-    description: "Cisco verifies the earner of this badge successfully completed the Networking Essentials course and achieved this student level credential. Earner has knowledge of fundamentals of networking, how devices communicate, network addressing and services, how to build a home or small office network and configure basic security, basics of configuring Cisco devices, and the basics of testing and troubleshooting network problems. Participated in up to 19 labs and 24 Cisco Packet Tracer activities.",
+    description: {
+      en: "Cisco verifies the earner of this badge successfully completed the Networking Essentials course and achieved this student level credential. Earner has knowledge of fundamentals of networking, how devices communicate, network addressing and services, how to build a home or small office network and configure basic security, basics of configuring Cisco devices, and the basics of testing and troubleshooting network problems. Participated in up to 19 labs and 24 Cisco Packet Tracer activities.",
+      fr: "Cisco vérifie que le titulaire de ce badge a réussi le cours Networking Essentials et obtenu ce titre de niveau étudiant. Le titulaire possède des connaissances sur les fondamentaux des réseaux, la communication des appareils, l'adressage et les services réseau, la conception d'un réseau domestique ou SOHO, la configuration de la sécurité de base, la configuration des appareils Cisco et les bases du test et du dépannage réseau. Participation à jusqu'à 19 laboratoires et 24 activités Cisco Packet Tracer."
+    },
     skills: ["Basic Network Security", "DHCP", "Ethernet Networks", "Integrated Wireless Router", "IPv4 And IPv6 Fundamentals", "Networking Concepts", "SOHO Networks", "Standards And Protocols", "Wireless PC"],
     verificationLink: "https://www.credly.com/badges/a334dfd4-8e55-4099-a8f5-1a5913029acf/linked_in_profile",
     color: "from-cyan-500/20 to-cyan-600/5 border-cyan-500/50"
@@ -92,7 +181,10 @@ const CERTIFICATIONS = [
     issuer: "Cisco",
     badge: "/Images/Badges/networking-basics-badge.png",
     certImage: "/Images/Course_completion_cert/cert-networking-basics-FULL.png",
-    description: "Cisco verifies the earner of this badge successfully completed the Networking Basics course and achieved this student level credential. Earner has knowledge of the types of networks, how they work, how devices send and receive data, the types of network cabling, how IP addresses find information on the Internet, how transport and applications operate, and has practiced building a home wireless network. Participated in up to 13 Cisco Packet Tracer activities.",
+    description: {
+      en: "Cisco verifies the earner of this badge successfully completed the Networking Basics course and achieved this student level credential. Earner has knowledge of the types of networks, how they work, how devices send and receive data, the types of network cabling, how IP addresses find information on the Internet, how transport and applications operate, and has practiced building a home wireless network. Participated in up to 13 Cisco Packet Tracer activities.",
+      fr: "Cisco vérifie que le titulaire de ce badge a réussi le cours Networking Basics et obtenu ce titre de niveau étudiant. Le titulaire connaît les types de réseaux, leur fonctionnement, l'envoi et la réception de données, les types de câblage, le fonctionnement des adresses IP sur Internet, les protocoles de transport et d'application, et a pratiqué la mise en place d'un réseau sans fil domestique. Participation à jusqu'à 13 activités Cisco Packet Tracer."
+    },
     skills: ["Application Layer Services", "IPv4 Addresses", "Network Media", "NetWork Types", "Protocols Standards", "Wireless Access"],
     verificationLink: "https://www.credly.com/badges/45d4f330-cc09-4ce8-9cb5-b0670eef3add/linked_in_profile",
     color: "from-indigo-500/20 to-indigo-600/5 border-indigo-500/50"
@@ -103,7 +195,10 @@ const CERTIFICATIONS = [
     issuer: "Microsoft",
     badge: "/Images/Badges/Microsoft_logo.png",
     certImage: "/Images/Course_completion_cert/cert-cloud-infra-FULL.png",
-    description: "New to the cloud? Introduction to Cloud Infrastructure is a three-part series that teaches you basic cloud concepts, provides a streamlined overview of many Azure services, and guides you with hands-on exercises to deploy your first services for free. Complete all of the learning paths in the series if you're preparing for Exam AZ-900: Microsoft Azure Fundamentals.",
+    description: {
+      en: "New to the cloud? Introduction to Cloud Infrastructure is a three-part series that teaches you basic cloud concepts, provides a streamlined overview of many Azure services, and guides you with hands-on exercises to deploy your first services for free. Complete all of the learning paths in the series if you're preparing for Exam AZ-900: Microsoft Azure Fundamentals.",
+      fr: "Nouveau dans le cloud ? 'Introduction to Cloud Infrastructure' est une série en trois parties qui enseigne les concepts de base du cloud, offre un aperçu simplifié de nombreux services Azure et vous guide avec des exercices pratiques pour déployer vos premiers services gratuitement. Idéal pour préparer l'examen AZ-900 : Microsoft Azure Fundamentals."
+    },
     skills: ["Cloud Concepts", "Infrastructure", "Architecture", "Cloud computing", "Technical infrastructure"],
     verificationLink: "https://learn.microsoft.com/en-us/users/kristoferfauvette-9446/achievements/pgsskld4?ref=https%3A%2F%2Fwww.linkedin.com%2F",
     color: "from-sky-600/20 to-sky-700/5 border-sky-600/50"
@@ -114,7 +209,10 @@ const CERTIFICATIONS = [
     issuer: "Google",
     badge: "/Images/Badges/Google__G__logo.png",
     certImage: "/Images/Course_completion_cert/cert-generative-ai-introduction.png",
-    description: "Il s'agit d'un micro-cours d'introduction visant à expliquer ce qu'est l'IA générative, comment elle est utilisée et en quoi elle diffère des méthodes traditionnelles d'apprentissage automatique. Il couvre également les outils Google pour vous aider à développer vos propres applications d'IA générative.",
+    description: {
+      en: "This is an introductory micro-course aiming to explain what Generative AI is, how it is used, and how it differs from traditional machine learning methods. It also covers Google tools to help you develop your own Gen AI applications.",
+      fr: "Il s'agit d'un micro-cours d'introduction visant à expliquer ce qu'est l'IA générative, comment elle est utilisée et en quoi elle diffère des méthodes traditionnelles d'apprentissage automatique. Il couvre également les outils Google pour vous aider à développer vos propres applications d'IA générative."
+    },
     skills: ["IA Générative", "LLM"],
     verificationLink: "https://www.skills.google/public_profiles/ec684137-9170-4a05-b02f-0d74407ba2ab/badges/19919725?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share",
     color: "from-red-500/20 to-red-600/5 border-red-500/50"
@@ -127,9 +225,9 @@ const TRANSLATIONS = {
     nav: { about: "À Propos", certs: "Certifs", projects: "Projets", blog: "Blog", contact: "Contact", cv: "Mon CV", lang: "EN" },
     hero: {
       badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
-      title1: "Ingénierie",
-      title2: "Créative & Code",
-      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l’INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications (Cisco) et mon Blog. N’hésitez pas à m'écrire !",
+      title1: "Future",
+      title2: "Ingénieur Informatique",
+      desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l'INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications et mon Blog. N'hésitez pas à m'écrire !",
       btn_work: "Voir mes travaux",
       btn_contact: "Contact",
       btn_cv: "Voir mon CV"
@@ -145,7 +243,7 @@ const TRANSLATIONS = {
       }
     },
     stack: {
-      title: "Noyau Système & Outils",
+      title: "Équipement & Outils",
       subtitle: "Modules chargés et opérationnels.",
       level: "Maîtrise",
       status: "Statut"
@@ -193,9 +291,9 @@ const TRANSLATIONS = {
     nav: { about: "About", certs: "Certs", projects: "Projects", blog: "Blog", contact: "Contact", cv: "My CV", lang: "FR" },
     hero: {
       badge: "INSA HAUTS-DE-FRANCE STUDENT",
-      title1: "Engineering",
-      title2: "Creative & Code",
-      desc: "Hello, I am Kristofer FAUVETTE. 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering. I am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications (Cisco) and my Blog. Feel free to write to me!",
+      title1: "Future",
+      title2: "Computer Engineer",
+      desc: "Hello, I am Kristofer FAUVETTE. 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering. I am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications and my Blog. Feel free to write to me!",
       btn_work: "View my work",
       btn_contact: "Contact",
       btn_cv: "View my CV"
@@ -211,7 +309,7 @@ const TRANSLATIONS = {
       }
     },
     stack: {
-      title: "System Kernel & Tools",
+      title: "Equipment & Tools",
       subtitle: "Modules loaded and operational.",
       level: "Proficiency",
       status: "Status"
@@ -279,7 +377,7 @@ const BLOG_CONTENT = [
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Pourquoi un DNS "Récursif" ?</h4>
           <p className="text-slate-400 mb-4">
             Par défaut, votre box internet utilise les DNS de votre opérateur (ou Google 8.8.8.8). En gros, vous demandez à un intermédiaire de chercher pour vous. Il sait donc tout ce que vous visitez.
-            <br/><br/>
+            <br /><br />
             Avec <strong>Unbound</strong> en mode récursif, on vire l'intermédiaire. Votre Raspberry Pi va discuter directement avec les "Root Servers" (les grands patrons d'Internet).
           </p>
           <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
@@ -325,7 +423,7 @@ const BLOG_CONTENT = [
           <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">2. Why a "Recursive" DNS?</h4>
           <p className="text-slate-400 mb-4">
             By default, your internet box uses your ISP's DNS (or Google 8.8.8.8). Basically, you're asking a middleman to search for you. So, they know everything you visit.
-            <br/><br/>
+            <br /><br />
             With <strong>Unbound</strong> in recursive mode, we cut out the middleman. Your Raspberry Pi will talk directly to the "Root Servers" (the big bosses of the Internet).
           </p>
           <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
@@ -355,6 +453,83 @@ const BLOG_CONTENT = [
           </pre>
           <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
             And there you go! Your Pi-hole now queries your local Unbound instance. It's clean, private, and runs perfectly on the Pi 5.
+          </p>
+        </>
+      )
+    }
+  },
+  {
+    id: 2,
+    title: { fr: "RustDesk : Votre Bureau à Distance Open-Source et Sécurisé", en: "RustDesk: Your Open-Source & Secure Remote Desktop Solution" },
+    date: "Dec 15, 2025",
+    readTime: "12 min",
+    tag: "SysAdmin",
+    content: {
+      fr: (
+        <>
+          <p className="lead text-lg text-slate-300 mb-6">
+            Dites adieu à TeamViewer et ses limitations. <strong>RustDesk</strong> est une alternative open-source puissante pour le contrôle à distance, auto-hébergée sur votre VPS. Performance, sécurité et contrôle total : c'est ce qu'on aime.
+          </p>
+          <h3 className="text-2xl font-bold text-white mt-8 mb-4">Pourquoi RustDesk ?</h3>
+          <p className="text-slate-400 mb-4">
+            RustDesk offre une solution complète de bureau à distance avec chiffrement end-to-end, auto-hébergement possible, et une interface simple. Parfait pour gérer vos serveurs, aider vos proches, ou travailler depuis n'importe où.
+          </p>
+          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">Avantages clés</h4>
+          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
+            <li><strong>Open-Source :</strong> Code source disponible, audit de sécurité possible</li>
+            <li><strong>Auto-hébergement :</strong> Contrôlez vos propres serveurs de relais</li>
+            <li><strong>Performance :</strong> Écrit en Rust, ultra-rapide et léger</li>
+            <li><strong>Multi-plateforme :</strong> Windows, Linux, macOS, Android, iOS</li>
+            <li><strong>Chiffrement :</strong> Sécurité renforcée avec chiffrement end-to-end</li>
+          </ul>
+          <hr className="border-white/10 my-8" />
+          <h3 className="text-2xl font-bold text-white mb-4">Installation sur VPS</h3>
+          <p className="text-slate-400 mb-4">
+            Nous allons déployer RustDesk sur notre VPS OVH avec Docker. Simple, rapide, efficace.
+          </p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>{`docker run --name rustdesk-server \\
+  -p 21115:21115 -p 21116:21116 -p 21116:21116/udp \\
+  -p 21117:21117 -p 21118:21118 -p 21119:21119 \\
+  -v rustdesk-data:/data \\
+  rustdesk/rustdesk-server:latest`}</code>
+          </pre>
+          <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
+            Votre serveur RustDesk est maintenant opérationnel ! Configurez vos clients pour pointer vers votre VPS et profitez d'un contrôle à distance sécurisé et performant.
+          </p>
+        </>
+      ),
+      en: (
+        <>
+          <p className="lead text-lg text-slate-300 mb-6">
+            Say goodbye to TeamViewer and its limitations. <strong>RustDesk</strong> is a powerful open-source alternative for remote desktop control, self-hosted on your VPS. Performance, security, and total control: that's what we love.
+          </p>
+          <h3 className="text-2xl font-bold text-white mt-8 mb-4">Why RustDesk?</h3>
+          <p className="text-slate-400 mb-4">
+            RustDesk offers a complete remote desktop solution with end-to-end encryption, self-hosting capability, and a simple interface. Perfect for managing your servers, helping your loved ones, or working from anywhere.
+          </p>
+          <h4 className="text-xl font-semibold text-cyan-400 mt-6 mb-2">Key Advantages</h4>
+          <ul className="list-disc pl-6 space-y-2 text-slate-300 mb-8">
+            <li><strong>Open-Source:</strong> Source code available, security audit possible</li>
+            <li><strong>Self-Hosted:</strong> Control your own relay servers</li>
+            <li><strong>Performance:</strong> Written in Rust, ultra-fast and lightweight</li>
+            <li><strong>Multi-Platform:</strong> Windows, Linux, macOS, Android, iOS</li>
+            <li><strong>Encryption:</strong> Enhanced security with end-to-end encryption</li>
+          </ul>
+          <hr className="border-white/10 my-8" />
+          <h3 className="text-2xl font-bold text-white mb-4">VPS Installation</h3>
+          <p className="text-slate-400 mb-4">
+            We're going to deploy RustDesk on our OVH VPS with Docker. Simple, fast, efficient.
+          </p>
+          <pre className="bg-black/50 p-4 rounded-lg border border-white/10 text-green-400 font-mono text-sm mb-6 overflow-x-auto">
+            <code>{`docker run --name rustdesk-server \\
+  -p 21115:21115 -p 21116:21116 -p 21116:21116/udp \\
+  -p 21117:21117 -p 21118:21118 -p 21119:21119 \\
+  -v rustdesk-data:/data \\
+  rustdesk/rustdesk-server:latest`}</code>
+          </pre>
+          <p className="text-green-400 font-bold mt-8 p-4 border border-green-500/30 bg-green-500/10 rounded-lg">
+            Your RustDesk server is now operational! Configure your clients to point to your VPS and enjoy secure, high-performance remote control.
           </p>
         </>
       )
@@ -412,8 +587,8 @@ const TypingEffect = ({ text, delay = 0 }: { text: string, delay?: number }) => 
 // --- WOW ADDITION: SCROLL PROGRESS BAR ---
 const ScrollProgress = () => {
   // Using actual framer motion hook for scroll
-  const { scrollYProgress: realScroll } = androidxScrollHook(); 
-  
+  const { scrollYProgress: realScroll } = androidxScrollHook();
+
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 h-1 bg-cyan-500 origin-left z-[100]"
@@ -423,16 +598,16 @@ const ScrollProgress = () => {
 };
 // Helper hook for scroll since useScroll is common
 const androidxScrollHook = () => {
-   const [scroll, setScroll] = useState(0);
-   useEffect(() => {
-     const updateScroll = () => {
-       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-       setScroll(window.scrollY / totalHeight);
-     }
-     window.addEventListener('scroll', updateScroll);
-     return () => window.removeEventListener('scroll', updateScroll);
-   }, []);
-   return { scrollYProgress: scroll };
+  const [scroll, setScroll] = useState(0);
+  useEffect(() => {
+    const updateScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScroll(window.scrollY / totalHeight);
+    }
+    window.addEventListener('scroll', updateScroll);
+    return () => window.removeEventListener('scroll', updateScroll);
+  }, []);
+  return { scrollYProgress: scroll };
 }
 
 
@@ -448,7 +623,7 @@ const ParticleNetwork = () => {
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-    
+
     const particleCount = 60;
     const connectionDistance = 150;
     const mouseDistance = 200;
@@ -468,7 +643,7 @@ const ParticleNetwork = () => {
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#22d3ee'; 
+      ctx.fillStyle = '#22d3ee';
       ctx.strokeStyle = '#22d3ee';
 
       particles.forEach((p, i) => {
@@ -502,15 +677,15 @@ const ParticleNetwork = () => {
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < mouseDistance) {
-            ctx.globalAlpha = (1 - dist / mouseDistance) * 0.5;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.stroke();
-            // Subtle attraction effect
-            p.x -= dx * 0.005;
-            p.y -= dy * 0.005;
+          ctx.globalAlpha = (1 - dist / mouseDistance) * 0.5;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+          // Subtle attraction effect
+          p.x -= dx * 0.005;
+          p.y -= dy * 0.005;
         }
       });
       ctx.globalAlpha = 1;
@@ -544,7 +719,7 @@ const ParticleNetwork = () => {
 const PlexVisual = () => {
   return (
     <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700">
-      <motion.div 
+      <motion.div
         animate={{ backgroundPosition: ['0% 0%', '100% 100%'], }}
         transition={{ duration: 15, repeat: Infinity, repeatType: "mirror" }}
         className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-amber-700/20 to-slate-900 z-0 bg-[length:200%_200%]"
@@ -558,25 +733,25 @@ const PlexVisual = () => {
             animate={{ x: [-100, -500] }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
-             <div className="w-full h-2/3 bg-white/5 rounded-t-lg"></div>
-             <div className="p-2 gap-1 flex flex-col">
-                <div className="h-2 w-3/4 bg-white/20 rounded"></div>
-                <div className="h-2 w-1/2 bg-white/10 rounded"></div>
-             </div>
+            <div className="w-full h-2/3 bg-white/5 rounded-t-lg"></div>
+            <div className="p-2 gap-1 flex flex-col">
+              <div className="h-2 w-3/4 bg-white/20 rounded"></div>
+              <div className="h-2 w-1/2 bg-white/10 rounded"></div>
+            </div>
           </motion.div>
         ))}
       </div>
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="relative">
-          <motion.div 
-             className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.5)] z-20 relative"
-             whileHover={{ scale: 1.1 }}
-             animate={{ boxShadow: ['0 0 30px rgba(249,115,22,0.5)', '0 0 60px rgba(249,115,22,0.8)', '0 0 30px rgba(249,115,22,0.5)'] }}
-             transition={{ duration: 2, repeat: Infinity }}
+          <motion.div
+            className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.5)] z-20 relative"
+            whileHover={{ scale: 1.1 }}
+            animate={{ boxShadow: ['0 0 30px rgba(249,115,22,0.5)', '0 0 60px rgba(249,115,22,0.8)', '0 0 30px rgba(249,115,22,0.5)'] }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
             <Play fill="white" className="text-white ml-1 w-8 h-8" />
           </motion.div>
-          <motion.div 
+          <motion.div
             className="absolute inset-0 rounded-full border border-orange-500/50"
             animate={{ scale: [1, 2], opacity: [1, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
@@ -588,13 +763,13 @@ const PlexVisual = () => {
         <span className="text-[10px] font-mono text-orange-100 font-bold uppercase tracking-wider">Transcoding (HW)</span>
       </div>
       {[...Array(5)].map((_, i) => (
-         <motion.div
-           key={i}
-           className="absolute w-1 h-1 bg-orange-200 rounded-full blur-[1px]"
-           initial={{ y: 200, x: Math.random() * 300, opacity: 0 }}
-           animate={{ y: -50, opacity: [0, 1, 0] }}
-           transition={{ duration: Math.random() * 3 + 4, repeat: Infinity, delay: Math.random() * 2 }}
-         />
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-orange-200 rounded-full blur-[1px]"
+          initial={{ y: 200, x: Math.random() * 300, opacity: 0 }}
+          animate={{ y: -50, opacity: [0, 1, 0] }}
+          transition={{ duration: Math.random() * 3 + 4, repeat: Infinity, delay: Math.random() * 2 }}
+        />
       ))}
     </div>
   );
@@ -603,36 +778,36 @@ const PlexVisual = () => {
 const PiHoleVisual = () => {
   return (
     <div className="w-full h-full bg-slate-950 relative overflow-hidden group-hover:scale-105 transition-transform duration-700 flex items-center justify-center">
-       <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
-       <motion.div 
-         animate={{ rotate: 360 }}
-         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-         className="absolute w-[400px] h-[400px] bg-gradient-to-r from-transparent via-red-500/10 to-transparent z-0 opacity-30"
-         style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 100%)', transformOrigin: 'center' }}
-       />
-       <div className="relative z-10">
-          <motion.div 
-             animate={{ boxShadow: ['0 0 20px rgba(239,68,68,0.2)', '0 0 50px rgba(239,68,68,0.6)', '0 0 20px rgba(239,68,68,0.2)'] }}
-             transition={{ duration: 2, repeat: Infinity }}
-             className="w-16 h-16 bg-slate-900 border-2 border-red-500 rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-red-900/20"
-          >
-             <Shield className="text-red-500 w-8 h-8 relative z-10" />
-             <motion.div 
-               animate={{ rotate: -360 }}
-               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-               className="absolute inset-0 border border-red-500/30 border-dashed rounded-full" 
-             />
-          </motion.div>
-       </div>
-       {[...Array(8)].map((_, i) => (
+      <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="absolute w-[400px] h-[400px] bg-gradient-to-r from-transparent via-red-500/10 to-transparent z-0 opacity-30"
+        style={{ clipPath: 'polygon(50% 50%, 100% 0, 100% 100%)', transformOrigin: 'center' }}
+      />
+      <div className="relative z-10">
+        <motion.div
+          animate={{ boxShadow: ['0 0 20px rgba(239,68,68,0.2)', '0 0 50px rgba(239,68,68,0.6)', '0 0 20px rgba(239,68,68,0.2)'] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-16 h-16 bg-slate-900 border-2 border-red-500 rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-red-900/20"
+        >
+          <Shield className="text-red-500 w-8 h-8 relative z-10" />
           <motion.div
-            key={i}
-            className="absolute w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_5px_red]"
-            initial={{ scale: 1, opacity: 1, x: 150 * Math.cos(i), y: 150 * Math.sin(i) }}
-            animate={{ scale: 0, opacity: 0, x: 0, y: 0 }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2, ease: "easeIn" }}
+            animate={{ rotate: -360 }}
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 border border-red-500/30 border-dashed rounded-full"
           />
-       ))}
+        </motion.div>
+      </div>
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_5px_red]"
+          initial={{ scale: 1, opacity: 1, x: 150 * Math.cos(i), y: 150 * Math.sin(i) }}
+          animate={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+          transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2, ease: "easeIn" }}
+        />
+      ))}
     </div>
   );
 };
@@ -669,25 +844,25 @@ const RustDeskVisual = () => {
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
           <div className="flex flex-col items-center gap-2">
-             <div className="relative">
-                <Monitor className="text-blue-400 w-12 h-12" />
-                <motion.div 
-                  className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 border-2 border-slate-900"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Lock className="text-white w-3 h-3" />
-                </motion.div>
-             </div>
-             <div className="flex gap-1 mt-2">
-                <div className="w-12 h-1 bg-blue-500/30 rounded overflow-hidden">
-                   <motion.div 
-                     className="w-full h-full bg-blue-400"
-                     animate={{ x: [-50, 50] }}
-                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                   />
-                </div>
-             </div>
+            <div className="relative">
+              <Monitor className="text-blue-400 w-12 h-12" />
+              <motion.div
+                className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 border-2 border-slate-900"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Lock className="text-white w-3 h-3" />
+              </motion.div>
+            </div>
+            <div className="flex gap-1 mt-2">
+              <div className="w-12 h-1 bg-blue-500/30 rounded overflow-hidden">
+                <motion.div
+                  className="w-full h-full bg-blue-400"
+                  animate={{ x: [-50, 50] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -700,7 +875,7 @@ const RustDeskVisual = () => {
           transition={{ duration: 3, repeat: Infinity, delay: i * 0.8, ease: "circIn" }}
           style={{ top: '50%', left: '50%' }}
         >
-           <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_10px_cyan]" />
+          <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_10px_cyan]" />
         </motion.div>
       ))}
     </div>
@@ -709,25 +884,25 @@ const RustDeskVisual = () => {
 
 
 // --- COMPOSANT : LECTEUR D'ARTICLE ---
-const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTENT[0], lang: 'fr'|'en', onClose: () => void }) => {
+const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTENT[0], lang: 'fr' | 'en', onClose: () => void }) => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const t = TRANSLATIONS[lang];
 
   const getArticleTextContext = () => {
-    return lang === 'fr' ? 
-      "Article sur l'installation de Pi-hole et Unbound sur Raspberry Pi 5..." 
+    return lang === 'fr' ?
+      "Article sur l'installation de Pi-hole et Unbound sur Raspberry Pi 5..."
       : "Article about installing Pi-hole and Unbound on Raspberry Pi 5...";
   };
 
   const handleAsk = async () => {
     if (!question.trim()) return;
     setLoading(true);
-    
+
     const context = getArticleTextContext();
     const systemPrompt = `Tu es un assistant expert. Langue de réponse : ${lang === 'fr' ? 'Français' : 'Anglais'}. Contexte: ${context}`;
-    
+
     const response = await callGemini(question, systemPrompt);
     setAnswer(response);
     setLoading(false);
@@ -760,17 +935,17 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
               <BrainCircuit className="text-cyan-400" />
               {t.article_qa.title}
             </h3>
-            
+
             <div className="flex gap-2 mb-4">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder={t.article_qa.placeholder}
                 className="flex-1 bg-slate-950 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500"
                 onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
               />
-              <button 
+              <button
                 onClick={handleAsk}
                 disabled={loading || !question.trim()}
                 className="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50"
@@ -793,7 +968,7 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
 };
 
 // --- COMPOSANT : VISUALISEUR CV ---
-const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: () => void }) => {
+const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: any, onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-[60] bg-slate-950 flex flex-col animate-in slide-in-from-bottom-10 duration-300">
       <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/80 backdrop-blur">
@@ -801,18 +976,18 @@ const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: 
           <ArrowLeft size={18} /> {lang === 'fr' ? 'Retour' : 'Back'}
         </button>
         <h2 className="text-white font-bold hidden md:block">{t.cv.title}</h2>
-        <a 
-          href="/Images/Kristofer_FAUVETTE_CV.pdf" 
-          download 
+        <a
+          href="/Images/Kristofer_FAUVETTE_CV.pdf"
+          download
           className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-500 transition-colors text-sm font-bold"
         >
           <Download size={16} /> {t.cv.download}
         </a>
       </div>
       <div className="flex-1 w-full bg-slate-900">
-        <iframe 
-          src="/Images/Kristofer_FAUVETTE_CV.pdf" 
-          className="w-full h-full border-none" 
+        <iframe
+          src="/Images/Kristofer_FAUVETTE_CV.pdf"
+          className="w-full h-full border-none"
           title="CV Kristofer Fauvette"
         />
       </div>
@@ -821,11 +996,11 @@ const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr'|'en', t: any, onClose: 
 };
 
 // --- COMPOSANT : MODALE CERTIFICATION (REDESIGNED FOR VISIBILITY) ---
-const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[0], t: any, onClose: () => void }) => {
+const CertificationModal = ({ cert, t, lang, onClose }: { cert: typeof CERTIFICATIONS[0], t: any, lang: 'fr' | 'en', onClose: () => void }) => {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose}></div>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -833,8 +1008,8 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
       >
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-slate-950">
           <div className="flex items-center gap-3">
-             <div className="p-1 bg-white/10 rounded-full"><Award size={16} className="text-yellow-400" /></div>
-             <h3 className="font-bold text-white">{cert.title}</h3>
+            <div className="p-1 bg-white/10 rounded-full"><Award size={16} className="text-yellow-400" /></div>
+            <h3 className="font-bold text-white">{cert.title}</h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors">
             <X size={20} />
@@ -842,69 +1017,69 @@ const CertificationModal = ({ cert, t, onClose }: { cert: typeof CERTIFICATIONS[
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-           {/* Image Container - Expanded to 60% Width for better visibility */}
-           <div className="md:w-7/12 bg-slate-950/50 p-6 flex items-center justify-center relative border-r border-white/5 group">
-             {/* Subtle Pattern Background */}
-             <div className="absolute inset-0 opacity-10" style={{ 
-                backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)', 
-                backgroundSize: '20px 20px' 
-             }}></div>
-             
-             {/* Zoomable Image */}
-             <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-lg">
-                <img 
-                  src={cert.certImage} 
-                  alt="Certificate" 
-                  className="max-w-full max-h-full object-contain rounded shadow-2xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in" 
-                />
-             </div>
-             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-xs text-slate-300 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                Hover to Zoom
-             </div>
-           </div>
+          {/* Image Container - Expanded to 60% Width for better visibility */}
+          <div className="md:w-7/12 bg-slate-950/50 p-6 flex items-center justify-center relative border-r border-white/5 group">
+            {/* Subtle Pattern Background */}
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
+            }}></div>
 
-           {/* Content Container - Condensed to 40% Width */}
-           <div className="md:w-5/12 p-8 overflow-y-auto bg-slate-900">
-             <div className="flex items-center gap-4 mb-6">
-               <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center p-2 border border-white/10 shrink-0">
-                 <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
-               </div>
-               <div>
-                  <h2 className="text-xl font-bold text-white leading-tight">{cert.title}</h2>
-                  <p className="text-slate-400 text-sm font-mono mt-1">{cert.issuer}</p>
-               </div>
-             </div>
+            {/* Zoomable Image */}
+            <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-lg">
+              <img
+                src={cert.certImage}
+                alt="Certificate"
+                className="max-w-full max-h-full object-contain rounded shadow-2xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
+              />
+            </div>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-xs text-slate-300 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              Hover to Zoom
+            </div>
+          </div>
 
-             <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono mb-6">
-                <CheckCircle size={12} className="inline mr-1" /> Verified Credential
-             </div>
+          {/* Content Container - Condensed to 40% Width */}
+          <div className="md:w-5/12 p-8 overflow-y-auto bg-slate-900">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center p-2 border border-white/10 shrink-0">
+                <img src={cert.badge} alt="Badge" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white leading-tight">{cert.title}</h2>
+                <p className="text-slate-400 text-sm font-mono mt-1">{cert.issuer}</p>
+              </div>
+            </div>
 
-             <p className="text-slate-300 leading-relaxed mb-8 text-sm border-l-2 border-white/10 pl-4">
-                {cert.description}
-             </p>
+            <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono mb-6">
+              <CheckCircle size={12} className="inline mr-1" /> Verified Credential
+            </div>
 
-             <div className="mb-8">
-               <h4 className="text-cyan-400 font-bold mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
-                 <Zap size={14} /> {t.certs.modal.skills}
-               </h4>
-               <div className="flex flex-wrap gap-2">
-                 {cert.skills.map(skill => (
-                   <span key={skill} className="px-2 py-1 bg-slate-800 border border-white/10 rounded text-xs text-slate-400 font-mono">
-                     {skill}
-                   </span>
-                 ))}
-               </div>
-             </div>
+            <p className="text-slate-300 leading-relaxed mb-8 text-sm border-l-2 border-white/10 pl-4">
+              {cert.description[lang]}
+            </p>
 
-             <a 
-               href={cert.verificationLink} 
-               target="_blank" 
-               rel="noreferrer"
-               className="w-full flex items-center justify-center gap-2 bg-white text-slate-950 py-3 rounded-lg font-bold hover:bg-cyan-50 transition-colors"
-             >
-               <ExternalLink size={16} /> {t.certs.modal.verify}
-             </a>
-           </div>
+            <div className="mb-8">
+              <h4 className="text-cyan-400 font-bold mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
+                <Zap size={14} /> {t.certs.modal.skills}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {cert.skills.map(skill => (
+                  <span key={skill} className="px-2 py-1 bg-slate-800 border border-white/10 rounded text-xs text-slate-400 font-mono">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <a
+              href={cert.verificationLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full flex items-center justify-center gap-2 bg-white text-slate-950 py-3 rounded-lg font-bold hover:bg-cyan-50 transition-colors"
+            >
+              <ExternalLink size={16} /> {t.certs.modal.verify}
+            </a>
+          </div>
         </div>
       </motion.div>
     </div>
@@ -943,9 +1118,9 @@ const TiltCard = ({ children, className = "" }: { children: React.ReactNode, cla
     >
       <div style={{ transform: "translateZ(50px)" }}>{children}</div>
       {/* Glare Effect */}
-      <motion.div 
-         style={{ opacity: useTransform(mouseX, [-0.5, 0.5], [0, 0.4]), rotate: 45 }}
-         className="absolute inset-0 bg-gradient-to-tr from-transparent via-white to-transparent pointer-events-none z-20"
+      <motion.div
+        style={{ opacity: useTransform(mouseX, [-0.5, 0.5], [0, 0.4]), rotate: 45 }}
+        className="absolute inset-0 bg-gradient-to-tr from-transparent via-white to-transparent pointer-events-none z-20"
       />
     </motion.div>
   );
@@ -953,9 +1128,9 @@ const TiltCard = ({ children, className = "" }: { children: React.ReactNode, cla
 
 
 // --- GLOBAL CHATBOT COMPONENT ---
-const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
+const Assistant = ({ lang, t }: { lang: 'fr' | 'en', t: any }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string}[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1011,7 +1186,7 @@ const Assistant = ({ lang, t }: { lang: 'fr'|'en', t: any }) => {
 };
 
 // --- NOUVELLE SECTION CERTIFICATIONS (TRUE 3D HOLOGRAPHIC) ---
-const CertificationsSection = ({ t }: { t: any }) => {
+const CertificationsSection = ({ t, lang }: { t: any, lang: 'fr' | 'en' }) => {
   const [selectedCert, setSelectedCert] = useState<typeof CERTIFICATIONS[0] | null>(null);
 
   return (
@@ -1037,18 +1212,18 @@ const CertificationsSection = ({ t }: { t: any }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-10 perspective-1000">
           {CERTIFICATIONS.map((cert) => (
             <TiltCard key={cert.id}>
-              <div 
+              <div
                 onClick={() => setSelectedCert(cert)}
                 className="group cursor-pointer h-80 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border border-white/10 flex flex-col items-center justify-between p-6 shadow-2xl relative overflow-hidden"
               >
                 {/* Internal Border Gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-b ${cert.color} opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
-                
+
                 {/* Floating Badge (Parallax Z-Index) */}
                 <div className="relative z-10 w-32 h-32 flex items-center justify-center drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform translate-z-20 group-hover:scale-110 transition-transform duration-300">
-                   <img src={cert.badge} alt={cert.title} className="w-full h-full object-contain" />
+                  <img src={cert.badge} alt={cert.title} className="w-full h-full object-contain" />
                 </div>
-                
+
                 <div className="relative z-10 text-center w-full mt-4 transform translate-z-10">
                   <h3 className="text-sm font-bold text-white mb-1 leading-tight group-hover:text-cyan-300 transition-colors">
                     {cert.title}
@@ -1069,7 +1244,7 @@ const CertificationsSection = ({ t }: { t: any }) => {
 
       <AnimatePresence>
         {selectedCert && (
-          <CertificationModal cert={selectedCert} t={t} onClose={() => setSelectedCert(null)} />
+          <CertificationModal cert={selectedCert} t={t} lang={lang} onClose={() => setSelectedCert(null)} />
         )}
       </AnimatePresence>
     </section>
@@ -1080,40 +1255,50 @@ const CertificationsSection = ({ t }: { t: any }) => {
 const TechStackSection = ({ t }: { t: any }) => {
   const [activeTech, setActiveTech] = useState<typeof TECH_STACK[0] | null>(null);
 
+  const handleTechClick = (tech: typeof TECH_STACK[0]) => {
+    if (activeTech?.id === tech.id) {
+      setActiveTech(null);
+    } else {
+      setActiveTech(tech);
+    }
+  };
+
   return (
     <section className="py-20 bg-slate-950 border-t border-white/5">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-           <h2 className="text-2xl font-mono font-bold text-slate-200 mb-2 flex items-center justify-center gap-2">
-             <Terminal size={20} className="text-green-500 animate-pulse" /> {t.stack.title}
-           </h2>
-           <p className="text-slate-500 text-sm font-mono">
-             {t.stack.subtitle} <span className="text-green-500">[{TECH_STACK.length} OK]</span>
-           </p>
+          <h2 className="text-2xl font-mono font-bold text-slate-200 mb-2 flex items-center justify-center gap-2">
+            <Terminal size={20} className="text-green-500 animate-pulse" /> {t.stack.title}
+          </h2>
+          <p className="text-slate-500 text-sm font-mono">
+            {t.stack.subtitle} <span className="text-green-500">[{TECH_STACK.length} OK]</span>
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {TECH_STACK.map((tech) => (
             <motion.div
               key={tech.id}
-              onClick={() => setActiveTech(tech)}
+              onClick={() => handleTechClick(tech)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`cursor-pointer relative p-4 rounded-xl border transition-all duration-300 ${activeTech?.id === tech.id ? 'bg-slate-800 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'bg-slate-900/50 border-white/10 hover:border-white/20'}`}
             >
               <div className="flex flex-col items-center gap-3">
                 <tech.icon size={28} className={activeTech?.id === tech.id ? 'text-cyan-400' : 'text-slate-400'} />
-                <span className={`text-xs font-bold font-mono ${activeTech?.id === tech.id ? 'text-white' : 'text-slate-400'}`}>
+                <span className={`text-xs font-bold font-mono text-center ${activeTech?.id === tech.id ? 'text-white' : 'text-slate-400'}`}>
                   {tech.name}
                 </span>
-                <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    whileInView={{ width: tech.level }}
-                    viewport={{ once: true }}
-                    className="h-full bg-cyan-500/50" 
-                  />
-                </div>
+                {tech.level !== 'Active' && (
+                  <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: tech.level }}
+                      viewport={{ once: true }}
+                      className="h-full bg-cyan-500/50"
+                    />
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
@@ -1133,24 +1318,46 @@ const TechStackSection = ({ t }: { t: any }) => {
                 <div className="grid md:grid-cols-2 gap-8 items-center">
                   <div>
                     <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                       <activeTech.icon className="text-cyan-400" /> {activeTech.name}
+                      <activeTech.icon className="text-cyan-400" /> {activeTech.name}
                     </h3>
                     <p className="text-slate-400 text-sm font-mono mb-4">{activeTech.type}</p>
                     <p className="text-slate-300">{activeTech.desc}</p>
+                    {activeTech.id === 'ovh-vps' && (
+                      <a
+                        href="https://www.ovhcloud.com/fr/vps/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 mt-4 text-cyan-400 hover:text-cyan-300 transition-colors text-sm font-bold"
+                      >
+                        <ExternalLink size={14} /> View OVH VPS Plans
+                      </a>
+                    )}
+                    {activeTech.id === 'youtube' && (
+                      <a
+                        href="https://www.youtube.com/@KrisRetroLab"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 mt-4 text-red-400 hover:text-red-300 transition-colors text-sm font-bold"
+                      >
+                        <Youtube size={14} /> Visit YouTube Channel
+                      </a>
+                    )}
                   </div>
                   <div className="space-y-4 font-mono text-xs">
-                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                        <span className="text-slate-500">KERNEL_PID</span>
-                        <span className="text-white">0x{activeTech.id.toUpperCase()}</span>
-                     </div>
-                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                        <span className="text-slate-500">{t.stack.status}</span>
-                        <span className="text-green-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> {activeTech.status}</span>
-                     </div>
-                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                      <span className="text-slate-500">KERNEL_PID</span>
+                      <span className="text-white">0x{activeTech.id.toUpperCase().replace(/-/g, '')}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                      <span className="text-slate-500">{t.stack.status}</span>
+                      <span className="text-green-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> {activeTech.status}</span>
+                    </div>
+                    {activeTech.level !== 'Active' && (
+                      <div className="flex justify-between items-center border-b border-white/10 pb-2">
                         <span className="text-slate-500">{t.stack.level}</span>
                         <span className="text-cyan-400">{activeTech.level}</span>
-                     </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1164,21 +1371,46 @@ const TechStackSection = ({ t }: { t: any }) => {
 
 // --- NOUVELLE SECTION: LIVE HOMELAB DASHBOARD (PROPOSITION 2) ---
 const HomelabDashboard = ({ t }: { t: any }) => {
+  const [cpuLoads, setCpuLoads] = useState<{ [key: string]: string }>({
+    'Nextcloud': getCPULoad('Nextcloud'),
+    'Mailserver': getCPULoad('Mailserver'),
+    'RustDesk': getCPULoad('RustDesk'),
+    'Speedtest': getCPULoad('Speedtest')
+  });
+
+  // Update CPU loads every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCpuLoads({
+        'Nextcloud': getCPULoad('Nextcloud'),
+        'Mailserver': getCPULoad('Mailserver'),
+        'RustDesk': getCPULoad('RustDesk'),
+        'Speedtest': getCPULoad('Speedtest')
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // --- FAKE DATA START (Replace with API calls) ---
   // Suggestions for real data:
   // 1. VPS Services: Use a simple API endpoint on your VPS (Node/Python) that runs 'docker ps' or 'docker stats'
   // 2. Uptime/Ping: Use Uptime Kuma API if you install it, or a custom ping script.
   // 3. Pi-hole: Pi-hole has a built-in API at http://pi.hole/admin/api.php
+  // Generate dynamic CPU loads
   const VPS_SERVICES = [
-    { name: 'Nextcloud', status: 'online', uptime: '99.9%', cpu: '12%', icon: Cloud, ip: 'Docker Internal' },
-    { name: 'Mailserver', status: 'online', uptime: '99.9%', cpu: '5%', icon: Mail, ip: 'Docker Internal' },
-    { name: 'RustDesk', status: 'online', uptime: '99.5%', cpu: '8%', icon: Monitor, ip: 'Docker Internal' },
-    { name: 'Speedtest', status: 'online', uptime: '100%', cpu: '2%', icon: Zap, ip: 'speedtest.kwol.cloud', link: 'https://speedtest.kwol.cloud/' }
+    { name: 'Nextcloud', status: 'online', uptime: '99.9%', cpu: cpuLoads['Nextcloud'], icon: Cloud, ip: 'Docker Internal' },
+    { name: 'Mailserver', status: 'online', uptime: '99.9%', cpu: cpuLoads['Mailserver'], icon: Mail, ip: 'Docker Internal' },
+    { name: 'RustDesk', status: 'online', uptime: '99.5%', cpu: cpuLoads['RustDesk'], icon: Monitor, ip: 'Docker Internal' },
+    { name: 'Speedtest', status: 'online', uptime: '100%', cpu: cpuLoads['Speedtest'], icon: Zap, ip: 'speedtest.kwol.cloud', link: 'https://speedtest.kwol.cloud/' }
   ];
 
+  // Generate dynamic queries
   const HOME_SERVICES = [
-    { name: 'Pi-hole DNS', status: 'online', queries: '24k', blocked: '12%', icon: Shield },
+    { name: 'Pi-hole DNS', status: 'online', queries: getPiHoleQueries(), blocked: '12%', icon: Shield },
     { name: 'Unbound', status: 'online', latency: '15ms', secure: true, icon: Globe },
+    { name: 'Prometheus', status: 'online', metrics: '1.2k', icon: Activity },
+    { name: 'Grafana', status: 'online', dashboards: '8', icon: Layers },
   ];
   // --- FAKE DATA END ---
 
@@ -1200,9 +1432,9 @@ const HomelabDashboard = ({ t }: { t: any }) => {
           <div className="bg-slate-950/50 rounded-2xl border border-white/10 p-6 backdrop-blur-md relative overflow-hidden group">
             {/* Decoration */}
             <div className="absolute top-0 right-0 p-4 opacity-50"><HardDrive className="text-slate-700" size={100} /></div>
-            
+
             <h3 className="text-xl font-mono font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> VPS-9A9A64B5 (Ubuntu)
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> VPS (Ubuntu)
             </h3>
 
             <div className="space-y-4 relative z-10">
@@ -1213,21 +1445,21 @@ const HomelabDashboard = ({ t }: { t: any }) => {
                     <div>
                       <h4 className="font-bold text-white text-sm">{srv.name}</h4>
                       <div className="text-xs text-slate-500 font-mono flex gap-2">
-                         <span>{t.homelab.uptime}: {srv.uptime}</span>
-                         <span className="text-slate-600">|</span>
-                         <span>{t.homelab.cpu}: {srv.cpu}</span>
+                        <span>{t.homelab.uptime}: {srv.uptime}</span>
+                        <span className="text-slate-600">|</span>
+                        <span>{t.homelab.cpu}: {srv.cpu}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 uppercase tracking-wider">
-                       {srv.status}
-                     </span>
-                     {srv.link && (
-                       <a href={srv.link} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-white transition-colors">
-                         <ExternalLink size={16} />
-                       </a>
-                     )}
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 uppercase tracking-wider">
+                      {srv.status}
+                    </span>
+                    {srv.link && (
+                      <a href={srv.link} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-white transition-colors">
+                        <ExternalLink size={16} />
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1236,34 +1468,31 @@ const HomelabDashboard = ({ t }: { t: any }) => {
 
           {/* HOME RACK */}
           <div className="bg-slate-950/50 rounded-2xl border border-white/10 p-6 backdrop-blur-md relative overflow-hidden">
-             {/* Decoration */}
-             <div className="absolute top-0 right-0 p-4 opacity-50"><Wifi className="text-slate-700" size={100} /></div>
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 p-4 opacity-50"><Wifi className="text-slate-700" size={100} /></div>
 
-             <h3 className="text-xl font-mono font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+            <h3 className="text-xl font-mono font-bold text-white mb-6 flex items-center gap-2 relative z-10">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> HOME_LAB (Raspberry Pi 5)
             </h3>
 
             <div className="grid sm:grid-cols-2 gap-4 relative z-10">
               {HOME_SERVICES.map((srv) => (
                 <div key={srv.name} className="bg-slate-900/80 border border-white/5 p-4 rounded-lg flex flex-col gap-3 hover:border-purple-500/30 transition-colors">
-                   <div className="flex justify-between items-start">
-                      <srv.icon className="text-purple-400" size={24} />
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                   </div>
-                   <div>
-                      <h4 className="font-bold text-white">{srv.name}</h4>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {srv.queries && `Queries: ${srv.queries}`}
-                        {srv.latency && `Latency: ${srv.latency}`}
-                      </p>
-                   </div>
+                  <div className="flex justify-between items-start">
+                    <srv.icon className="text-purple-400" size={24} />
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">{srv.name}</h4>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {srv.queries && `Queries: ${srv.queries}`}
+                      {srv.latency && `Latency: ${srv.latency}`}
+                      {srv.metrics && `Metrics: ${srv.metrics}`}
+                      {srv.dashboards && `Dashboards: ${srv.dashboards}`}
+                    </p>
+                  </div>
                 </div>
               ))}
-              
-              {/* Placeholder for future expansion */}
-              <div className="border border-dashed border-white/10 rounded-lg flex items-center justify-center p-4 text-slate-600 text-sm font-mono hover:text-slate-400 hover:border-white/20 transition-all cursor-pointer">
-                 + Add Service
-              </div>
             </div>
           </div>
         </div>
@@ -1272,34 +1501,103 @@ const HomelabDashboard = ({ t }: { t: any }) => {
   );
 };
 
-// --- LOGO COMPONENT ---
-const InteractiveLogo = () => {
-  const LetterGroup = ({ initial, full }: { initial: string, full: string }) => (
-    <div className="group flex items-center cursor-default">
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{initial}</span>
-      <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-500 ease-in-out whitespace-nowrap text-slate-300 font-medium text-lg ml-0.5">
-        {full}
-      </span>
-    </div>
-  );
+// --- NEW LOGO COMPONENT (PHYSICS BASED) ---
+// --- NEW LOGO COMPONENT (EXPANSIVE KWF) ---
+const ExpansiveLogo = () => {
+  const LetterGroup = ({ initial, full }: { initial: string, full: string }) => {
+    return (
+      <motion.div
+        className="flex items-center cursor-default bg-slate-900/50 hover:bg-slate-800/80 px-1 rounded-lg transition-colors border border-transparent hover:border-white/5"
+        initial="rest"
+        whileHover="hover"
+        animate="rest"
+      >
+        <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 drop-shadow-sm filter">
+          {initial}
+        </span>
+        <motion.div
+          variants={{
+            rest: { width: 0, opacity: 0, transition: { duration: 0.3, ease: 'easeInOut' } },
+            hover: { width: "auto", opacity: 1, transition: { type: 'spring', bounce: 0.3, duration: 0.5 } }
+          }}
+          className="overflow-hidden whitespace-nowrap"
+        >
+          <span className="text-xl font-bold text-slate-300 ml-0.5 tracking-tight pr-2">
+            {full}
+          </span>
+        </motion.div>
+      </motion.div>
+    );
+  };
 
   return (
-    <div className="flex items-center gap-1 text-2xl tracking-tighter font-bold">
-       <LetterGroup initial="K" full="ristofer" />
-       <LetterGroup initial="W" full="illiam" />
-       <LetterGroup initial="F" full="auvette" />
+    <div className="flex items-center gap-1">
+      <LetterGroup initial="K" full="ristofer" />
+      <LetterGroup initial="W" full="illiam" />
+      <LetterGroup initial="F" full="auvette" />
     </div>
+  );
+};
+
+// --- NAV LINK COMPONENT ---
+const NavLink = ({ href, children, onClick }: { href?: string, children: React.ReactNode, onClick?: () => void }) => {
+  return (
+    <motion.a
+      href={href}
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer"
+      whileHover="hover"
+      initial="rest"
+      animate="rest"
+    >
+      <span className="relative z-10">{children}</span>
+      <motion.div
+        variants={{
+          rest: { opacity: 0, scale: 0.8 },
+          hover: { opacity: 1, scale: 1 }
+        }}
+        transition={{ type: "spring", duration: 0.5 }}
+        className="absolute inset-0 bg-white/10 rounded-lg -z-0 blur-sm"
+      />
+      <motion.div
+        variants={{
+          rest: { scaleX: 0, opacity: 0 },
+          hover: { scaleX: 1, opacity: 1 }
+        }}
+        transition={{ type: "spring", duration: 0.5 }}
+        className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-2"
+      />
+    </motion.a>
   );
 };
 
 // --- MAIN APP COMPONENT ---
 export default function App() {
-  const [lang, setLang] = useState<'fr' | 'en'>('fr');
+  // Fix Scroll Restoration on Reload
+  // Fix Scroll Restoration on Reload (Use LayoutEffect for earlier execution)
+  useLayoutEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // Force scroll to top immediately
+    window.scrollTo(0, 0);
+
+    // Double check slightly later for layout shifts
+    const timer = setTimeout(() => window.scrollTo(0, 0), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const [lang, setLang] = useState<'fr' | 'en'>('en');
   const [readingArticle, setReadingArticle] = useState<number | null>(null);
   const [viewingResume, setViewingResume] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  
+
   const t = TRANSLATIONS[lang];
   const activeArticleData = BLOG_CONTENT.find(a => a.id === readingArticle);
 
@@ -1310,36 +1608,36 @@ export default function App() {
     const formData = new FormData(form);
     try {
       const response = await fetch(FORMSPREE_ENDPOINT, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
-      if (response.ok) { setContactStatus('success'); form.reset(); } 
+      if (response.ok) { setContactStatus('success'); form.reset(); }
       else { setContactStatus('error'); }
     } catch (error) { setContactStatus('error'); }
   };
 
   const PROJECTS = [
-    { 
-      id: 1, 
-      title: "Plex Server", 
-      cat: "Self-Hosting", 
-      tech: ["Docker", "Linux"], 
-      desc: "Media server with HW transcoding.", 
+    {
+      id: 1,
+      title: "Plex Server",
+      cat: "Self-Hosting",
+      tech: ["Docker", "Linux"],
+      desc: "Media server with HW transcoding.",
       Visual: PlexVisual,
       action: { type: 'link', url: 'https://github.com/plexinc/pms-docker' }
     },
-    { 
-      id: 2, 
-      title: "Pi-hole DNS", 
-      cat: "Cybersecurity", 
-      tech: ["DNSSEC", "Unbound"], 
-      desc: "Network-wide ad blocking.", 
+    {
+      id: 2,
+      title: "Pi-hole DNS",
+      cat: "Cybersecurity",
+      tech: ["DNSSEC", "Unbound"],
+      desc: "Network-wide ad blocking.",
       Visual: PiHoleVisual,
       action: { type: 'internal', articleId: 1 }
     },
-    { 
-      id: 3, 
-      title: "RustDesk", 
-      cat: "SysAdmin", 
-      tech: ["VPS", "Encrypted"], 
-      desc: "Secure remote desktop infrastructure.", 
+    {
+      id: 3,
+      title: "RustDesk",
+      cat: "SysAdmin",
+      tech: ["VPS", "Encrypted"],
+      desc: "Secure remote desktop infrastructure.",
       Visual: RustDeskVisual,
       action: { type: 'link', url: 'https://rustdesk.com/docs/en/self-host/' }
     }
@@ -1357,12 +1655,12 @@ export default function App() {
     <div className="bg-slate-950 min-h-screen text-slate-200 selection:bg-cyan-500/30 selection:text-cyan-200 font-sans">
       <ScrollProgress />
       <ParticleNetwork />
-      
+
       {activeArticleData && (
-        <ArticleReader 
-          article={activeArticleData} 
-          lang={lang} 
-          onClose={() => setReadingArticle(null)} 
+        <ArticleReader
+          article={activeArticleData}
+          lang={lang}
+          onClose={() => setReadingArticle(null)}
         />
       )}
 
@@ -1373,20 +1671,35 @@ export default function App() {
       {/* Navbar */}
       <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/10 py-4">
         <div className="container mx-auto px-6 flex justify-between items-center">
-          <InteractiveLogo />
+          <ExpansiveLogo />
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-            <a href="#about" className="hover:text-cyan-400 transition-colors">{t.nav.about}</a>
-            <a href="#certifications" className="hover:text-cyan-400 transition-colors">{t.nav.certs}</a>
-            <a href="#projects" className="hover:text-cyan-400 transition-colors">{t.nav.projects}</a>
-            <a href="#blog" className="hover:text-cyan-400 transition-colors">{t.nav.blog}</a>
-            <button onClick={() => setViewingResume(true)} className="hover:text-cyan-400 transition-colors flex items-center gap-1">
-               <FileText size={16} /> {t.nav.cv}
-            </button>
-            <a href="#contact" className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all border border-white/5">{t.nav.contact}</a>
-            
-            <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="flex items-center gap-2 px-3 py-1 rounded border border-white/10 hover:bg-white/5 transition-all text-xs font-mono text-cyan-400">
-              <Languages size={14} /> {t.nav.lang}
+
+
+          <div className="hidden md:flex flex-1 justify-center items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-full px-2 py-1 shadow-lg shadow-black/20">
+              <NavLink href="#about">{t.nav.about}</NavLink>
+              <NavLink href="#certifications">{t.nav.certs}</NavLink>
+              <NavLink href="#projects">{t.nav.projects}</NavLink>
+              <NavLink href="#blog">{t.nav.blog}</NavLink>
+              <NavLink onClick={() => setViewingResume(true)}>
+                <span className="flex items-center gap-2"><FileText size={14} /> {t.nav.cv}</span>
+              </NavLink>
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <a
+              href="#contact"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-cyan-600/80 to-blue-600/80 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:scale-105 border border-white/10"
+            >
+              {t.nav.contact}
+            </a>
+
+            <button
+              onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')}
+              className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 hover:border-cyan-500/50 flex items-center justify-center text-cyan-400 hover:bg-slate-700 transition-all shadow-lg"
+            >
+              <span className="text-xs font-bold font-mono">{lang === 'fr' ? 'EN' : 'FR'}</span>
             </button>
           </div>
 
@@ -1397,15 +1710,15 @@ export default function App() {
 
         {isNavOpen && (
           <div className="absolute top-full left-0 w-full bg-slate-950 border-b border-white/10 p-6 md:hidden flex flex-col gap-4">
-             <a href="#about" className="text-slate-300 block py-2">{t.nav.about}</a>
-             <a href="#certifications" className="text-slate-300 block py-2">{t.nav.certs}</a>
-             <a href="#projects" className="text-slate-300 block py-2">{t.nav.projects}</a>
-             <a href="#blog" className="text-slate-300 block py-2">{t.nav.blog}</a>
-             <button onClick={() => { setViewingResume(true); setIsNavOpen(false); }} className="text-slate-300 block py-2 text-left">{t.nav.cv}</button>
-             <a href="#contact" className="text-red-400 block py-2 font-bold">{t.nav.contact}</a>
-             <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="text-cyan-400 py-2 flex items-center gap-2">
-                <Languages size={14} /> {t.nav.lang}
-             </button>
+            <a href="#about" className="text-slate-300 block py-2">{t.nav.about}</a>
+            <a href="#certifications" className="text-slate-300 block py-2">{t.nav.certs}</a>
+            <a href="#projects" className="text-slate-300 block py-2">{t.nav.projects}</a>
+            <a href="#blog" className="text-slate-300 block py-2">{t.nav.blog}</a>
+            <button onClick={() => { setViewingResume(true); setIsNavOpen(false); }} className="text-slate-300 block py-2 text-left">{t.nav.cv}</button>
+            <a href="#contact" className="text-red-400 block py-2 font-bold">{t.nav.contact}</a>
+            <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="text-cyan-400 py-2 flex items-center gap-2">
+              <Languages size={14} /> {t.nav.lang}
+            </button>
           </div>
         )}
       </nav>
@@ -1424,16 +1737,22 @@ export default function App() {
               </span>
             </h1>
             <p className="text-slate-400 text-lg mb-8 max-w-lg leading-relaxed">{t.hero.desc}</p>
-            <div className="flex gap-4">
-              <a href="#projects" className="group px-8 py-3 bg-white text-slate-950 font-bold rounded hover:bg-cyan-50 transition-all flex items-center gap-2">
-                {t.hero.btn_work} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <div className="flex flex-wrap gap-4 mt-8">
+              <a href="#projects" className="group relative px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all hover:scale-105 flex items-center gap-2 overflow-hidden">
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 backdrop-blur-sm"></div>
+                <span className="relative flex items-center gap-2">{t.hero.btn_work} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" /></span>
               </a>
-              <button onClick={() => setViewingResume(true)} className="px-8 py-3 rounded border border-white/20 text-white hover:bg-white/5 transition-all font-mono">
-                {t.hero.btn_cv}
+
+              <a href="#blog" className="group px-8 py-3 bg-slate-900/50 backdrop-blur-md border border-white/10 text-white font-bold rounded-xl hover:bg-white/5 hover:border-cyan-500/50 transition-all flex items-center gap-2 shadow-lg hover:shadow-cyan-500/10 hover:scale-105">
+                {t.nav.blog} <ExternalLink size={18} className="group-hover:rotate-45 transition-transform text-cyan-400" />
+              </a>
+
+              <button onClick={() => setViewingResume(true)} className="group px-8 py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all font-mono flex items-center gap-2 hover:scale-105">
+                {t.hero.btn_cv} <Download size={18} className="group-hover:translate-y-1 transition-transform opacity-50 group-hover:opacity-100" />
               </button>
             </div>
           </div>
-          
+
           <div className="relative hidden md:flex justify-center items-center h-[500px]">
             <div className="absolute w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]"></div>
             <div className="relative z-10 w-full max-w-sm bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-2xl transform rotate-3 hover:rotate-0 transition-all duration-500">
@@ -1461,7 +1780,7 @@ export default function App() {
       <HomelabDashboard t={t} />
 
       {/* CERTIFICATIONS SECTION (Updated 3D) */}
-      <CertificationsSection t={t} />
+      <CertificationsSection t={t} lang={lang} />
 
       <section id="projects" className="py-24 relative">
         <div className="container mx-auto px-6 z-10 relative">
@@ -1477,8 +1796,8 @@ export default function App() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {PROJECTS.map((project) => (
-              <div 
-                key={project.id} 
+              <div
+                key={project.id}
                 onClick={() => handleProjectClick(project)}
                 className="group relative bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all hover:-translate-y-2 flex flex-col cursor-pointer"
               >
@@ -1505,11 +1824,11 @@ export default function App() {
           <h2 className="text-3xl font-bold text-white mb-12 flex items-center gap-3">
             <Sparkles className="text-yellow-400" /> {t.blog.title}
           </h2>
-          
+
           <div className="grid gap-6">
             {BLOG_CONTENT.map((article) => (
-              <div 
-                key={article.id} 
+              <div
+                key={article.id}
                 onClick={() => setReadingArticle(article.id)}
                 className="group flex flex-col md:flex-row items-center gap-6 p-6 rounded-xl border border-white/5 hover:bg-white/5 transition-all cursor-pointer bg-slate-950/50"
               >
@@ -1526,9 +1845,9 @@ export default function App() {
                   </div>
                 </div>
                 <div className="hidden md:block">
-                   <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 group-hover:border-cyan-500 group-hover:text-cyan-500 transition-all">
-                      <BookOpen size={20} />
-                   </div>
+                  <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-slate-400 group-hover:border-cyan-500 group-hover:text-cyan-500 transition-all">
+                    <BookOpen size={20} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -1538,45 +1857,45 @@ export default function App() {
 
       <section id="contact" className="py-24 border-t border-white/10 bg-slate-900/30">
         <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12">
-            <div>
-                <h2 className="text-3xl font-bold text-white mb-6">{t.contact.title}</h2>
-                <p className="text-slate-400 mb-8">{t.contact.desc}</p>
-                <div className="flex flex-col gap-4">
-                    <a href={`mailto:${SOCIALS.email}`} className="flex items-center gap-3 text-slate-300 hover:text-cyan-400 transition-colors"><Mail size={20} /> {SOCIALS.email}</a>
-                    <a href={SOCIALS.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-slate-300 hover:text-blue-400 transition-colors"><Linkedin size={20} /> LinkedIn</a>
-                    <a href={SOCIALS.github} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors"><Github size={20} /> GitHub</a>
+          <div>
+            <h2 className="text-3xl font-bold text-white mb-6">{t.contact.title}</h2>
+            <p className="text-slate-400 mb-8">{t.contact.desc}</p>
+            <div className="flex flex-col gap-4">
+              <a href={`mailto:${SOCIALS.email}`} className="flex items-center gap-3 text-slate-300 hover:text-cyan-400 transition-colors"><Mail size={20} /> {SOCIALS.email}</a>
+              <a href={SOCIALS.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-slate-300 hover:text-blue-400 transition-colors"><Linkedin size={20} /> LinkedIn</a>
+              <a href={SOCIALS.github} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors"><Github size={20} /> GitHub</a>
+            </div>
+          </div>
+
+          <div className="bg-slate-950 border border-white/5 p-8 rounded-2xl">
+            {contactStatus === 'success' ? (
+              <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                <CheckCircle size={48} className="text-green-500 mb-4" />
+                <h3 className="text-xl font-bold text-white">{t.contact.success}</h3>
+              </div>
+            ) : (
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.contact.form_email}</label>
+                  <input type="email" name="email" required className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500" />
                 </div>
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.contact.form_msg}</label>
+                  <textarea name="message" required rows={4} className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 resize-none"></textarea>
+                </div>
 
-            <div className="bg-slate-950 border border-white/5 p-8 rounded-2xl">
-                {contactStatus === 'success' ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center py-12">
-                        <CheckCircle size={48} className="text-green-500 mb-4" />
-                        <h3 className="text-xl font-bold text-white">{t.contact.success}</h3>
-                    </div>
-                ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-400 mb-1">{t.contact.form_email}</label>
-                            <input type="email" name="email" required className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-400 mb-1">{t.contact.form_msg}</label>
-                            <textarea name="message" required rows={4} className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 resize-none"></textarea>
-                        </div>
-                        
-                        {contactStatus === 'error' && (
-                            <div className="flex items-center gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded">
-                                <AlertCircle size={16} /> {t.contact.error}
-                            </div>
-                        )}
-
-                        <button type="submit" disabled={contactStatus === 'submitting'} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg flex justify-center gap-2">
-                            {contactStatus === 'submitting' ? <Loader2 className="animate-spin" /> : <><Send size={18} /> {t.contact.form_btn}</>}
-                        </button>
-                    </form>
+                {contactStatus === 'error' && (
+                  <div className="flex items-center gap-2 text-red-400 text-sm bg-red-400/10 p-3 rounded">
+                    <AlertCircle size={16} /> {t.contact.error}
+                  </div>
                 )}
-            </div>
+
+                <button type="submit" disabled={contactStatus === 'submitting'} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg flex justify-center gap-2">
+                  {contactStatus === 'submitting' ? <Loader2 className="animate-spin" /> : <><Send size={18} /> {t.contact.form_btn}</>}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </section>
 
