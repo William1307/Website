@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate, useScroll } from 'framer-motion';
 import {
   Github,
   Linkedin,
@@ -14,6 +14,7 @@ import {
   X,
   Layers,
   Sparkles,
+  Heart,
   Send,
   Bot,
   Loader2,
@@ -37,7 +38,19 @@ import {
   Wifi,
   HardDrive,
   Cloud,
-  Youtube
+  GraduationCap,
+  Briefcase,
+  Calendar,
+  MapPin,
+  User,
+  Car,
+  CalendarCheck,
+  Lightbulb,
+  Gamepad2,
+  Quote,
+  Cake,
+  Youtube,
+  PenTool
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -967,29 +980,404 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
   );
 };
 
-// --- COMPOSANT : VISUALISEUR CV ---
-const ResumeViewer = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: any, onClose: () => void }) => {
+// --- COMPOSANT : INTERACTIVE CV (REPLACES PDF VIEWER) ---
+const InteractiveCV = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: any, onClose: () => void }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ container: scrollRef });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+  // Prevent background scrolling on main body when CV is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto'; // Restore on close
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-950 flex flex-col animate-in slide-in-from-bottom-10 duration-300">
-      <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/80 backdrop-blur">
-        <button onClick={onClose} className="flex items-center gap-2 text-cyan-400 hover:text-white transition-colors font-mono">
-          <ArrowLeft size={18} /> {lang === 'fr' ? 'Retour' : 'Back'}
+    <div className="fixed inset-0 z-[60] bg-slate-950 flex flex-col animate-in slide-in-from-bottom-10 duration-500">
+      {/* Top Bar */}
+      <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/80 backdrop-blur z-50 absolute top-0 w-full">
+        <button onClick={onClose} className="flex items-center gap-2 text-cyan-400 hover:text-white transition-colors font-mono group">
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> {lang === 'fr' ? 'Retour' : 'Back'}
         </button>
-        <h2 className="text-white font-bold hidden md:block">{t.cv.title}</h2>
+        <h2 className="text-white font-bold hidden md:block tracking-wider uppercase text-sm opacity-50">{t.cv.title}</h2>
         <a
           href="/Images/Kristofer_FAUVETTE_CV.pdf"
           download
-          className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-500 transition-colors text-sm font-bold"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded hover:from-cyan-500 hover:to-blue-500 transition-all text-sm font-bold shadow-lg hover:shadow-cyan-500/20 active:scale-95"
         >
           <Download size={16} /> {t.cv.download}
         </a>
       </div>
-      <div className="flex-1 w-full bg-slate-900">
-        <iframe
-          src="/Images/Kristofer_FAUVETTE_CV.pdf"
-          className="w-full h-full border-none"
-          title="CV Kristofer Fauvette"
-        />
+
+      {/* Progress Bar */}
+      <motion.div className="h-1 bg-cyan-500 origin-left z-50 fixed top-[69px] w-full" style={{ scaleX }} />
+
+      {/* Main Content Scrollable */}
+      <div ref={scrollRef} className="flex-1 w-full overflow-y-auto overflow-x-hidden bg-slate-950 scroll-smooth pt-20">
+        <div className="max-w-5xl mx-auto px-6 py-16 space-y-24">
+
+          {/* Header Section (Personal Info) */}
+          <section className="relative text-center space-y-6">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] -z-10"></div>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              className="inline-block p-1 rounded-full bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 shadow-2xl shadow-cyan-500/20"
+            >
+              <div className="bg-slate-950 rounded-full p-2">
+                <img
+                  src="/Images/image.png"
+                  alt="Kristofer Fauvette"
+                  className="w-32 h-32 rounded-full object-cover border-2 border-white/10"
+                />
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tight">Kristofer <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">FAUVETTE</span></h1>
+              <p className="text-2xl text-slate-300 font-light mb-8 uppercase tracking-widest text-sm">
+                {lang === 'fr' ? 'Futur Ingénieur Informatique' : 'Future Computer Engineer'}
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-400 font-mono">
+                <div className="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5 hover:border-cyan-500/50 transition-colors">
+                  <MapPin size={16} className="text-red-400" /> 59300 AULNOY-LEZ-VALENCIENNES
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5 hover:border-cyan-500/50 transition-colors">
+                  <Mail size={16} className="text-yellow-400" /> {SOCIALS.email}
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5 hover:border-cyan-500/50 transition-colors">
+                  <Cake size={16} className="text-pink-400" /> 18 ans
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5 hover:border-cyan-500/50 transition-colors">
+                  <Car size={16} className="text-green-400" /> Permis B
+                </div>
+              </div>
+            </motion.div>
+          </section>
+
+          {/* Profile Summary */}
+          <section className="bg-slate-900/30 p-8 rounded-3xl border border-white/5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+              <Quote size={100} className="text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <User className="text-cyan-400" /> {lang === 'fr' ? 'Profil' : 'Profile'}
+            </h3>
+            <p className="text-slate-300 text-lg leading-relaxed max-w-4xl relative z-10">
+              {lang === 'fr'
+                ? "Étudiant en ingénierie informatique, je cherche un stage pour approfondir mes connaissances et mettre en pratique mes compétences en informatique. Curieux et motivé, j'ai développé mon sens de l'organisation et du travail en équipe à travers des projets et mon bénévolat."
+                : "Engineering student in computer science, searching for an internship to deepen my knowledge and apply my skills. Curious and motivated, I have developed my organizational and teamwork skills through projects and volunteering."}
+            </p>
+          </section>
+
+          {/* Experience Section - Detailed Tiles with Timeline (ACCENTUATED & MOVED UP) */}
+          <section>
+            <h3 className="text-3xl font-bold text-white mb-12 flex items-center gap-3">
+              <Briefcase className="text-purple-400" size={32} /> {lang === 'fr' ? 'Expérience Professionnelle' : 'Work Experience'}
+            </h3>
+
+            <div className="relative border-l-2 border-white/10 ml-4 space-y-12 pl-8 pb-4">
+              {[
+                {
+                  title: "ISIS - Cayenne",
+                  role: "Bénévole (IT Support)",
+                  dur: "Jan 2022 - Sept 2024",
+                  color: "bg-purple-500",
+                  bullets: {
+                    fr: [
+                      "Mise en place et gestion de solutions de virtualisation de serveurs (Proxmox, VMware).",
+                      "Configuration de systèmes de stockage en réseau (NAS) basés sur TrueNAS et Synology.",
+                      "Déploiement de solutions de contrôle à distance auto-hébergées (Rustdesk).",
+                      "Participation aux inventaires réguliers pour vérifier la conformité du stock physique.",
+                      "Installation, configuration et maintenance d'équipements informatiques (postes, serveurs)."
+                    ],
+                    en: [
+                      "Implementation and management of server virtualization solutions (Proxmox, VMware).",
+                      "Configuration of network attached storage (NAS) systems based on TrueNAS and Synology.",
+                      "Deployment of self-hosted remote control solutions (Rustdesk).",
+                      "Participation in regular inventories to verify physical stock conformity.",
+                      "Installation, configuration, and maintenance of IT equipment (workstations, servers)."
+                    ]
+                  },
+                  tags: ["Proxmox", "VMware", "TrueNAS", "Synology", "RustDesk"]
+                },
+                {
+                  title: "ISIS - Cayenne (Stage)",
+                  role: "Stagiaire Observation",
+                  dur: "Jan 2022 (1 mois)",
+                  color: "bg-slate-600",
+                  bullets: {
+                    fr: [
+                      "Stage d'observation de 3ème pour découvrir le monde du travail.",
+                      "Contribution à la mise en place de projets spécifiques en fournissant une aide opérationnelle."
+                    ],
+                    en: [
+                      "Observation internship to discover the professional world.",
+                      "Contribution to the implementation of specific projects by providing operational support."
+                    ]
+                  },
+                  tags: ["Inventaire", "Maintenance", "Support"]
+                }
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className="relative group"
+                >
+                  {/* Timeline Dot */}
+                  <div className={`absolute -left-[41px] top-8 w-6 h-6 rounded-full ${item.color} border-4 border-slate-950 z-10 group-hover:scale-110 transition-transform`}></div>
+
+                  {/* Detailed Tile */}
+                  <div className="bg-slate-900 border border-white/5 p-8 rounded-2xl hover:bg-slate-800 transition-colors relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-32 bg-purple-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-500/10 transition-colors"></div>
+
+                    <div className="flex flex-col md:flex-row justify-between items-start mb-6 relative z-10">
+                      <div>
+                        <h4 className="text-2xl font-bold text-white group-hover:text-purple-400 transition-colors">{item.title}</h4>
+                        <p className="text-purple-400 font-semibold text-lg">{item.role}</p>
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-500 mt-2 md:mt-0 font-mono text-sm bg-white/5 px-3 py-1 rounded-full">
+                        <Calendar size={14} /> {item.dur}
+                      </div>
+                    </div>
+
+                    <ul className="space-y-2 mb-6 relative z-10">
+                      {(lang === 'fr' ? item.bullets.fr : item.bullets.en).map((bullet, k) => (
+                        <li key={k} className="flex items-start gap-3 text-slate-300">
+                          <span className="mt-1.5 w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0" />
+                          <span className="leading-relaxed">{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="flex flex-wrap gap-2 relative z-10">
+                      {item.tags.map(tag => (
+                        <span key={tag} className="px-3 py-1 bg-slate-950 border border-white/10 rounded-md text-sm text-slate-400 font-mono hover:text-white hover:border-purple-500/30 transition-colors">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* Education Timeline (MOVED UP) */}
+          <section>
+            <h3 className="text-3xl font-bold text-white mb-12 flex items-center gap-3">
+              <GraduationCap className="text-cyan-400" size={32} /> {lang === 'fr' ? 'Formation' : 'Education'}
+            </h3>
+            <div className="relative border-l-2 border-white/10 ml-4 space-y-12 pl-8 pb-4">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }}
+                className="relative"
+              >
+                <div className="absolute -left-[41px] w-6 h-6 rounded-full bg-cyan-600 border-4 border-slate-950 shadow-[0_0_15px_rgba(8,145,178,0.5)]"></div>
+                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 hover:border-cyan-500/30 transition-colors">
+                  <span className="text-cyan-400 font-mono text-sm block mb-1">Sept 2025 - Present</span>
+                  <h4 className="text-xl font-bold text-white">INSA Hauts-de-France</h4>
+                  <p className="text-slate-400 mb-2">Diplôme d'ingénieur Classe préparatoire</p>
+                  <p className="text-slate-500 text-sm italic">Valenciennes</p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                className="relative"
+              >
+                <div className="absolute -left-[41px] w-6 h-6 rounded-full bg-slate-700 border-4 border-slate-950"></div>
+                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 hover:border-white/20 transition-colors">
+                  <span className="text-slate-500 font-mono text-sm block mb-1">Sept 2022 - Juin 2025</span>
+                  <h4 className="text-xl font-bold text-white">Lycée Polyvalent Edmard LAMA</h4>
+                  <p className="text-slate-400 mb-2">Baccalauréat Sciences</p>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold mt-2">
+                    <Award size={12} /> Mention Bien
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* SECTION 1: Competencies (UPDATED) */}
+          <section>
+            <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
+              <Cpu className="text-blue-400" /> {lang === 'fr' ? 'Compétences' : 'Competencies'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { cat: "Systèmes", items: "Linux, Windows, Proxmox, TrueNAS, Synology DSM" },
+                { cat: "Réseaux", items: "NAS, VPN, DNS, Cisco, WireGuard" },
+                { cat: lang === 'fr' ? "Développement" : "Development", items: "Python, C, SQL, Git/GitHub" },
+                { cat: "Support & Maintenance", items: lang === 'fr' ? "Installation, Dépannage, Veille Technologique" : "Installation, Troubleshooting, Tech Watch" }
+              ].map((skill, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className="bg-slate-900/50 p-6 rounded-xl border border-white/10 hover:border-blue-400/30 transition-colors"
+                >
+                  <h4 className="text-blue-400 font-bold mb-3 uppercase text-xs tracking-wider border-b border-white/5 pb-2">{skill.cat}</h4>
+                  <p className="text-slate-300 font-medium leading-relaxed">{skill.items.split(', ').map(item => (
+                    <span key={item} className="inline-block bg-white/5 rounded px-2 py-0.5 mr-2 mb-2 text-sm">{item}</span>
+                  ))}</p>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* SECTION 2: Qualities & Interests & Hobbies (GROUPED BELOW EDUCATION) */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Qualities */}
+            <section>
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Heart className="text-pink-400" /> {lang === 'fr' ? 'Qualités' : 'Qualities'}
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {['Motivation', 'Curiosité intrinsèque', 'Autonomie', 'Rigueur'].map((q, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                    className="px-6 py-3 bg-slate-900 border border-white/10 rounded-full text-slate-300 hover:text-white hover:border-pink-500/50 hover:bg-pink-500/10 transition-all cursor-default"
+                  >
+                    {q}
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+
+            {/* Interests */}
+            <section>
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Sparkles className="text-yellow-400" /> {lang === 'fr' ? "Centres d'intérêt" : 'Interests'}
+              </h3>
+              <div className="flex flex-col gap-4">
+                {[
+                  { label: "Informatique & Réseaux", color: "bg-cyan-500" },
+                  { label: "Programmation", color: "bg-green-500" },
+                  { label: "Nouvelles Technologies", color: "bg-purple-500" }
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                    className="bg-slate-900/50 p-4 rounded-xl border border-white/10 flex items-center gap-3"
+                  >
+                    <span className={`w-3 h-3 rounded-full ${item.color}`}></span>
+                    <span className="text-slate-200 font-medium">{item.label}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* Hobbies Section */}
+          <section>
+            <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
+              <Gamepad2 className="text-purple-400" /> {lang === 'fr' ? 'Hobbies' : 'Hobbies'}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group flex items-center gap-6"
+              >
+                <div className="p-4 bg-red-500/10 rounded-full text-red-500 group-hover:scale-110 transition-transform">
+                  <Youtube size={32} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-lg">Youtube Creator</h4>
+                  <p className="text-slate-400 text-sm">Tech Reviews & Tutorials</p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors group flex items-center gap-6"
+              >
+                <div className="p-4 bg-cyan-500/10 rounded-full text-cyan-500 group-hover:scale-110 transition-transform">
+                  <PenTool size={32} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-lg">Blog Writing</h4>
+                  <p className="text-slate-400 text-sm">Tech Articles & Documentation</p>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Project Mission Log */}
+          <section>
+            <h3 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+              <Terminal className="text-green-400" size={32} /> {lang === 'fr' ? 'Projets' : 'Projects'}
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { name: "Self-Host Server", type: "Infrastructure", tool: "Docker", desc: "Administration d'un serveur personnel." },
+                { name: "Mail Server", type: "Network", tool: "Postfix/Dovecot", desc: "Serveur mail auto-hébergé complet." },
+                { name: "RustDesk", type: "Remote Access", tool: "Self-Hosted", desc: "Système d'accès à distance sécurisé." },
+                { name: "Ad-Blocker DNS", type: "Network", tool: "Pi-hole + Unbound", desc: "Gestion DNS et filtrage publicitaire." },
+                { name: "Plex Media", type: "Multimedia", tool: "Plex", desc: "Serveur multimédia avec accès distant." },
+                { name: "Portfolio", type: "Web Dev", tool: "React", desc: "Site web portfolio-blog (kwol.cloud)." },
+                { name: "Blackjack", type: "Game Dev", tool: "Python", desc: "Jeu de blackjack complet en Python." },
+              ].map((proj, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0.9, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+                  className="bg-slate-900/50 border border-white/5 p-6 rounded-xl hover:border-green-500/50 transition-all group"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <Code2 className="text-slate-600 group-hover:text-green-400 transition-colors" size={20} />
+                    <span className="text-[10px] uppercase font-bold text-slate-500 border border-white/5 px-2 py-0.5 rounded">{proj.tool}</span>
+                  </div>
+                  <h4 className="text-white font-bold mb-1">{proj.name}</h4>
+                  <p className="text-slate-400 text-sm">{proj.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* Languages Section */}
+          <section>
+            <h3 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+              <Languages className="text-pink-400" size={32} /> {lang === 'fr' ? 'Langues' : 'Languages'}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="block font-bold text-white text-lg">Français</span>
+                  <span className="text-sm text-slate-500">Langue maternelle</span>
+                </div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(n => <div key={n} className="w-2 h-8 bg-cyan-500 rounded-sm"></div>)}
+                </div>
+              </div>
+              <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="block font-bold text-white text-lg">Anglais</span>
+                  <span className="text-sm text-slate-500">Intermédiaire supérieur (B2)</span>
+                  <span className="text-xs text-cyan-400 block mt-1">2 semaines échange USA + Certifié Cambridge</span>
+                </div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map(n => <div key={n} className="w-2 h-8 bg-cyan-500 rounded-sm"></div>)}
+                  <div className="w-2 h-8 bg-slate-700 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer Quote */}
+          <div className="text-center py-12 border-t border-white/5">
+            <p className="text-lg text-slate-500 italic">"Learning never exhausts the mind."</p>
+            <p className="text-sm text-slate-600 mt-2">— Leonardo da Vinci</p>
+          </div>
+
+        </div>
       </div>
     </div>
   );
@@ -1541,8 +1929,49 @@ const ExpansiveLogo = () => {
 
 // --- NAV LINK COMPONENT ---
 const NavLink = ({ href, children, onClick }: { href?: string, children: React.ReactNode, onClick?: () => void }) => {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Spring physics for the magnetic effect
+  const springConfig = { type: "spring", stiffness: 150, damping: 15, mass: 0.1 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  // Gradient for the specific spotlight
+  const gradient = useMotionTemplate`radial-gradient(150px circle at ${mouseX}px ${mouseY}px, rgba(34, 211, 238, 0.4), transparent 80%)`;
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = ref.current!.getBoundingClientRect();
+
+    // Magnetic pull calculation
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const distanceX = clientX - centerX;
+    const distanceY = clientY - centerY;
+
+    // Move the button a fraction of the distance (magnetic feel)
+    x.set(distanceX * 0.2);
+    y.set(distanceY * 0.2);
+
+    // Spotlight calculation relative to element
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+    mouseX.set(-1000); // Move spotlight out
+    mouseY.set(-1000);
+  };
+
   return (
     <motion.a
+      ref={ref}
       href={href}
       onClick={(e) => {
         if (onClick) {
@@ -1550,28 +1979,22 @@ const NavLink = ({ href, children, onClick }: { href?: string, children: React.R
           onClick();
         }
       }}
-      className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors group cursor-pointer"
-      whileHover="hover"
-      initial="rest"
-      animate="rest"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      className="relative px-4 py-2 text-sm font-medium text-slate-300 transition-colors group cursor-pointer block"
     >
-      <span className="relative z-10">{children}</span>
+      {/* Background Spotlight */}
       <motion.div
-        variants={{
-          rest: { opacity: 0, scale: 0.8 },
-          hover: { opacity: 1, scale: 1 }
-        }}
-        transition={{ type: "spring", duration: 0.5 }}
-        className="absolute inset-0 bg-white/10 rounded-lg -z-0 blur-sm"
+        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: gradient }}
       />
-      <motion.div
-        variants={{
-          rest: { scaleX: 0, opacity: 0 },
-          hover: { scaleX: 1, opacity: 1 }
-        }}
-        transition={{ type: "spring", duration: 0.5 }}
-        className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent mx-2"
-      />
+
+      {/* Subtle border ring that lights up */}
+      <span className="absolute inset-0 rounded-full ring-1 ring-white/5 group-hover:ring-white/20 transition-all duration-300" />
+
+      {/* Content */}
+      <span className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors">{children}</span>
     </motion.a>
   );
 };
@@ -1665,7 +2088,7 @@ export default function App() {
       )}
 
       {viewingResume && (
-        <ResumeViewer lang={lang} t={t} onClose={() => setViewingResume(false)} />
+        <InteractiveCV lang={lang} t={t} onClose={() => setViewingResume(false)} />
       )}
 
       {/* Navbar */}
@@ -1676,15 +2099,13 @@ export default function App() {
 
 
           <div className="hidden md:flex flex-1 justify-center items-center gap-2">
-            <div className="flex items-center gap-1 bg-slate-900/50 backdrop-blur-xl border border-white/5 rounded-full px-2 py-1 shadow-lg shadow-black/20">
-              <NavLink href="#about">{t.nav.about}</NavLink>
-              <NavLink href="#certifications">{t.nav.certs}</NavLink>
-              <NavLink href="#projects">{t.nav.projects}</NavLink>
-              <NavLink href="#blog">{t.nav.blog}</NavLink>
-              <NavLink onClick={() => setViewingResume(true)}>
-                <span className="flex items-center gap-2"><FileText size={14} /> {t.nav.cv}</span>
-              </NavLink>
-            </div>
+            <NavLink href="#about">{t.nav.about}</NavLink>
+            <NavLink href="#certifications">{t.nav.certs}</NavLink>
+            <NavLink href="#projects">{t.nav.projects}</NavLink>
+            <NavLink href="#blog">{t.nav.blog}</NavLink>
+            <NavLink onClick={() => setViewingResume(true)}>
+              <span className="flex items-center gap-2"><FileText size={14} /> {t.nav.cv}</span>
+            </NavLink>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
