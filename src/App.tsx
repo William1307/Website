@@ -73,6 +73,8 @@ export default function App() {
 
         <Hero t={t} setViewingResume={setViewingResume} />
 
+        <Blog t={t} lang={lang} setReadingArticle={setReadingArticle} />
+
         <Projects
           t={t}
           filterTech={filterTech}
@@ -84,8 +86,6 @@ export default function App() {
         <Homelab t={t} setReadingArticle={setReadingArticle} />
 
         <Certifications t={t} lang={lang} />
-
-        <Blog t={t} lang={lang} setReadingArticle={setReadingArticle} />
 
         <Gallery t={t} />
 

@@ -22,12 +22,15 @@ const Assistant = ({ lang, t }: { lang: 'fr' | 'en', t: typeof TRANSLATIONS['fr'
     const handleSend = async () => {
         if (!input.trim()) return;
         const userMsg = input;
-        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+
+        const newMessages = [...messages, { role: 'user' as const, text: userMsg }];
+
+        setMessages(newMessages);
         setInput("");
         setIsTyping(true);
 
         const systemPrompt = getGlobalContext() + `\nRespond in ${lang === 'fr' ? 'French' : 'English'}. Use Markdown formatting for bolding key terms, creating lists, and snippets. Keep it concise.`;
-        const response = await callGemini(userMsg, systemPrompt);
+        const response = await callGemini(newMessages, systemPrompt);
 
         setMessages(prev => [...prev, { role: 'ai', text: response }]);
         setIsTyping(false);
@@ -94,8 +97,8 @@ const Assistant = ({ lang, t }: { lang: 'fr' | 'en', t: typeof TRANSLATIONS['fr'
                                     </div>
 
                                     <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${msg.role === 'user'
-                                            ? 'bg-gradient-to-br from-cyan-600 to-blue-600 text-white rounded-tr-none'
-                                            : 'bg-slate-800/80 border border-white/5 text-slate-200 rounded-tl-none'
+                                        ? 'bg-gradient-to-br from-cyan-600 to-blue-600 text-white rounded-tr-none'
+                                        : 'bg-slate-800/80 border border-white/5 text-slate-200 rounded-tl-none'
                                         }`}>
                                         {msg.role === 'ai' ? (
                                             <div className="markdown-content">
