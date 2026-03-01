@@ -9,6 +9,7 @@ import Blog from './components/Blog';
 import TechStack from './components/TechStack';
 import Homelab from './components/Homelab';
 import Certifications from './components/Certifications';
+import Gallery from './components/Gallery';
 import Contact from './components/Contact';
 import Assistant from './components/Assistant';
 import { TRANSLATIONS } from './data/translations';
@@ -31,7 +32,7 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const [lang, setLang] = useState<'fr' | 'en'>('en');
+  const [lang, setLang] = useState<'fr' | 'en'>('fr');
   const [readingArticle, setReadingArticle] = useState<number | null>(null);
   const [viewingResume, setViewingResume] = useState(false);
 
@@ -78,13 +79,15 @@ export default function App() {
           setReadingArticle={setReadingArticle}
         />
 
-        <Blog t={t} lang={lang} setReadingArticle={setReadingArticle} />
-
         <TechStack t={t} onSelectTech={setFilterTech} />
 
-        <Homelab t={t} />
+        <Homelab t={t} setReadingArticle={setReadingArticle} />
 
         <Certifications t={t} lang={lang} />
+
+        <Blog t={t} lang={lang} setReadingArticle={setReadingArticle} />
+
+        <Gallery t={t} />
 
         <Contact t={t} />
 

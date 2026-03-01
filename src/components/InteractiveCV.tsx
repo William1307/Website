@@ -33,9 +33,9 @@ const InteractiveCV = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: typeof TRAN
                 <a
                     href="/Images/Kristofer_FAUVETTE_CV.pdf"
                     download
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded hover:from-cyan-500 hover:to-blue-500 transition-all text-sm font-bold shadow-lg hover:shadow-cyan-500/20 active:scale-95"
+                    className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all text-base font-bold shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 border border-white/20"
                 >
-                    <Download size={16} /> {t.cv.download}
+                    <Download size={20} /> {t.cv.download}
                 </a>
             </div>
 
@@ -102,6 +102,16 @@ const InteractiveCV = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: typeof TRAN
                         <p className="text-slate-300 text-lg leading-relaxed max-w-4xl relative z-10">
                             {CV_DATA.personal.profile[lang]}
                         </p>
+
+                        <div className="relative z-10 mt-8 flex justify-end">
+                            <a
+                                href="/Images/Kristofer_FAUVETTE_CV.pdf"
+                                download
+                                className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-cyan-400 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/10 hover:border-cyan-400/60 transition-all font-bold tracking-wide active:scale-95"
+                            >
+                                <Download size={22} className="group-hover:translate-y-1 transition-transform" /> {t.cv.download}
+                            </a>
+                        </div>
                     </section>
 
                     {/* Experience Section */}
@@ -118,7 +128,7 @@ const InteractiveCV = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: typeof TRAN
                                     className="relative group"
                                 >
                                     {/* Timeline Dot */}
-                                    <div className={`absolute -left-[41px] top-8 w-6 h-6 rounded-full ${i === 0 ? 'bg-purple-500' : 'bg-slate-600'} border-4 border-slate-950 z-10 group-hover:scale-110 transition-transform`}></div>
+                                    <div className={`absolute -left-[45px] top-8 w-6 h-6 rounded-full ${i === 0 ? 'bg-purple-500' : 'bg-slate-600'} border-4 border-slate-950 z-10 group-hover:scale-110 transition-transform`}></div>
 
                                     {/* Detailed Tile */}
                                     <div className="bg-slate-900 border border-white/5 p-8 rounded-2xl hover:bg-slate-800 transition-colors relative overflow-hidden">
@@ -168,7 +178,7 @@ const InteractiveCV = ({ lang, t, onClose }: { lang: 'fr' | 'en', t: typeof TRAN
                                     initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                                     className="relative"
                                 >
-                                    <div className={`absolute -left-[41px] w-6 h-6 rounded-full ${i === 0 ? 'bg-cyan-600 shadow-[0_0_15px_rgba(8,145,178,0.5)]' : 'bg-slate-700'} border-4 border-slate-950`}></div>
+                                    <div className={`absolute -left-[45px] w-6 h-6 rounded-full ${i === 0 ? 'bg-cyan-600 shadow-[0_0_15px_rgba(8,145,178,0.5)]' : 'bg-slate-700'} border-4 border-slate-950`}></div>
                                     <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 hover:border-cyan-500/30 transition-colors">
                                         <span className={`${i === 0 ? 'text-cyan-400' : 'text-slate-500'} font-mono text-sm block mb-1`}>{item.date}</span>
                                         <h4 className="text-xl font-bold text-white">{item.school}</h4>

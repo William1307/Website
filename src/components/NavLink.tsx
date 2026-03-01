@@ -50,6 +50,13 @@ const NavLink = ({ href, children, onClick }: { href?: string, children: React.R
                 if (onClick) {
                     e.preventDefault();
                     onClick();
+                } else if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = href.substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             }}
             onMouseMove={handleMouseMove}

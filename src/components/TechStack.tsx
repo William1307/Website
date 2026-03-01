@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, ExternalLink, Youtube } from 'lucide-react';
+import { Terminal, ExternalLink } from 'lucide-react';
 import { TECH_STACK } from '../data/techStack';
 import { TRANSLATIONS } from '../data/translations';
 
@@ -8,6 +8,10 @@ const TechStack = ({ t, onSelectTech }: { t: typeof TRANSLATIONS['fr'], onSelect
     const [activeTech, setActiveTech] = useState<typeof TECH_STACK[0] | null>(null);
 
     const handleTechClick = (tech: typeof TECH_STACK[0]) => {
+        if (tech.id === 'youtube') {
+            window.open('https://www.youtube.com/@KrisRetroLab', '_blank');
+            return;
+        }
         if (activeTech?.id === tech.id) {
             setActiveTech(null);
             onSelectTech(null);
@@ -86,31 +90,62 @@ const TechStack = ({ t, onSelectTech }: { t: typeof TRANSLATIONS['fr'], onSelect
                                                 <ExternalLink size={14} /> View OVH VPS Plans
                                             </a>
                                         )}
-                                        {activeTech.id === 'youtube' && (
-                                            <a
-                                                href="https://www.youtube.com/@KrisRetroLab"
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="inline-flex items-center gap-2 mt-4 text-red-400 hover:text-red-300 transition-colors text-sm font-bold"
-                                            >
-                                                <Youtube size={14} /> Visit YouTube Channel
-                                            </a>
-                                        )}
                                     </div>
                                     <div className="space-y-4 font-mono text-xs">
-                                        <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                                            <span className="text-slate-500">KERNEL_PID</span>
-                                            <span className="text-white">0x{activeTech.id.toUpperCase().replace(/-/g, '')}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                                            <span className="text-slate-500">{t.stack.status}</span>
-                                            <span className="text-green-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> {activeTech.status}</span>
-                                        </div>
-                                        {activeTech.level !== 'Active' && (
-                                            <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                                                <span className="text-slate-500">{t.stack.level}</span>
-                                                <span className="text-cyan-400">{activeTech.level}</span>
+                                        {activeTech.id === 'ovh-vps' ? (
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">vCores</span><span className="text-white">4</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">RAM</span><span className="text-white">8 Go</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">SSD</span><span className="text-white">75 Go</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">Trafic</span><span className="text-white">400 mb/s</span></div>
+                                                <div className="pt-2 text-slate-400">Services:</div>
+                                                <ul className="list-disc pl-4 text-slate-300">
+                                                    <li>Rustdesk server</li>
+                                                    <li>Apache web server</li>
+                                                    <li>Tailscale exit node (VPN)</li>
+                                                </ul>
                                             </div>
+                                        ) : activeTech.id === 'raspberry-pi' ? (
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">Cores</span><span className="text-white">4</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">RAM</span><span className="text-white">8 Go</span></div>
+                                                <div className="pt-2 text-slate-400">Services:</div>
+                                                <ul className="list-disc pl-4 text-slate-300">
+                                                    <li>Pi-hole (Ad-block)</li>
+                                                    <li>Unbound (DNS)</li>
+                                                    <li>Grafana</li>
+                                                    <li>Prometheus</li>
+                                                </ul>
+                                            </div>
+                                        ) : activeTech.id === 'home-server' ? (
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">CPU</span><span className="text-white">E5 2407 v2</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">RAM</span><span className="text-white">8 Go DDR3 4x2</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">OS</span><span className="text-white">Proxmox</span></div>
+                                                <div className="flex justify-between border-b border-white/10 pb-1"><span className="text-slate-500">VMs</span><span className="text-white">TrueNAS Scale, Ubuntu</span></div>
+                                                <div className="pt-2 text-slate-400">Services:</div>
+                                                <ul className="list-disc pl-4 text-slate-300">
+                                                    <li>NAS</li>
+                                                    <li>Plex server</li>
+                                                </ul>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                    <span className="text-slate-500">KERNEL_PID</span>
+                                                    <span className="text-white">0x{activeTech.id.toUpperCase().replace(/-/g, '')}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                    <span className="text-slate-500">{t.stack.status}</span>
+                                                    <span className="text-green-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> {activeTech.status}</span>
+                                                </div>
+                                                {activeTech.level !== 'Active' && (
+                                                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                        <span className="text-slate-500">{t.stack.level}</span>
+                                                        <span className="text-cyan-400">{activeTech.level}</span>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </div>

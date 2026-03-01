@@ -12,7 +12,7 @@ const Hero = ({ t, setViewingResume }: { t: typeof TRANSLATIONS['fr'], setViewin
                         {t.hero.badge}
                     </div>
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                        {t.hero.title1} <br />
+                        {t.hero.title1}{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
                             <TypingEffect text={t.hero.title2} delay={500} />
                         </span>

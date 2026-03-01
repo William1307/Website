@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Cloud, Mail, Monitor, Zap, Shield, Globe, Activity, Layers, Server, HardDrive, Wifi, ExternalLink } from 'lucide-react';
+import { Cloud, Mail, Monitor, Zap, Shield, Globe, Activity, Layers, Server, HardDrive, Wifi, ExternalLink, Info } from 'lucide-react';
 import { getCPULoad, getPiHoleQueries } from '../utils/homelab';
 import { TRANSLATIONS } from '../data/translations';
 
-const Homelab = ({ t }: { t: typeof TRANSLATIONS['fr'] }) => {
+const Homelab = ({ t, setReadingArticle }: { t: typeof TRANSLATIONS['fr'], setReadingArticle: (id: number) => void }) => {
     const [cpuLoads, setCpuLoads] = useState<{ [key: string]: string }>({
         'Nextcloud': getCPULoad('Nextcloud'),
         'Mailserver': getCPULoad('Mailserver'),
@@ -40,7 +40,7 @@ const Homelab = ({ t }: { t: typeof TRANSLATIONS['fr'] }) => {
     ];
 
     return (
-        <section className="py-24 relative">
+        <section id="homelab" className="py-24 relative">
             <div className="container mx-auto px-6">
                 <div className="mb-12 flex items-center gap-4">
                     <div className="p-3 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
@@ -50,6 +50,11 @@ const Homelab = ({ t }: { t: typeof TRANSLATIONS['fr'] }) => {
                         <h2 className="text-3xl font-bold text-white">{t.homelab.title}</h2>
                         <p className="text-slate-400">{t.homelab.subtitle}</p>
                     </div>
+                </div>
+
+                <div className="mb-8 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3 text-yellow-200/80 text-sm max-w-3xl mx-auto md:mx-0">
+                    <Info size={18} className="shrink-0 mt-0.5" />
+                    <p>{t.homelab.disclaimer}</p>
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-8">
@@ -102,13 +107,21 @@ const Homelab = ({ t }: { t: typeof TRANSLATIONS['fr'] }) => {
 
                         <div className="grid sm:grid-cols-2 gap-4 relative z-10">
                             {HOME_SERVICES.map((srv) => (
-                                <div key={srv.name} className="bg-slate-900/80 border border-white/5 p-4 rounded-lg flex flex-col gap-3 hover:border-purple-500/30 transition-colors">
+                                <div
+                                    key={srv.name}
+                                    className={`bg-slate-900/80 border border-white/5 p-4 rounded-lg flex flex-col gap-3 transition-all
+                                        ${srv.name.includes('Pi-hole') ? 'cursor-pointer hover:border-cyan-500/50 hover:bg-slate-800/80 group' : 'hover:border-purple-500/30'}`}
+                                    onClick={() => srv.name.includes('Pi-hole') && setReadingArticle(1)}
+                                >
                                     <div className="flex justify-between items-start">
-                                        <srv.icon className="text-purple-400" size={24} />
+                                        <srv.icon className={`${srv.name.includes('Pi-hole') ? 'text-green-400 group-hover:scale-110 transition-transform' : 'text-purple-400'}`} size={24} />
                                         <span className="w-2 h-2 rounded-full bg-green-500"></span>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-white">{srv.name}</h4>
+                                        <h4 className="font-bold text-white flex items-center gap-2">
+                                            {srv.name}
+                                            {srv.name.includes('Pi-hole') && <ExternalLink size={12} className="text-slate-500" />}
+                                        </h4>
                                         <p className="text-xs text-slate-500 mt-1">
                                             {srv.queries && `Queries: ${srv.queries}`}
                                             {srv.latency && `Latency: ${srv.latency}`}

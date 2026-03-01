@@ -27,6 +27,20 @@ export const CV_DATA = {
     ],
     experience: [
         {
+            title: "LDLC - Valenciennes",
+            role: "Conseiller technique",
+            date: "Février 2026 - Présent (Temps partiel)",
+            desc: {
+                fr: [
+                    "Conseil technique et accompagnement client sur du matériel informatique grand public et professionnel."
+                ],
+                en: [
+                    "Technical advice and customer support on consumer and professional IT hardware."
+                ]
+            },
+            tags: ["LDLC", "Conseil", "Hardware", "Vente"]
+        },
+        {
             title: "ISIS - Cayenne",
             role: "Bénévole (IT Support)",
             date: "Jan 2022 - Sept 2024",

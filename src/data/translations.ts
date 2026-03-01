@@ -3,7 +3,7 @@ export const TRANSLATIONS = {
         nav: { about: "À Propos", certs: "Certifs", projects: "Projets", blog: "Blog", contact: "Contact", cv: "Mon CV", lang: "EN" },
         hero: {
             badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
-            title1: "Future",
+            title1: "Futur",
             title2: "Ingénieur Informatique",
             desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l'INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications et mon Blog. N'hésitez pas à m'écrire !",
             btn_work: "Voir mes travaux",
@@ -31,7 +31,8 @@ export const TRANSLATIONS = {
             subtitle: "Monitoring temps réel de l'infrastructure.",
             uptime: "Uptime",
             cpu: "Charge CPU",
-            ram: "RAM"
+            ram: "RAM",
+            disclaimer: "Note : Ces services sont des logiciels open-source que j'auto-héberge. Je ne suis pas l'auteur du code source."
         },
         projects: {
             title: "Projets Sélectionnés",
@@ -63,6 +64,10 @@ export const TRANSLATIONS = {
         cv: {
             title: "Curriculum Vitae",
             download: "Télécharger le PDF"
+        },
+        gallery: {
+            title: "Galerie",
+            subtitle: "Découvrez mon équipement Homelab et mes photographies de paysage."
         }
     },
     en: {
@@ -97,7 +102,8 @@ export const TRANSLATIONS = {
             subtitle: "Real-time infrastructure monitoring.",
             uptime: "Uptime",
             cpu: "CPU Load",
-            ram: "RAM"
+            ram: "RAM",
+            disclaimer: "Note: These services are open-source software that I self-host. I am not the author of the source code."
         },
         projects: {
             title: "Selected Projects",
@@ -129,6 +135,10 @@ export const TRANSLATIONS = {
         cv: {
             title: "Curriculum Vitae",
             download: "Download PDF"
+        },
+        gallery: {
+            title: "Gallery",
+            subtitle: "Explore my Homelab equipment and landscape photography."
         }
     }
 };
