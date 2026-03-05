@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, BrainCircuit, Loader2, Send } from 'lucide-react';
 import { BLOG_CONTENT } from '../data/blogContent';
 import { TRANSLATIONS } from '../data/translations';
@@ -12,6 +12,13 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
     const [answer, setAnswer] = useState("");
     const [loading, setLoading] = useState(false);
     const t = TRANSLATIONS[lang];
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'auto'; // Restore on close
+        };
+    }, []);
 
     const handleAsk = async () => {
         if (!question.trim()) return;
@@ -75,6 +82,7 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
                                     <blockquote className="border-l-4 border-cyan-500 pl-4 py-2 italic text-slate-400 bg-slate-900/50 rounded-r my-6" {...props} />
                                 ),
                                 hr: ({ node, ...props }) => <hr className="border-white/10 my-8" {...props} />,
+                                img: ({ node, ...props }) => <img className="mx-auto block w-full max-w-3xl rounded-xl border border-white/10 my-10 shadow-lg shadow-black/20" {...props} />
                             }}
                         >
                             {article.content[lang]}

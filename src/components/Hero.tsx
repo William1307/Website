@@ -17,7 +17,7 @@ const Hero = ({ t, setViewingResume }: { t: typeof TRANSLATIONS['fr'], setViewin
                             <TypingEffect text={t.hero.title2} delay={500} />
                         </span>
                     </h1>
-                    <p className="text-slate-400 text-lg mb-8 max-w-lg leading-relaxed">{t.hero.desc}</p>
+                    <p className="text-slate-400 text-lg mb-8 max-w-lg leading-relaxed whitespace-pre-line">{t.hero.desc}</p>
                     <div className="flex flex-wrap gap-4 mt-8">
                         <a href="#projects" className="group relative px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all hover:scale-105 flex items-center gap-2 overflow-hidden">
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 backdrop-blur-sm"></div>

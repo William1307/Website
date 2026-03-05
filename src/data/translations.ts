@@ -5,7 +5,7 @@ export const TRANSLATIONS = {
             badge: "ÉTUDIANT INSA HAUTS-DE-FRANCE",
             title1: "Futur",
             title2: "Ingénieur Informatique",
-            desc: "Bonjour, je suis Kristofer FAUVETTE. Étudiant en 1ère année à l'INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique. Je me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications et mon Blog. N'hésitez pas à m'écrire !",
+            desc: "Je suis Étudiant en 1ère année à l'INSA Hauts-de-France, je suis depuis toujours passionné d'informatique, les réseaux et la 'bidouille' technique.\nJe me dirige vers une carrière d'ingénieur. Ce site centralise mon parcours : mes Projets (NAS, serveurs), mes Certifications et mon Blog. N'hésitez pas à m'écrire !",
             btn_work: "Voir mes travaux",
             btn_contact: "Contact",
             btn_cv: "Voir mon CV"
@@ -76,7 +76,7 @@ export const TRANSLATIONS = {
             badge: "INSA HAUTS-DE-FRANCE STUDENT",
             title1: "Future",
             title2: "Computer Engineer",
-            desc: "Hello, I am Kristofer FAUVETTE. 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering. I am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications and my Blog. Feel free to write to me!",
+            desc: "I am a 1st year student at INSA Hauts-de-France, I have always been passionate about IT, networks and technical tinkering.\nI am heading towards an engineering career. This site centralizes my background: my Projects (NAS, servers), my Certifications and my Blog. Feel free to write to me!",
             btn_work: "View my work",
             btn_contact: "Contact",
             btn_cv: "View my CV"

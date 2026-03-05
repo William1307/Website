@@ -5,9 +5,11 @@ const TypingEffect = ({ text, delay = 0 }: { text: string, delay?: number }) => 
     const [started, setStarted] = useState(false);
 
     useEffect(() => {
+        setDisplayedText("");
+        setStarted(false);
         const timer = setTimeout(() => setStarted(true), delay);
         return () => clearTimeout(timer);
-    }, [delay]);
+    }, [text, delay]);
 
     useEffect(() => {
         if (!started) return;

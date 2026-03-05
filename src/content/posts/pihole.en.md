@@ -6,6 +6,8 @@ readTime: "10 min"
 tag: "Network"
 ---
 
+![Pi-hole Banner](/Images/Pi_hole_article_banner.png)
+
 Today, we're tackling a big one: taking back total control of our internet requests. We're going to install **Pi-hole** (the ad blocker) coupled with **Unbound** (a recursive DNS resolver). All on my Raspberry Pi 5 8GB. Spoiler: it's totally overkill (a Pi Zero would suffice), but we love it.
 
 ### Why are we doing this? (The theory minute)

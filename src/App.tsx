@@ -45,7 +45,7 @@ export default function App() {
   return (
     <HelmetProvider>
       <div className="bg-slate-950 min-h-screen text-slate-200 selection:bg-cyan-500/30 selection:text-cyan-200 font-sans">
-        <ScrollProgress />
+        {!viewingResume && !readingArticle && <ScrollProgress />}
         <ParticleNetwork />
 
         {activeArticleData && (
