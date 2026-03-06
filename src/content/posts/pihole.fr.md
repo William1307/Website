@@ -6,6 +6,8 @@ readTime: "10 min"
 tag: "Network"
 ---
 
+![Pi-hole Banner](/Images/Pi_hole_article_banner.png)
+
 Aujourd'hui, on s'attaque à un gros morceau : reprendre le contrôle total de nos requêtes internet. On va installer **Pi-hole** (un bloqueur de pub) couplé à **Unbound** (un résolveur DNS récursif). Le tout sur mon Raspberry Pi 5 8GB. Spoiler : c'est totalement overkill (un Pi Zero suffirait), mais on adore ça.
 
 Je vous invite à aller sur le [site](https://pi-hole.net/) de Pihole si vous voulez en savoir plus sur cet outil génial.
@@ -52,29 +54,29 @@ curl -sSL https://install.pi-hole.net | bash
 
 ### Étape 3 : Configurer Pi-hole
 Après avoir lancé la commande précédente, Pi-hole va automatiquement installer ce dont il a besoin pour fonctionnner ( dépendences, etc.. ). Ensuite il va vous demander de confirmer que votre Pi as bien une IP statique, cliquez `Continue`.
-!place holder for image 1! 
+![Static IP Warning](/Images/pihole/1static_ip_message.png)
 
 Il faut maintenant sélectionner un fournisseur DNS ( pas d'inquiétude, on va rapidement devenir notre propre fournisseur DNS ) afin que Pi-hole puisse finire sa configuration. Personnellement j'ai choisit Cloudflare ( c'est l'affaire de 10-15 min ).  
-!place holder for image 2!
+![Select Upstream Provider](/Images/pihole/2select_upstream_provider.png)
 
 On va pouvoir installer notre première block-list, celle-ci est une recommendation ( je vous la conseille pour une première block-list éfficace ). Cliquez `Yes`  
-!place holder for image 3!
+![Block List](/Images/pihole/3block_list.png)
 
 Ensuite, on peut ( ou non ) activer le log des requettes DNS, à vous de choisir, moi je vote oui.  
-!place holder image 4!
+![Enable query](/Images/pihole/4enable_query.png)
 
 Après ça ducoup je dois choisir qu'est ce que je veux loger exactement dans les requettes, je veux tout alors je navigue avec les flèches sur `Show everything`  
-!place holder for image 5!
+![Privacy Mode](/Images/pihole/5_privacy%20mode.png)
 
 Enfin, la configuration est finie, on va pouvoir se connecter à l'interface web !! ( **IMPORTANT :** notez le mot de passe qui s'affiche pour le compte admin de la page web. )  
-!place holder for image 6!
+![Configure Devices](/Images/pihole/6configure_devices_to_use_pihole.png)
 
 Rendez-vous sur `http://ip.de.votre.pi/admin/` dans votre navigateur favoris et entrez le mot de passe affiché précédement.  
-!place holder for image 8!
+![Login Page](/Images/pihole/8login_page.png)
 
 Et voila ! bienvenue sur le dashboard d'administration de votre installation Pi-hole !  
 Ici vous retrouverez le nombre total de requettes DNS, le nombre de requettes bloquées, le type de requettes ( A, AAAA, HTTPS, etc... ), les appareils connectés, et bien plus ! n'hésitez pas a explorer !  
-!place holder for image 9!
+![Pi-Hole Dashboard](/Images/pihole/9piholehomepage.png)
 
 ### Étape 4 : Installer Unbound
 C'est là que la magie opère. On installe Unbound pour ne plus dépendre des DNS de Google, Cloudflare, etc.
