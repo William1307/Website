@@ -29,7 +29,7 @@ const ArticleReader = ({ article, lang, onClose }: { article: typeof BLOG_CONTEN
 
         const systemPrompt = `${globalCtx}\n\n${articleCtx}\n\nImportant: The user is asking specifically about the article, but you can reference his general skills or background if relevant to explain better. Respond in ${lang === 'fr' ? 'French' : 'English'}.`;
 
-        const response = await callGemini(question, systemPrompt);
+        const response = await callGemini([{ role: 'user', text: question }], systemPrompt);
         setAnswer(response);
         setLoading(false);
     };
