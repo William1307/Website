@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import RackAssembly from './RackAssembly';
 import { ChevronRight, Download, ExternalLink } from 'lucide-react';
 import TypingEffect from './TypingEffect';
 import { TRANSLATIONS } from '../data/translations';
@@ -36,19 +38,10 @@ const Hero = ({ t, setViewingResume }: { t: typeof TRANSLATIONS['fr'], setViewin
 
                 <div className="relative hidden md:flex justify-center items-center h-[500px]">
                     <div className="absolute w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]"></div>
-                    <div className="relative z-10 w-full max-w-sm bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-2xl transform rotate-3 hover:rotate-0 transition-all duration-500">
-                        <div className="flex gap-2 mb-4">
-                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                        </div>
-                        <div className="font-mono text-sm space-y-2">
-                            <div className="text-purple-400">class <span className="text-yellow-300">Engineer</span> &#123;</div>
-                            <div className="pl-4 text-cyan-400">this.name = "Kristofer";</div>
-                            <div className="pl-4 text-cyan-400">this.stack = ["Cyber", "SysAdmin"];</div>
-                            <div className="pl-4 text-slate-300">deploy() &#123; return "Ready"; &#125;</div>
-                            <div className="text-purple-400">&#125;</div>
-                        </div>
+                    <div className="relative z-10 w-full h-[400px] flex justify-center items-center">
+                        <Suspense fallback={<div className="text-cyan-400 font-mono animate-pulse">Loading 3D Rack...</div>}>
+                            <RackAssembly />
+                        </Suspense>
                     </div>
                 </div>
             </div>

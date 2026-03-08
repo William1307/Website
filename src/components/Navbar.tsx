@@ -31,10 +31,10 @@ const Navbar = ({ t, lang, setLang, setViewingResume }: {
 
                 <div className="hidden md:flex flex-1 justify-center items-center gap-2">
                     <NavLink href="#about">{t.nav.about}</NavLink>
+                    <NavLink href="#blog">{t.nav.blog}</NavLink>
                     <NavLink href="#projects">{t.nav.projects}</NavLink>
                     <NavLink href="#homelab">Homelab</NavLink>
                     <NavLink href="#certifications">{t.nav.certs}</NavLink>
-                    <NavLink href="#blog">{t.nav.blog}</NavLink>
                     <NavLink onClick={() => setViewingResume(true)}>
                         <span className="flex items-center gap-2"><FileText size={14} /> {t.nav.cv}</span>
                     </NavLink>
@@ -65,10 +65,10 @@ const Navbar = ({ t, lang, setLang, setViewingResume }: {
             {isNavOpen && (
                 <div className="absolute top-full left-0 w-full bg-slate-900 border-b border-white/10 p-6 md:hidden flex flex-col gap-4 shadow-xl">
                     <a href="#about" onClick={(e) => handleSmoothScroll(e, '#about')} className="text-slate-300 block py-2">{t.nav.about}</a>
+                    <a href="#blog" onClick={(e) => handleSmoothScroll(e, '#blog')} className="text-slate-300 block py-2">{t.nav.blog}</a>
                     <a href="#projects" onClick={(e) => handleSmoothScroll(e, '#projects')} className="text-slate-300 block py-2">{t.nav.projects}</a>
                     <a href="#homelab" onClick={(e) => handleSmoothScroll(e, '#homelab')} className="text-slate-300 block py-2">Homelab</a>
                     <a href="#certifications" onClick={(e) => handleSmoothScroll(e, '#certifications')} className="text-slate-300 block py-2">{t.nav.certs}</a>
-                    <a href="#blog" onClick={(e) => handleSmoothScroll(e, '#blog')} className="text-slate-300 block py-2">{t.nav.blog}</a>
                     <button onClick={() => { setViewingResume(true); setIsNavOpen(false); }} className="text-slate-300 block py-2 text-left">{t.nav.cv}</button>
                     <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')} className="text-red-400 block py-2 font-bold">{t.nav.contact}</a>
                     <button onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} className="text-cyan-400 py-2 flex items-center gap-2">

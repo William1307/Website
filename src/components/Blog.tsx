@@ -77,8 +77,12 @@ const Blog = ({ t, lang, setReadingArticle }: { t: typeof TRANSLATIONS['fr'], la
     });
 
     const isFiltering = searchTerm !== "" || activeTag !== null;
-    const featuredArticle = !isFiltering && filteredArticles.length > 0 ? filteredArticles[0] : null;
-    const gridArticles = featuredArticle ? filteredArticles.slice(1) : filteredArticles;
+
+    // Pi-hole article has ID 1
+    const piHoleArticle = filteredArticles.find(a => a.id === 1);
+
+    const featuredArticle = !isFiltering && piHoleArticle ? piHoleArticle : (!isFiltering && filteredArticles.length > 0 ? filteredArticles[0] : null);
+    const gridArticles = featuredArticle ? filteredArticles.filter(a => a.id !== featuredArticle.id) : filteredArticles;
 
     return (
         <section id="blog" className="py-24 relative overflow-hidden">
