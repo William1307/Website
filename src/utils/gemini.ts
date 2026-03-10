@@ -1,5 +1,4 @@
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const MODEL_NAME = "gemini-2.5-flash"; // Changed to the newest flash model
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export interface Message {
     role: 'user' | 'ai';
@@ -7,37 +6,35 @@ export interface Message {
 }
 
 export const callGemini = async (messages: Message[], systemInstruction: string = "") => {
-    if (!apiKey || apiKey === "VOTRE_CLE_API_ICI") {
-        console.error("API Key is missing or invalid");
-        return "Clé API manquante ou invalide.";
-    }
-
-    const formattedContents = messages.map(msg => ({
-        role: msg.role === 'ai' ? 'model' : 'user',
-        parts: [{ text: msg.text }]
-    }));
-
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: formattedContents,
-                    systemInstruction: { parts: [{ text: systemInstruction }] },
-                }),
-            }
-        );
+        const response = await fetch(`${API_URL}/api/chat`, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messages,
+                systemInstruction
+            }),
+        });
 
         if (!response.ok) {
+            if (response.status === 429) {
+                return "Limite de requêtes atteinte. Veuillez patienter une minute avant de réessayer.";
+            }
             const errorText = await response.text();
             console.error(`HTTP error! status: ${response.status}`, errorText);
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Désolé, erreur IA. Format de réponse inattendu.";
+        
+        if (data.error) {
+           console.error("Backend Error:", data.error);
+           return "Erreur lors de la communication avec l'assistant. Veuillez réessayer.";
+        }
+        
+        return data.text || "Désolé, erreur IA. Format de réponse inattendu.";
     } catch (error) {
         console.error("Erreur Gemini détaillée:", error);
         return "Erreur communication IA. Vérifiez la console du navigateur (F12) pour plus de détails.";
