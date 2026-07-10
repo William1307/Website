@@ -1,0 +1,69 @@
+---
+// ARTICLE PAGE — one route per (locale, post-folder). Markdown is rendered by
+// Astro; colocated images are optimized automatically. If a post exists in only
+// one language, the missing locale's URL is simply not generated and the
+// language toggle points at the blog index instead of a 404.
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { render } from 'astro:content';
+import { UI } from '@i18n/ui';
+import { formatDate, otherLocale, type Locale } from '@i18n/locales';
+import { getPosts, type Post } from '@i18n/posts';
+import { LOCALES } from '@i18n/locales';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const lang of LOCALES) {
+    for (const post of await getPosts(lang)) {
+      paths.push({ params: { lang, slug: post.slug }, props: { post } });
+    }
+  }
+  return paths;
+}
+
+const lang = Astro.params.lang as Locale;
+const t = UI[lang];
+const { post } = Astro.props as { post: Post };
+const { title, date, excerpt, tags } = post.entry.data;
+const { Content } = await render(post.entry);
+
+const other = otherLocale(lang);
+const altPath = post.availableIn.includes(other)
+  ? `/${other}/blog/${post.slug}/`
+  : `/${other}/blog/`;
+---
+
+<BaseLayout lang={lang} title={title} description={excerpt} altPath={altPath}>
+  <article class="page">
+    <header class="head">
+      <p class="annot"><a href={`/${lang}/blog/`}>← {t.blog.backToList}</a></p>
+      <h1>{title}</h1>
+      <p class="meta annot">
+        {t.blog.publishedOn} {formatDate(date, lang)}
+        {tags.map((tag) => <span class="tag">{tag}</span>)}
+      </p>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .head {
+    padding-block: var(--space-5) var(--space-3);
+    margin-bottom: var(--space-4);
+    border-bottom: 2px solid var(--rule-strong);
+    max-width: var(--measure);
+  }
+  h1 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-3);
+  }
+  .meta {
+    margin-top: var(--space-3);
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+</style>

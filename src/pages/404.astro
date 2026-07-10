@@ -1,0 +1,40 @@
+---
+// 404 — single bilingual page (static hosts serve one /404.html for all paths).
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { UI } from '@i18n/ui';
+import { DEFAULT_LOCALE } from '@i18n/locales';
+
+const t = UI[DEFAULT_LOCALE];
+---
+
+<BaseLayout lang={DEFAULT_LOCALE} title="404">
+  <section class="page wrap">
+    <p class="annot">404</p>
+    <h1>{t.notFound.title} / {UI.en.notFound.title}</h1>
+    <p class="body">{t.notFound.body}<br />{UI.en.notFound.body}</p>
+    <p class="links">
+      <a href="/fr/">{t.notFound.home}</a> · <a href="/en/">{UI.en.notFound.home}</a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .wrap {
+    padding-block: var(--space-6);
+    max-width: var(--measure);
+  }
+  h1 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-3);
+  }
+  .body {
+    margin-top: var(--space-3);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .links {
+    margin-top: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+</style>

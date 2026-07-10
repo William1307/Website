@@ -1,0 +1,112 @@
+---
+// GALLERY — zero-code publishing, same philosophy as the blog:
+// drop an image file into content/gallery/ and it appears here as a numbered
+// plate. The caption is derived from the filename:
+//   "2026-03 proliant rack.jpg" → "Proliant rack"
+// (leading date/number groups are stripped, dashes/underscores become spaces).
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import { UI } from '@i18n/ui';
+import { localeStaticPaths, type Locale } from '@i18n/locales';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const lang = Astro.params.lang as Locale;
+const t = UI[lang];
+
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  '../../../content/gallery/*.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+
+function captionFromPath(path: string): string {
+  const base = path.split('/').pop()!.replace(/\.[a-z]+$/i, '');
+  const cleaned = base.replace(/^[\d\s._-]+/, '').replace(/[-_]+/g, ' ').trim();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+
+const plates = Object.entries(files)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([path, mod], i) => ({
+    image: mod.default,
+    caption: captionFromPath(path),
+    number: String(i + 1).padStart(2, '0'),
+  }));
+---
+
+<BaseLayout lang={lang} title={t.gallery.pageTitle}>
+  <section class="page">
+    <header class="head">
+      <p class="annot">{t.nav.gallery} — {plates.length}</p>
+      <h1>{t.gallery.pageTitle}</h1>
+      <p class="lede">{t.gallery.pageLede}</p>
+    </header>
+
+    {
+      plates.length === 0 ? (
+        <p class="empty">{t.gallery.empty}</p>
+      ) : (
+        <div class="plates">
+          {plates.map((plate) => (
+            <figure>
+              <Image src={plate.image} alt={plate.caption} widths={[480, 960, 1440]} sizes="(max-width: 720px) 100vw, 50vw" />
+              <figcaption class="annot">
+                {t.gallery.figure} {plate.number} — {plate.caption}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .head {
+    padding-block: var(--space-5) var(--space-3);
+    border-bottom: 2px solid var(--rule-strong);
+    margin-bottom: var(--space-4);
+  }
+  h1 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-2);
+  }
+  .lede {
+    margin-top: var(--space-3);
+    max-width: var(--measure);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .empty {
+    font-style: italic;
+    color: var(--ink-soft);
+    padding-block: var(--space-5);
+    max-width: var(--measure);
+  }
+  .plates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+  }
+  @media (max-width: 720px) {
+    .plates {
+      grid-template-columns: 1fr;
+    }
+  }
+  figure {
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
+    padding: var(--space-2);
+  }
+  figure img {
+    width: 100%;
+    height: auto;
+  }
+  figcaption {
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+    border-top: 1px solid var(--rule);
+  }
+</style>

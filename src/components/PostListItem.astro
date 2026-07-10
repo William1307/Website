@@ -1,0 +1,65 @@
+---
+// One row of the blog index — a ledger line: date · title · excerpt · tags.
+// Used by both the home page's "latest notes" and the full blog listing, so
+// the two can never drift apart visually.
+import { formatDate, type Locale } from '@i18n/locales';
+import type { Post } from '@i18n/posts';
+
+interface Props {
+  post: Post;
+  lang: Locale;
+}
+const { post, lang } = Astro.props;
+const { title, date, excerpt, tags } = post.entry.data;
+---
+
+<article class="row">
+  <p class="annot date">{formatDate(date, lang)}</p>
+  <div class="body">
+    <h3><a href={`/${lang}/blog/${post.slug}/`}>{title}</a></h3>
+    <p class="excerpt">{excerpt}</p>
+    <p class="tags">{tags.map((tag) => <span class="tag">{tag}</span>)}</p>
+  </div>
+</article>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--rule);
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+  .date {
+    padding-top: 0.45em; /* aligns the mono date with the serif title baseline */
+  }
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 540;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  h3 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--rust);
+    color: inherit;
+  }
+  .excerpt {
+    margin-top: var(--space-2);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .tags {
+    margin-top: var(--space-2);
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+</style>
