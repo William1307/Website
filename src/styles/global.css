@@ -1,0 +1,257 @@
+/* ============================================================================
+   GLOBAL STYLES — base typography, shared primitives, and article ("prose")
+   styling for rendered Markdown. Component-specific styles live scoped inside
+   each .astro component; only genuinely shared patterns belong here.
+   ========================================================================== */
+@import './tokens.css';
+
+/* ---- reset (minimal, intentional) ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  line-height: 1.62;
+  font-variant-numeric: oldstyle-nums;
+  -webkit-font-smoothing: antialiased;
+  /* faint laid-paper texture: two ultra-low-contrast line screens */
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0 2px,
+    rgb(0 0 0 / 0.008) 2px 3px
+  );
+}
+
+/* ---- links: ink text, rust underline that thickens on hover ---- */
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rust);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-thickness 120ms ease, color 120ms ease;
+}
+a:hover {
+  color: var(--rust);
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+::selection {
+  background: var(--rust);
+  color: var(--paper);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 560;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* ---- shared primitives ---- */
+
+/* Mono annotation: section numbers, dates, tags, figure labels */
+.annot {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* The page column */
+.page {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}
+
+/* Section opener: "№ 02 — Selected work" over a strong rule */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  border-top: 2px solid var(--rule-strong);
+  padding-top: var(--space-2);
+  margin-block: var(--space-6) var(--space-4);
+}
+.section-head .no {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--rust);
+  white-space: nowrap;
+}
+.section-head h2 {
+  font-size: var(--text-lg);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Tag chip: bracketed mono text, no pill backgrounds */
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tag::before {
+  content: '[';
+  color: var(--ink-faint);
+}
+.tag::after {
+  content: ']';
+  color: var(--ink-faint);
+}
+
+/* Plain-button reset for JS controls (theme toggle) */
+.ghost-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ---- prose: rendered Markdown articles ---- */
+.prose {
+  max-width: var(--measure);
+}
+.prose > * + * {
+  margin-top: var(--space-3);
+}
+.prose h2,
+.prose h3,
+.prose h4 {
+  margin-top: var(--space-5);
+}
+.prose h2 {
+  font-size: var(--text-lg);
+  border-top: 1px solid var(--rule);
+  padding-top: var(--space-3);
+}
+.prose h3 {
+  font-size: calc(var(--text-base) * 1.15);
+}
+.prose h4 {
+  font-size: var(--text-base);
+  font-style: italic;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose li + li {
+  margin-top: var(--space-1);
+}
+.prose li::marker {
+  color: var(--rust);
+}
+.prose blockquote {
+  border-left: 2px solid var(--rust);
+  padding-left: var(--space-3);
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.prose img {
+  width: 100%;
+  border: 1px solid var(--rule);
+  background: var(--paper-raised);
+  padding: var(--space-2);
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin-block: var(--space-5);
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--paper-recessed);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+.prose pre {
+  background: var(--paper-recessed) !important;
+  border: 1px solid var(--rule);
+  padding: var(--space-3);
+  overflow-x: auto;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--text-sm);
+}
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--rule);
+  padding: var(--space-2);
+  text-align: left;
+}
+.prose th {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Shiki dual-theme switch (see astro.config.mjs markdown.shikiConfig) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .prose .astro-code,
+  :root:not([data-theme='light']) .prose .astro-code span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+  }
+}
+:root[data-theme='dark'] .prose .astro-code,
+:root[data-theme='dark'] .prose .astro-code span {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+}

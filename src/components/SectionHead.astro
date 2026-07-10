@@ -1,0 +1,15 @@
+---
+// Editorial section opener: "№ 02 — Selected work" over a strong rule.
+// Numbering is passed in by the page so the reading order stays explicit.
+interface Props {
+  no: string;     // e.g. "02"
+  title: string;
+  id?: string;    // anchor target (e.g. "contact")
+}
+const { no, title, id } = Astro.props;
+---
+
+<div class="section-head" id={id}>
+  <span class="no">№ {no}</span>
+  <h2>{title}</h2>
+</div>

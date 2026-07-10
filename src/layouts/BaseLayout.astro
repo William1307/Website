@@ -1,0 +1,215 @@
+---
+// The single page shell. Every page renders through this layout, which owns:
+//   - <head>: SEO meta, canonical + hreflang alternates, fonts, global CSS
+//   - the masthead (nav) — the CV link is ALWAYS visible here, per the brief:
+//     a recruiter must reach the CV in one click from anywhere
+//   - the footer (colophon)
+//   - the light/dark ("lamplight") toggle, applied before first paint
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/fraunces/wght-italic.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+import { SITE } from '@data/site';
+import { UI } from '@i18n/ui';
+import { otherLocale, type Locale } from '@i18n/locales';
+
+interface Props {
+  lang: Locale;
+  title: string;
+  description?: string;
+  /**
+   * Path of this page in the other language, for the FR/EN toggle and hreflang.
+   * Defaults to swapping the /fr/ ↔ /en/ prefix of the current URL — pages only
+   * override this when the translated page lives at a different path.
+   */
+  altPath?: string;
+}
+
+const { lang, title, description = SITE.description[lang] } = Astro.props;
+const t = UI[lang];
+const other = otherLocale(lang);
+const currentPath = Astro.url.pathname;
+const altPath = Astro.props.altPath ?? currentPath.replace(`/${lang}`, `/${other}`);
+
+const nav = [
+  { href: `/${lang}/blog/`, label: t.nav.blog },
+  { href: `/${lang}/gallery/`, label: t.nav.gallery },
+  { href: `/${lang}/#contact`, label: t.nav.contact },
+];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {SITE.title}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={new URL(currentPath, Astro.site)} />
+    <link rel="alternate" hreflang={other} href={new URL(altPath, Astro.site)} />
+    <link rel="alternate" hreflang={lang} href={new URL(currentPath, Astro.site)} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:title" content={`${title} · ${SITE.title}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_US'} />
+    <script is:inline>
+      // Apply the stored theme BEFORE first paint to avoid a flash.
+      // "auto" (no key) follows prefers-color-scheme via CSS alone.
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') {
+        document.documentElement.dataset.theme = stored;
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">{lang === 'fr' ? 'Aller au contenu' : 'Skip to content'}</a>
+
+    <header class="masthead page">
+      <a class="wordmark" href={`/${lang}/`}>K.&nbsp;Fauvette</a>
+      <nav aria-label={lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+        <a class="cv-link" href={`/${lang}/cv/`}>{t.nav.cv}</a>
+      </nav>
+      <div class="controls">
+        <a class="lang-toggle annot" href={altPath} aria-label={t.nav.langLabel}>{other.toUpperCase()}</a>
+        <button class="ghost-btn theme-toggle annot" id="theme-toggle" aria-label={lang === 'fr' ? 'Basculer le thème' : 'Toggle theme'}>◐</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="footer page">
+      <div class="footer-rule" aria-hidden="true"></div>
+      <div class="footer-row">
+        <p class="annot">© {new Date().getFullYear()} — {SITE.title} · {SITE.domain}</p>
+        <p class="annot links">
+          <a href={SITE.github}>GitHub</a>
+          <a href={SITE.linkedin}>LinkedIn</a>
+          <a href={`mailto:${SITE.email}`}>Email</a>
+        </p>
+      </div>
+      <p class="annot colophon">{t.footer.colophon}</p>
+    </footer>
+
+    <script>
+      // Three-state theme cycle: auto → dark → light → auto.
+      const btn = document.getElementById('theme-toggle');
+      btn?.addEventListener('click', () => {
+        const cur = localStorage.getItem('theme');
+        const next = cur === 'dark' ? 'light' : cur === 'light' ? null : 'dark';
+        if (next) {
+          localStorage.setItem('theme', next);
+          document.documentElement.dataset.theme = next;
+        } else {
+          localStorage.removeItem('theme');
+          delete document.documentElement.dataset.theme;
+        }
+      });
+    </script>
+
+    <style>
+      .skip {
+        position: absolute;
+        left: -999px;
+        top: 0;
+        background: var(--rust);
+        color: var(--paper);
+        padding: var(--space-2) var(--space-3);
+        z-index: 10;
+      }
+      .skip:focus {
+        left: 0;
+      }
+
+      .masthead {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-4);
+        padding-block: var(--space-3);
+        border-bottom: 1px solid var(--rule);
+        flex-wrap: wrap;
+      }
+      .wordmark {
+        font-style: italic;
+        font-weight: 600;
+        font-size: var(--text-lg);
+        text-decoration: none;
+      }
+      nav {
+        display: flex;
+        gap: var(--space-3);
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-right: auto;
+      }
+      nav a {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        text-decoration: none;
+      }
+      nav a:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--rust);
+      }
+      /* The CV link is the one visually loud element in the masthead. */
+      .cv-link {
+        color: var(--paper);
+        background: var(--rust);
+        padding: 0.15em 0.7em;
+        border-radius: 2px;
+      }
+      .cv-link:hover {
+        background: var(--rust-deep);
+        color: var(--paper);
+        text-decoration: none;
+      }
+      .controls {
+        display: flex;
+        gap: var(--space-3);
+        align-items: baseline;
+      }
+      .lang-toggle {
+        text-decoration: none;
+        border: 1px solid var(--rule);
+        padding: 0.15em 0.5em;
+        border-radius: 2px;
+      }
+      .lang-toggle:hover {
+        border-color: var(--rust);
+      }
+      .theme-toggle {
+        font-size: var(--text-base);
+        line-height: 1;
+      }
+
+      .footer {
+        margin-top: var(--space-6);
+        padding-block: var(--space-4);
+      }
+      .footer-rule {
+        border-top: 2px solid var(--rule-strong);
+        margin-bottom: var(--space-3);
+      }
+      .footer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+      }
+      .links {
+        display: flex;
+        gap: var(--space-3);
+      }
+      .colophon {
+        margin-top: var(--space-2);
+        color: var(--ink-faint);
+      }
+    </style>
+  </body>
+</html>

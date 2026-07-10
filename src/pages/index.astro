@@ -1,0 +1,23 @@
+---
+// Root URL: pick the visitor's language and forward them.
+// JS picks en for anglophone browsers; the meta refresh is the no-JS fallback
+// to French (the site's primary audience).
+import { DEFAULT_LOCALE } from '@i18n/locales';
+---
+
+<!doctype html>
+<html lang={DEFAULT_LOCALE}>
+  <head>
+    <meta charset="utf-8" />
+    <title>kwol.cloud</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=/${DEFAULT_LOCALE}/`} />
+    <script is:inline>
+      const lang = navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'fr';
+      location.replace('/' + lang + '/');
+    </script>
+  </head>
+  <body>
+    <p><a href={`/${DEFAULT_LOCALE}/`}>kwol.cloud</a></p>
+  </body>
+</html>

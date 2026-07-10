@@ -1,0 +1,145 @@
+---
+// The interactive piece that replaced the old three.js 3D server rack (~5 MB of
+// GLB + a whole WebGL runtime). This is a ~2 KB vanilla-canvas "plotter sketch":
+// a small network topology laid out on a jittered grid, whose links draw
+// themselves in like ink lines. One node is inked in rust — everything else
+// stays monochrome, in keeping with the one-accent rule.
+//
+// Constraints honoured:
+//   - no dependencies, no WebGL, no requestAnimationFrame loop after ~4 s
+//   - prefers-reduced-motion → the finished drawing renders immediately
+//   - without JS the <figure> simply shows its caption; nothing breaks
+interface Props {
+  caption: string;
+}
+const { caption } = Astro.props;
+---
+
+<figure class="plotter">
+  <canvas id="plotter-canvas" width="640" height="640" aria-hidden="true"></canvas>
+  <figcaption class="annot">{caption}</figcaption>
+</figure>
+
+<script>
+  const canvas = document.getElementById('plotter-canvas') as HTMLCanvasElement | null;
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!;
+    const css = (name: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    // -- generate a topology: nodes on a jittered 5×5 grid, linked to nearby nodes
+    const N = 5;
+    const size = 640;
+    const cell = size / (N + 1);
+    type Node = { x: number; y: number };
+    const nodes: Node[] = [];
+    for (let gy = 1; gy <= N; gy++) {
+      for (let gx = 1; gx <= N; gx++) {
+        // Drop ~1/4 of grid points so the graph looks organic, keep corners.
+        if (Math.random() < 0.25 && gx !== 1 && gy !== 1 && gx !== N && gy !== N) continue;
+        nodes.push({
+          x: gx * cell + (Math.random() - 0.5) * cell * 0.55,
+          y: gy * cell + (Math.random() - 0.5) * cell * 0.55,
+        });
+      }
+    }
+    const links: [Node, Node][] = [];
+    for (const a of nodes) {
+      const near = nodes
+        .filter((b) => b !== a)
+        .sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y))
+        .slice(0, 2);
+      for (const b of near) {
+        if (!links.some(([p, q]) => (p === a && q === b) || (p === b && q === a))) {
+          links.push([a, b]);
+        }
+      }
+    }
+    const hub = nodes[Math.floor(Math.random() * nodes.length)]!;
+
+    function draw(progress: number) {
+      const ink = css('--ink-soft');
+      const rust = css('--rust');
+      const faint = css('--rule');
+      ctx.clearRect(0, 0, size, size);
+
+      // registration marks in the corners, like a printed plate
+      ctx.strokeStyle = faint;
+      ctx.lineWidth = 1;
+      for (const [cx, cy] of [[24, 24], [size - 24, 24], [24, size - 24], [size - 24, size - 24]]) {
+        ctx.beginPath();
+        ctx.moveTo(cx! - 8, cy!); ctx.lineTo(cx! + 8, cy!);
+        ctx.moveTo(cx!, cy! - 8); ctx.lineTo(cx!, cy! + 8);
+        ctx.stroke();
+      }
+
+      // links draw themselves in, one after the other
+      const visible = links.length * progress;
+      links.forEach(([a, b], i) => {
+        const t = Math.min(1, Math.max(0, visible - i));
+        if (t <= 0) return;
+        ctx.strokeStyle = ink;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        // Manhattan-ish routing: horizontal then vertical, like a PCB trace.
+        const mid = { x: a.x + (b.x - a.x) * Math.min(1, t * 2), y: a.y };
+        ctx.lineTo(mid.x, mid.y);
+        if (t > 0.5) ctx.lineTo(b.x, a.y + (b.y - a.y) * ((t - 0.5) * 2));
+        ctx.stroke();
+      });
+
+      // nodes appear once their first link reaches them
+      nodes.forEach((n) => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n === hub ? 7 : 4, 0, Math.PI * 2);
+        if (n === hub) {
+          ctx.fillStyle = rust;
+          ctx.fill();
+        } else {
+          ctx.fillStyle = css('--paper');
+          ctx.fill();
+          ctx.strokeStyle = ink;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+      });
+    }
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      draw(1);
+    } else {
+      const t0 = performance.now();
+      const DURATION = 3200;
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - t0) / DURATION);
+        draw(p);
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+    // Redraw with the new palette when the visitor flips the lamplight toggle.
+    new MutationObserver(() => draw(1)).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+  }
+</script>
+
+<style>
+  .plotter {
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
+    padding: var(--space-3);
+  }
+  canvas {
+    width: 100%;
+    aspect-ratio: 1;
+  }
+  figcaption {
+    margin-top: var(--space-2);
+    border-top: 1px solid var(--rule);
+    padding-top: var(--space-2);
+  }
+</style>

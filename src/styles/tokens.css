@@ -1,0 +1,76 @@
+/* ============================================================================
+   DESIGN TOKENS — "The Engineer's Journal"
+   ----------------------------------------------------------------------------
+   The entire visual identity lives in these custom properties. The system is
+   print-derived: warm paper, near-black ink, ONE accent (oxide rust), hairline
+   rules, serif text (Fraunces) with mono annotations (IBM Plex Mono).
+
+   FOR FUTURE AGENTS: do not add cyan/purple gradients, glassmorphism, glow,
+   or a slate-900 dark theme here. Dark mode is a "lamplight" inversion of the
+   same paper/ink system, toggled via the `data-theme` attribute + media query.
+   See AGENT_HANDOFF.md § Design rationale before changing colors.
+   ========================================================================== */
+
+:root {
+  /* -- color: paper & ink (light = default) -- */
+  --paper: #f4efe6;        /* warm cream ground */
+  --paper-raised: #faf7f0; /* cards / figures sit slightly lighter */
+  --paper-recessed: #ebe4d4; /* code blocks, appendix background */
+  --ink: #221d15;          /* primary text — warm near-black */
+  --ink-soft: #6b6151;     /* secondary text, captions */
+  --ink-faint: #9c917d;    /* tertiary: figure numbers, folios */
+  --rust: #a8431e;         /* THE accent. links, marks, one per composition */
+  --rust-deep: #7f3013;    /* hover / active state of the accent */
+  --rule: rgb(34 29 21 / 0.22);       /* hairline rules */
+  --rule-strong: rgb(34 29 21 / 0.55); /* section-opening rules */
+
+  /* -- type -- */
+  --font-serif: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  /* fluid scale: mobile → desk */
+  --text-xs: 0.72rem;
+  --text-sm: 0.85rem;
+  --text-base: clamp(1.02rem, 0.95rem + 0.3vw, 1.15rem);
+  --text-lg: clamp(1.25rem, 1.1rem + 0.7vw, 1.55rem);
+  --text-xl: clamp(1.7rem, 1.3rem + 1.8vw, 2.6rem);
+  --text-display: clamp(2.4rem, 1.6rem + 4vw, 4.6rem);
+
+  /* -- rhythm -- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.75rem;
+  --space-5: 3rem;
+  --space-6: 5rem;
+  --measure: 42rem;        /* comfortable reading width for prose */
+  --page-max: 72rem;       /* overall page width */
+  --page-pad: clamp(1.1rem, 4vw, 3rem);
+}
+
+/* Lamplight (dark) — same materials after sunset, not a different site. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #1a1712;
+    --paper-raised: #221e17;
+    --paper-recessed: #14110d;
+    --ink: #e9e1cf;
+    --ink-soft: #a89c85;
+    --ink-faint: #776d5b;
+    --rust: #d0693a;
+    --rust-deep: #e08553;
+    --rule: rgb(233 225 207 / 0.2);
+    --rule-strong: rgb(233 225 207 / 0.5);
+  }
+}
+:root[data-theme='dark'] {
+  --paper: #1a1712;
+  --paper-raised: #221e17;
+  --paper-recessed: #14110d;
+  --ink: #e9e1cf;
+  --ink-soft: #a89c85;
+  --ink-faint: #776d5b;
+  --rust: #d0693a;
+  --rust-deep: #e08553;
+  --rule: rgb(233 225 207 / 0.2);
+  --rule-strong: rgb(233 225 207 / 0.5);
+}

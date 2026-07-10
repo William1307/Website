@@ -1,0 +1,45 @@
+---
+// BLOG INDEX — generated entirely from content/blog/. Adding a post folder
+// updates this page at the next build; nothing here ever needs editing.
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostListItem from '@components/PostListItem.astro';
+import { UI } from '@i18n/ui';
+import { localeStaticPaths, type Locale } from '@i18n/locales';
+import { getPosts } from '@i18n/posts';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const lang = Astro.params.lang as Locale;
+const t = UI[lang];
+const posts = await getPosts(lang);
+---
+
+<BaseLayout lang={lang} title={t.blog.pageTitle}>
+  <section class="page">
+    <header class="head">
+      <p class="annot">{t.nav.blog} — {posts.length}</p>
+      <h1>{t.blog.pageTitle}</h1>
+      <p class="lede">{t.blog.pageLede}</p>
+    </header>
+    {posts.map((post) => <PostListItem post={post} lang={lang} />)}
+  </section>
+</BaseLayout>
+
+<style>
+  .head {
+    padding-block: var(--space-5) var(--space-3);
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  h1 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-2);
+  }
+  .lede {
+    margin-top: var(--space-3);
+    max-width: var(--measure);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+</style>
