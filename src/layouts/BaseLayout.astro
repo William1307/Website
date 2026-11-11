@@ -13,7 +13,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import '../styles/global.css';
 import { SITE } from '@data/site';
 import { UI } from '@i18n/ui';
-import { LOCALES, otherLocale, type Locale } from '@i18n/locales';
+import { LOCALES, LOCALE_NAMES, otherLocale, type Locale } from '@i18n/locales';
 
 interface Props {
   lang: Locale;
@@ -32,8 +32,10 @@ const t = UI[lang];
 const other = otherLocale(lang);
 const currentPath = Astro.url.pathname;
 // Pages outside the /<lang>/ tree (the 404, served at any URL) have no twin:
-// their language switch goes to the other locale's home page instead.
+// their language switch goes to the other locale's home page instead, and they
+// emit no hreflang alternates (that home page is not their translation).
 const inLocaleTree = currentPath === `/${lang}` || currentPath.startsWith(`/${lang}/`);
+const hasTwin = Astro.props.altPath !== undefined || inLocaleTree;
 const altPath =
   Astro.props.altPath ?? (inLocaleTree ? currentPath.replace(`/${lang}`, `/${other}`) : `/${other}/`);
 
@@ -50,33 +52,6 @@ const nav = [
   { href: `/${lang}/#contact`, label: t.nav.contact, current: false },
 ];
 const cvCurrent = here === cvHref;
-
-// Language switch: both codes are always shown, in a fixed order; the current
-// one is marked, the other is the link.
-const LANG_NAMES: Record<Locale, string> = { fr: 'Français', en: 'English' };
-
-// Theme toggle copy. The visible label states the CURRENT mode; the tooltip
-// (title) says what a click will do.
-const theme =
-  lang === 'fr'
-    ? {
-        prefix: 'Thème :',
-        auto: 'Auto',
-        dark: 'Sombre',
-        light: 'Clair',
-        hintAuto: 'Le thème suit votre système. Cliquer pour passer en sombre',
-        hintDark: 'Thème sombre. Cliquer pour passer en clair',
-        hintLight: 'Thème clair. Cliquer pour revenir au thème automatique',
-      }
-    : {
-        prefix: 'Theme:',
-        auto: 'Auto',
-        dark: 'Dark',
-        light: 'Light',
-        hintAuto: 'Theme follows your system. Click for dark',
-        hintDark: 'Dark theme. Click for light',
-        hintLight: 'Light theme. Click to follow your system again',
-      };
 ---
 
 <!doctype html>
@@ -89,8 +64,14 @@ const theme =
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(currentPath, Astro.site)} />
-    <link rel="alternate" hreflang={other} href={new URL(altPath, Astro.site)} />
-    <link rel="alternate" hreflang={lang} href={new URL(currentPath, Astro.site)} />
+    {
+      hasTwin && (
+        <>
+          <link rel="alternate" hreflang={other} href={new URL(altPath, Astro.site)} />
+          <link rel="alternate" hreflang={lang} href={new URL(currentPath, Astro.site)} />
+        </>
+      )
+    }
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta property="og:title" content={`${title} · ${SITE.title}`} />
     <meta property="og:description" content={description} />
@@ -110,13 +91,13 @@ const theme =
     </script>
   </head>
   <body>
-    <a class="skip" href="#main">{lang === 'fr' ? 'Aller au contenu' : 'Skip to content'}</a>
+    <a class="skip" href="#main">{t.nav.skip}</a>
 
     <header class="masthead">
       <div class="masthead-inner page">
         <a class="wordmark" href={homeHref}>K.&nbsp;Fauvette</a>
 
-        <nav class="site-nav" aria-label={lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
+        <nav class="site-nav" aria-label={t.nav.main}>
           <ul role="list">
             {
               nav.map((item) => (
@@ -136,11 +117,11 @@ const theme =
         </nav>
 
         <div class="controls">
-          <div class="lang-switch" role="group" aria-label={lang === 'fr' ? 'Langue' : 'Language'}>
+          <div class="lang-switch" role="group" aria-label={t.nav.langGroup}>
             {
               LOCALES.map((code) =>
                 code === lang ? (
-                  <span class="lang-opt" aria-current="true" title={LANG_NAMES[code]}>
+                  <span class="lang-opt" aria-current="true" title={LOCALE_NAMES[code]}>
                     {code.toUpperCase()}
                   </span>
                 ) : (
@@ -156,12 +137,12 @@ const theme =
             class="ghost-btn theme-toggle"
             id="theme-toggle"
             type="button"
-            title={theme.hintAuto}
-            data-hint-auto={theme.hintAuto}
-            data-hint-dark={theme.hintDark}
-            data-hint-light={theme.hintLight}
+            title={t.theme.hintAuto}
+            data-hint-auto={t.theme.hintAuto}
+            data-hint-dark={t.theme.hintDark}
+            data-hint-light={t.theme.hintLight}
           >
-            <span class="sr-only">{theme.prefix}</span>
+            <span class="sr-only">{t.theme.prefix}</span>
             {/* All three states are rendered; CSS shows the one matching <html data-theme>,
                 so the label is right from first paint (the pre-paint script sets it). */}
             <span class="theme-state" data-mode="auto">
@@ -169,7 +150,7 @@ const theme =
                 <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
                 <path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"></path>
               </svg>
-              <span class="theme-name">{theme.auto}</span>
+              <span class="theme-name">{t.theme.auto}</span>
             </span>
             <span class="theme-state" data-mode="dark">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -180,7 +161,7 @@ const theme =
                   stroke-width="2"
                   stroke-linejoin="round"></path>
               </svg>
-              <span class="theme-name">{theme.dark}</span>
+              <span class="theme-name">{t.theme.dark}</span>
             </span>
             <span class="theme-state" data-mode="light">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -191,7 +172,7 @@ const theme =
                   stroke-width="2"
                   stroke-linecap="round"></path>
               </svg>
-              <span class="theme-name">{theme.light}</span>
+              <span class="theme-name">{t.theme.light}</span>
             </span>
           </button>
         </div>

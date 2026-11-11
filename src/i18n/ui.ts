@@ -5,7 +5,28 @@ import type { Locale } from './locales';
 
 export const UI = {
   fr: {
-    nav: { home: 'Accueil', blog: 'Articles', gallery: 'Galerie', cv: 'CV', contact: 'Contact', langLabel: 'English version' },
+    nav: {
+      home: 'Accueil',
+      blog: 'Articles',
+      gallery: 'Galerie',
+      cv: 'CV',
+      contact: 'Contact',
+      langLabel: 'English version',
+      langGroup: 'Langue',
+      main: 'Navigation principale',
+      skip: 'Aller au contenu',
+    },
+    // Theme toggle: the visible label states the CURRENT mode; the hints
+    // (tooltip) say what a click will do.
+    theme: {
+      prefix: 'Thème :',
+      auto: 'Auto',
+      dark: 'Sombre',
+      light: 'Clair',
+      hintAuto: 'Le thème suit votre système. Cliquer pour passer en sombre',
+      hintDark: 'Thème sombre. Cliquer pour passer en clair',
+      hintLight: 'Thème clair. Cliquer pour revenir au thème automatique',
+    },
     hero: {
       kicker: 'Étudiant ingénieur — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
@@ -44,6 +65,7 @@ export const UI = {
       certificationsNote: 'Badges vérifiables (Cisco, Microsoft, Google). Déplier pour le détail.',
       verify: "Vérifier l'authenticité",
       issuedBy: 'Délivré par',
+      certImage: 'Certificat (image)',
     },
     gallery: {
       pageTitle: 'Galerie',
@@ -64,7 +86,26 @@ export const UI = {
     notFound: { title: 'Page introuvable', body: "Cette page n'existe pas ou a été déplacée.", home: "Retour à l'accueil" },
   },
   en: {
-    nav: { home: 'Home', blog: 'Posts', gallery: 'Gallery', cv: 'CV', contact: 'Contact', langLabel: 'Version française' },
+    nav: {
+      home: 'Home',
+      blog: 'Posts',
+      gallery: 'Gallery',
+      cv: 'CV',
+      contact: 'Contact',
+      langLabel: 'Version française',
+      langGroup: 'Language',
+      main: 'Main navigation',
+      skip: 'Skip to content',
+    },
+    theme: {
+      prefix: 'Theme:',
+      auto: 'Auto',
+      dark: 'Dark',
+      light: 'Light',
+      hintAuto: 'Theme follows your system. Click for dark',
+      hintDark: 'Dark theme. Click for light',
+      hintLight: 'Light theme. Click to follow your system again',
+    },
     hero: {
       kicker: 'Engineering student — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
@@ -103,6 +144,7 @@ export const UI = {
       certificationsNote: 'Verifiable badges (Cisco, Microsoft, Google). Expand for details.',
       verify: 'Verify authenticity',
       issuedBy: 'Issued by',
+      certImage: 'Certificate (image)',
     },
     gallery: {
       pageTitle: 'Gallery',
