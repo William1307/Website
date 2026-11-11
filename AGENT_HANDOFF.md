@@ -52,7 +52,7 @@ objects, no client-side language state.
 **Removed**
 - React, Vite-SPA setup, Tailwind, framer-motion, react-markdown, helmet,
   lucide-react — replaced by Astro + scoped CSS.
-- three.js / @react-three/* and **all `.glb` models (~5 MB)**: the 3D rack is
+- three.js / @react-three/* and **all `.glb` models (~128 MB, the largest alone 84 MB)**: the 3D rack is
   gone per the brief, replaced by the plotter sketch.
 - The five Python scripts in the repo root (one-off GLB assembly tools).
 - **The Express server and the Gemini chatbot** (`/server`, `Assistant.tsx`,
@@ -105,6 +105,22 @@ objects, no client-side language state.
   stretched by the flex row and the text column overflowed on mobile. Now a
   grid with a fixed square badge, `--measure`-capped text, stacking ≤600px.
 - **Gallery:** first real photos added (`content/gallery/`).
+
+## 2c. Third pass (2026-11): CV refresh, projects, posts
+
+- **CV** (`src/data/cv.ts`) re-transcribed from the updated PDF: new headline
+  (work-study placement from Sept. 2027), Avant-Garde Outre-Mer internship, and a
+  "Projects" block rendered on `/cv`. The phone number on the PDF is
+  deliberately not reproduced on the site.
+- **Projects** (home `№ 02`, was "Selected work"): Plex, Mail Server and
+  Blackjack removed; Local AI added. `Project.article` is now **required**, so
+  every project must link to its write-up, and each card shows a "Read the
+  article" link.
+- **Posts:** `local-ai-lm-studio` (new), `building-kwol-cloud` (new),
+  `rustdesk-remote-desktop` (finished — the old single `docker run` was wrong:
+  the server is two containers, hbbs + hbbr). Images are either the site's own
+  (diagrams, screenshots) or freely licensed with an italic credit line under
+  them — never copied from image search.
 
 ## 3. Problem / solution log (first rebuild)
 

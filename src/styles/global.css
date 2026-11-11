@@ -107,7 +107,7 @@ h4 {
   padding-inline: var(--page-pad);
 }
 
-/* Section opener: "№ 02 — Selected work" over a strong rule */
+/* Section opener: "№ 02 — Projects" over a strong rule */
 .section-head {
   display: flex;
   align-items: baseline;

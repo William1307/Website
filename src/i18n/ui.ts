@@ -32,17 +32,17 @@ export const UI = {
       name: 'Kristofer Fauvette',
       title: 'Futur ingénieur informatique',
       lede:
-        "Étudiant en 1ère année à l'INSA Hauts-de-France, passionné depuis toujours par l'informatique, les réseaux et la « bidouille » technique. Ce site centralise mon parcours : mes projets (NAS, serveurs), mon blog et mon CV.",
+        "Étudiant en 2e année à l'INSA Hauts-de-France, passionné depuis toujours par l'informatique, les réseaux et la « bidouille » technique. Ce site centralise mon parcours : mes projets (NAS, serveurs), mon blog et mon CV.",
       cvButton: 'Consulter mon CV',
       contactButton: "M'écrire",
     },
     sections: {
-      projects: 'Travaux sélectionnés',
+      projects: 'Projets',
       writing: 'Derniers articles',
       writingAll: 'Tous les articles',
       contact: 'Me contacter',
       contactLede:
-        "Disponible pour un stage. Intéressé par l'architecture réseau, la cybersécurité et l'auto-hébergement.",
+        "À la recherche d'une alternance en infrastructure et réseaux à partir de septembre 2027. Intéressé par l'architecture réseau, la cybersécurité et l'auto-hébergement.",
     },
     blog: {
       pageTitle: 'Articles & tutoriels',
@@ -57,6 +57,7 @@ export const UI = {
       download: 'Télécharger le PDF',
       education: 'Formation',
       experience: 'Expérience',
+      projects: 'Projets réalisés',
       skills: 'Compétences',
       languages: 'Langues',
       qualities: 'Qualités',
@@ -111,17 +112,17 @@ export const UI = {
       name: 'Kristofer Fauvette',
       title: 'Future computer engineer',
       lede:
-        'First-year student at INSA Hauts-de-France, passionate since forever about IT, networks and technical tinkering. This site gathers my work: projects (NAS, servers), my blog and my CV.',
+        'Second-year student at INSA Hauts-de-France, passionate since forever about IT, networks and technical tinkering. This site gathers my work: projects (NAS, servers), my blog and my CV.',
       cvButton: 'Read my CV',
       contactButton: 'Write to me',
     },
     sections: {
-      projects: 'Selected work',
+      projects: 'Projects',
       writing: 'Latest posts',
       writingAll: 'All posts',
       contact: 'Get in touch',
       contactLede:
-        'Available for an internship. Interested in network architecture, cybersecurity and self-hosting.',
+        'Looking for a work-study placement in infrastructure & networking from September 2027. Interested in network architecture, cybersecurity and self-hosting.',
     },
     blog: {
       pageTitle: 'Posts & tutorials',
@@ -136,6 +137,7 @@ export const UI = {
       download: 'Download the PDF',
       education: 'Education',
       experience: 'Experience',
+      projects: 'Projects',
       skills: 'Skills',
       languages: 'Languages',
       qualities: 'Qualities',

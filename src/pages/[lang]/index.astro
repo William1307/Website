@@ -1,7 +1,7 @@
 ---
 // HOME — the journal's opening spread.
 // Reading order (explicitly numbered on the page):
-//   masthead → hero/about (№01) → selected work (№02) → latest posts (№03)
+//   masthead → hero/about (№01) → projects (№02) → latest posts (№03)
 //   → contact (№04)
 // Certifications intentionally do NOT appear here — they are an appendix on /cv
 // (see ACTION_PLAN.md "Demote" directive).
@@ -38,7 +38,7 @@ const latest = (await getPosts(lang)).slice(0, 3);
     </div>
   </section>
 
-  <!-- № 02 · selected work -->
+  <!-- № 02 · projects, each linking to its write-up -->
   <section class="page">
     <SectionHead no="02" title={t.sections.projects} />
     <div class="projects">
@@ -47,16 +47,15 @@ const latest = (await getPosts(lang)).slice(0, 3);
           <article class="project">
             <p class="annot idx">{String(i + 1).padStart(2, '0')} · {p.category}</p>
             <h3>
-              {p.article ? (
-                <a href={`/${lang}/blog/${p.article}/`}>{p.title}</a>
-              ) : p.link ? (
-                <a href={p.link}>{p.title}</a>
-              ) : (
-                p.title
-              )}
+              <a href={`/${lang}/blog/${p.article}/`}>{p.title}</a>
             </h3>
             <p class="desc">{p.description[lang]}</p>
             <p class="tech">{p.tech.map((x) => <span class="tag">{x}</span>)}</p>
+            <p class="read">
+              <a href={`/${lang}/blog/${p.article}/`} aria-label={`${t.blog.readArticle} — ${p.title}`}>
+                {t.blog.readArticle} →
+              </a>
+            </p>
           </article>
         ))
       }
@@ -177,6 +176,12 @@ const latest = (await getPosts(lang)).slice(0, 3);
     display: flex;
     gap: var(--space-2);
     flex-wrap: wrap;
+  }
+
+  .read {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
   }
 
   .all-link {

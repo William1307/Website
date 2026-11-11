@@ -56,6 +56,15 @@ const t = UI[lang];
         </section>
 
         <section>
+          <h2 class="annot rubric">{t.cv.projects}</h2>
+          <article class="entry">
+            <ul>
+              {CV.projects[lang].map((p) => <li>{p}</li>)}
+            </ul>
+          </article>
+        </section>
+
+        <section>
           <h2 class="annot rubric">{t.cv.education}</h2>
           {
             CV.education.map((ed) => (

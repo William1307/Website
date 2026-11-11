@@ -1,5 +1,5 @@
-// Selected projects, shown on the home page. `article` links a project to a blog
-// post BY SLUG (the folder name under content/blog/) — never by numeric id.
+// Projects, shown on the home page. Every project links to its write-up:
+// `article` is a blog post's SLUG (its folder name under content/blog/) — never a numeric id.
 import type { Locale } from '../i18n/locales';
 
 export interface Project {
@@ -7,10 +7,8 @@ export interface Project {
   category: string;
   tech: string[];
   description: Record<Locale, string>;
-  /** slug of a related post under content/blog/, if one exists */
-  article?: string;
-  /** external documentation / repo link, if relevant */
-  link?: string;
+  /** slug of the project's write-up under content/blog/ (required: every project links to one) */
+  article: string;
 }
 
 export const PROJECTS: Project[] = [
@@ -27,7 +25,7 @@ export const PROJECTS: Project[] = [
   {
     title: 'RustDesk',
     category: 'SysAdmin',
-    tech: ['VPS OVH', 'Docker', 'Chiffrement E2E'],
+    tech: ['VPS OVH', 'Docker', 'E2EE'],
     description: {
       fr: 'Infrastructure de bureau à distance sécurisée, auto-hébergée sur VPS.',
       en: 'Secure self-hosted remote-desktop infrastructure on a VPS.',
@@ -35,23 +33,14 @@ export const PROJECTS: Project[] = [
     article: 'rustdesk-remote-desktop',
   },
   {
-    title: 'Plex Server',
-    category: 'Self-hosting',
-    tech: ['Docker', 'Linux', 'Plex'],
+    title: 'LM Studio + RTX 3070 Ti',
+    category: 'AI',
+    tech: ['LM Studio', 'RTX 3070 Ti', 'GGUF'],
     description: {
-      fr: 'Serveur multimédia avec transcodage matériel.',
-      en: 'Media server with hardware transcoding.',
+      fr: 'Faire tourner des modèles de langage en local sur mon PC : quantification, déchargement GPU, API compatible OpenAI.',
+      en: 'Running language models locally on my PC: quantization, GPU offload, an OpenAI-compatible API.',
     },
-    link: 'https://github.com/plexinc/pms-docker',
-  },
-  {
-    title: 'Mail Server',
-    category: 'Network',
-    tech: ['Postfix', 'Dovecot'],
-    description: {
-      fr: 'Serveur mail auto-hébergé complet.',
-      en: 'Complete self-hosted mail server.',
-    },
+    article: 'local-ai-lm-studio',
   },
   {
     title: 'Portfolio — kwol.cloud',
@@ -61,14 +50,6 @@ export const PROJECTS: Project[] = [
       fr: 'Ce site : portfolio-blog statique, pipeline markdown automatisé.',
       en: 'This site: static portfolio-blog with an automated markdown pipeline.',
     },
-  },
-  {
-    title: 'Blackjack',
-    category: 'Programming',
-    tech: ['Python'],
-    description: {
-      fr: 'Jeu de blackjack complet en Python.',
-      en: 'A complete blackjack game written in Python.',
-    },
+    article: 'building-kwol-cloud',
   },
 ];
