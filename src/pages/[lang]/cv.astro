@@ -125,13 +125,20 @@ const t = UI[lang];
           <details>
             <summary>
               <span class="cert-title">{cert.title}</span>
-              <span class="annot">{t.cv.issuedBy} {cert.issuer}</span>
+              <span class="annot cert-issuer">{t.cv.issuedBy} {cert.issuer}</span>
             </summary>
             <div class="cert-body">
-              <img src={cert.badge} alt={`${cert.title} badge`} width="72" loading="lazy" />
-              <div>
-                <p>{cert.description[lang]}</p>
-                <p class="tags">{cert.skills.map((s) => <span class="tag">{s}</span>)}</p>
+              <img
+                class="cert-badge"
+                src={cert.badge}
+                alt={`${cert.title} badge`}
+                width="128"
+                height="128"
+                loading="lazy"
+              />
+              <div class="cert-text">
+                <p class="cert-desc">{cert.description[lang]}</p>
+                <p class="tags cert-tags">{cert.skills.map((s) => <span class="tag">{s}</span>)}</p>
                 <p class="annot cert-links">
                   <a href={cert.verificationLink}>{t.cv.verify} ↗</a>
                   <a href={cert.certImage}>{lang === 'fr' ? 'Certificat (image)' : 'Certificate (image)'}</a>
@@ -269,21 +276,26 @@ const t = UI[lang];
   }
   details {
     border-top: 1px solid var(--rule);
+    /* hanging marker: the ▸ sits in its own narrow column, so titles and the
+       expanded body share one left edge */
+    --cert-marker: var(--space-3);
+    --cert-indent: calc(var(--cert-marker) + var(--space-2));
   }
   summary {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: var(--cert-marker) minmax(0, 1fr) auto;
     align-items: baseline;
-    gap: var(--space-3);
-    flex-wrap: wrap;
+    column-gap: var(--space-2);
     padding-block: var(--space-2);
     cursor: pointer;
     list-style: none;
   }
+  summary::-webkit-details-marker {
+    display: none;
+  }
   summary::before {
     content: '▸';
     color: var(--rust);
-    margin-right: var(--space-2);
   }
   details[open] summary::before {
     content: '▾';
@@ -291,23 +303,70 @@ const t = UI[lang];
   .cert-title {
     font-weight: 560;
   }
-  .cert-body {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-3) 0 var(--space-4);
+  summary:hover .cert-title {
+    color: var(--rust);
   }
-  .cert-body img {
-    flex-shrink: 0;
+  .cert-issuer {
+    white-space: nowrap;
+  }
+
+  /* expanded panel: framed badge beside a measure-capped text column */
+  .cert-body {
+    display: grid;
+    grid-template-columns: auto minmax(0, var(--measure));
+    justify-content: start;
+    align-items: start;
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-2) 0 var(--space-4) var(--cert-indent);
+  }
+  .cert-badge {
+    /* square badges: fixed box + contain, never stretched by the text column */
+    width: 8rem;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
     background: var(--paper-raised);
     border: 1px solid var(--rule);
-    padding: var(--space-1);
+    padding: var(--space-2);
   }
-  .cert-body p {
+  .cert-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .cert-desc {
     font-size: var(--text-sm);
+    line-height: 1.65;
+  }
+  .cert-tags {
+    margin-top: 0;
+    gap: var(--space-1) var(--space-3);
   }
   .cert-links {
-    margin-top: var(--space-2);
     display: flex;
-    gap: var(--space-3);
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+  .cert-links a {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .appendix {
+      padding: var(--space-3);
+    }
+    summary {
+      grid-template-columns: var(--cert-marker) minmax(0, 1fr);
+      row-gap: var(--space-1);
+    }
+    .cert-issuer {
+      grid-column: 2;
+    }
+    .cert-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cert-badge {
+      width: 6rem;
+    }
   }
 </style>

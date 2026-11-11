@@ -17,5 +17,5 @@ tags: ["Network", "DNS"]
 ```
 
 That's it. The blog index, sorting (newest first), the home page's "latest
-notes", image optimization and the sitemap all update automatically at the
+posts", image optimization and the sitemap all update automatically at the
 next build. The schema lives in `src/content.config.ts`.

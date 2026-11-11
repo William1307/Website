@@ -18,7 +18,7 @@ Deploy = serve `dist/` from any static host (`npm run build`).
 | Layer | Location | Rule |
 |---|---|---|
 | Content | `content/` | Markdown + images. Publishing requires **zero code**. |
-| Data | `src/data/` | Structured facts (CV, projects, certs, machines). Bilingual fields are `{ fr, en }` objects. |
+| Data | `src/data/` | Structured facts (CV, projects, certs). Bilingual fields are `{ fr, en }` objects. |
 | Presentation | `src/{layouts,components,pages,styles}` | Never contains copy, post metadata, or image paths. |
 
 **Routing:** every page exists per locale under `/fr/…` and `/en/…`
@@ -33,21 +33,19 @@ article pages override `altPath` when a translation is missing.
   excerpt, tags). A malformed post fails the build loudly.
 - `glob` loader uses a custom `generateId` to preserve `"<slug>/index.<lang>"`
   ids; `src/i18n/posts.ts` is the only code that parses them.
-- Listing pages, home-page "latest notes", sorting, image optimization and the
+- Listing pages, home-page "latest posts", sorting, image optimization and the
   sitemap all derive from the collection. Nothing is hardcoded anywhere.
 
 **The gallery pipeline:** drop images into `content/gallery/` →
 `src/pages/[lang]/gallery.astro` globs them, derives captions from filenames,
-numbers them as "plates". Empty folder → honest empty state (currently empty:
-the repo has never contained real gallery photos).
+numbers them as "plates". Empty folder → honest empty state. Before committing
+a photo, downscale it (≤2400px long edge) and strip its metadata — phone photos
+carry GPS coordinates, and the originals in the repo are public even though the
+built WebP variants are stripped.
 
 **i18n:** locales in `src/i18n/locales.ts`, all UI copy in `src/i18n/ui.ts`.
 Components take `lang` and read `t = UI[lang]`. No prop-drilled translation
 objects, no client-side language state.
-
-**Interactive element:** `src/components/PlotterSketch.astro` — a vanilla-canvas
-generative "plotter drawing" of a network topology (~2 KB, self-terminating
-animation, `prefers-reduced-motion` respected, redraws on theme change).
 
 ## 2. Changelog vs. the original codebase
 
@@ -65,7 +63,7 @@ animation, `prefers-reduced-motion` respected, redraws on theme change).
   history at `server/index.js`.
 - **The fake homelab telemetry** (`utils/homelab.ts` generated pseudo-random
   CPU/uptime/query numbers from the clock). Replaced by an honest hardware/
-  service inventory in `src/data/infrastructure.ts`. **Do not reintroduce
+  service inventory (since removed too, see §2b). **Do not reintroduce
   invented metrics** — this was an integrity fix, not a styling choice.
 - `public/Images/FAUVETTE_Kristofer_CV.txt` (was chatbot RAG context).
 
@@ -88,7 +86,27 @@ animation, `prefers-reduced-motion` respected, redraws on theme change).
 - Gallery pipeline (was six hardcoded placeholder tiles).
 - 404 page, sitemap, per-page SEO meta.
 
-## 3. Problem / solution log (this session)
+## 2b. Second pass (2026-11, owner feedback)
+
+- **Removed** the hero's generative "topology" sketch (`PlotterSketch.astro`)
+  and the home-page infrastructure inventory ("The workshop",
+  `src/data/infrastructure.ts`). Home is now hero → selected work → latest
+  posts → contact (`№ 01…04`); the hero is a single editorial column.
+- **Renamed** the blog's "notes" wording to something less formal: "Posts" (EN)
+  / "Articles" (FR) in the nav, home section, listing and back links. URLs
+  stay `/blog/`.
+- **Navigation** (`BaseLayout.astro`): explicit Home link; current page marked
+  with `aria-current` and a rust tab (posts count as "Posts"); FR/EN shown
+  side by side with the current one marked (pages outside `/<lang>/`, e.g. the
+  404, link to the other locale's home); theme toggle shows its current mode
+  (Auto/Dark/Light); sticky masthead with anchor targets offset below it;
+  two-row layout on phones.
+- **CV appendix:** expanded certifications were cramped — the 72px badge was
+  stretched by the flex row and the text column overflowed on mobile. Now a
+  grid with a fixed square badge, `--measure`-capped text, stacking ≤600px.
+- **Gallery:** first real photos added (`content/gallery/`).
+
+## 3. Problem / solution log (first rebuild)
 
 1. **Glob-loader ids were slugified.** `index.en.md` became id `"indexen"` — the
    dot is stripped by Astro's default id slugifier, so language detection
@@ -122,14 +140,13 @@ the opposite of the default AI-generated portfolio look.
   "annotation layer": section numbers, dates, tags, captions, nav. Tags are
   bracketed mono text `[DNS]`, not colored pills.
 - **Structure over decoration:** hairline rules, numbered sections
-  (`№ 01…05` on the home page), figure captions, ruled ledger rows. Almost no
+  (`№ 01…04` on the home page), figure captions, ruled ledger rows. Almost no
   motion; everything honours `prefers-reduced-motion`.
 - **Recruiter path is sacred:** the rust CV button in the masthead is on every
   page and is intentionally the loudest element on the site. Keep it one click
   away from everywhere.
-- **Honesty is part of the aesthetic:** the infrastructure section is a real
-  inventory; the gallery says it's empty rather than faking content. Keep the
-  site truthful.
+- **Honesty is part of the aesthetic:** no invented metrics; an empty gallery
+  says it's empty rather than faking content. Keep the site truthful.
 
 ## 5. How to (common tasks)
 

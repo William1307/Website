@@ -1,20 +1,18 @@
 ---
 // HOME — the journal's opening spread.
 // Reading order (explicitly numbered on the page):
-//   masthead → hero/about (№01) → selected work (№02) → the workshop (№03)
-//   → latest notes (№04) → contact (№05)
+//   masthead → hero/about (№01) → selected work (№02) → latest posts (№03)
+//   → contact (№04)
 // Certifications intentionally do NOT appear here — they are an appendix on /cv
 // (see ACTION_PLAN.md "Demote" directive).
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SectionHead from '@components/SectionHead.astro';
 import PostListItem from '@components/PostListItem.astro';
-import PlotterSketch from '@components/PlotterSketch.astro';
 import ContactSection from '@components/ContactSection.astro';
 import { UI } from '@i18n/ui';
 import { localeStaticPaths, type Locale } from '@i18n/locales';
 import { getPosts } from '@i18n/posts';
 import { PROJECTS } from '@data/projects';
-import { INFRASTRUCTURE } from '@data/infrastructure';
 
 export function getStaticPaths() {
   return localeStaticPaths();
@@ -28,20 +26,15 @@ const latest = (await getPosts(lang)).slice(0, 3);
 <BaseLayout lang={lang} title={t.hero.title}>
   <!-- № 01 · hero / about -->
   <section class="page hero">
-    <div class="hero-text">
-      <p class="annot kicker">№ 01 — {t.hero.kicker}</p>
-      <h1>
-        <span class="name">{t.hero.name}</span>
-        <span class="role">{t.hero.title}</span>
-      </h1>
-      <p class="lede">{t.hero.lede}</p>
-      <div class="hero-actions">
-        <a class="primary" href={`/${lang}/cv/`}>{t.hero.cvButton}</a>
-        <a href="#contact">{t.hero.contactButton}</a>
-      </div>
-    </div>
-    <div class="hero-art">
-      <PlotterSketch caption={t.hero.sketchCaption} />
+    <p class="annot kicker">№ 01 — {t.hero.kicker}</p>
+    <h1>
+      <span class="name">{t.hero.name}</span>
+      <span class="role">{t.hero.title}</span>
+    </h1>
+    <p class="lede">{t.hero.lede}</p>
+    <div class="hero-actions">
+      <a class="primary" href={`/${lang}/cv/`}>{t.hero.cvButton}</a>
+      <a href="#contact">{t.hero.contactButton}</a>
     </div>
   </section>
 
@@ -70,57 +63,28 @@ const latest = (await getPosts(lang)).slice(0, 3);
     </div>
   </section>
 
-  <!-- № 03 · the workshop (honest infrastructure inventory) -->
+  <!-- № 03 · latest posts -->
   <section class="page">
-    <SectionHead no="03" title={t.sections.infrastructure} />
-    <p class="note">{t.sections.infrastructureNote}</p>
-    <div class="machines">
-      {
-        INFRASTRUCTURE.map((m) => (
-          <article class="machine">
-            <h3>{m.name}</h3>
-            <p class="annot">{m.hardware} · {m.os}</p>
-            <p class="desc">{m.role[lang]}</p>
-            <ul>
-              {m.services.map((s) => <li>{s}</li>)}
-            </ul>
-          </article>
-        ))
-      }
-    </div>
-  </section>
-
-  <!-- № 04 · latest notes -->
-  <section class="page">
-    <SectionHead no="04" title={t.sections.writing} />
+    <SectionHead no="03" title={t.sections.writing} />
     {latest.map((post) => <PostListItem post={post} lang={lang} />)}
     <p class="all-link"><a href={`/${lang}/blog/`}>{t.sections.writingAll} →</a></p>
   </section>
 
-  <!-- № 05 · contact -->
-  <ContactSection lang={lang} no="05" />
+  <!-- № 04 · contact -->
+  <ContactSection lang={lang} no="04" />
 </BaseLayout>
 
 <style>
-  /* -- hero: asymmetric editorial spread, art in the side column -- */
+  /* -- hero: single-column editorial opener, flush left, ragged right.
+     The name runs the width it needs; the lede is held to the reading measure.
+     Bottom padding is lighter than the top because № 02's section-head already
+     brings its own --space-6 of air above its rule. -- */
   .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(16rem, 4fr);
-    gap: var(--space-5);
-    align-items: end;
-    padding-block: var(--space-6);
-  }
-  @media (max-width: 860px) {
-    .hero {
-      grid-template-columns: 1fr;
-      padding-block: var(--space-5);
-    }
-    .hero-art {
-      max-width: 26rem;
-    }
+    padding-block: var(--space-6) var(--space-4);
   }
   .kicker {
     color: var(--rust);
+    text-wrap: balance;
   }
   h1 {
     margin-top: var(--space-3);
@@ -138,10 +102,12 @@ const latest = (await getPosts(lang)).slice(0, 3);
     font-weight: 420;
     color: var(--ink-soft);
   }
+  /* Lede set a step above body copy so it holds its own beside the display
+     name; still capped at the reading measure (~65 characters per line). */
   .lede {
     margin-top: var(--space-4);
     max-width: var(--measure);
-    font-size: var(--text-base);
+    font-size: calc(var(--text-base) * 1.1);
   }
   .hero-actions {
     margin-top: var(--space-4);
@@ -162,6 +128,14 @@ const latest = (await getPosts(lang)).slice(0, 3);
   }
   .hero-actions .primary:hover {
     background: var(--rust-deep);
+  }
+  @media (max-width: 860px) {
+    .hero {
+      padding-block: var(--space-5) var(--space-3);
+    }
+    .lede {
+      font-size: var(--text-base);
+    }
   }
 
   /* -- projects: ruled two-column ledger -- */
@@ -203,51 +177,6 @@ const latest = (await getPosts(lang)).slice(0, 3);
     display: flex;
     gap: var(--space-2);
     flex-wrap: wrap;
-  }
-
-  /* -- workshop -- */
-  .note {
-    max-width: var(--measure);
-    color: var(--ink-soft);
-    font-style: italic;
-    margin-bottom: var(--space-4);
-  }
-  .machines {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
-  }
-  @media (max-width: 860px) {
-    .machines {
-      grid-template-columns: 1fr;
-    }
-  }
-  .machine {
-    border: 1px solid var(--rule);
-    background: var(--paper-raised);
-    padding: var(--space-4);
-  }
-  .machine h3 {
-    font-size: var(--text-base);
-    font-weight: 600;
-  }
-  .machine .annot {
-    margin-top: var(--space-1);
-  }
-  .machine ul {
-    margin-top: var(--space-3);
-    padding: 0;
-    list-style: none;
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-  }
-  .machine li {
-    border-top: 1px solid var(--rule);
-    padding-block: var(--space-1);
-  }
-  .machine li::before {
-    content: '· ';
-    color: var(--rust);
   }
 
   .all-link {

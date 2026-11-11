@@ -5,34 +5,30 @@ import type { Locale } from './locales';
 
 export const UI = {
   fr: {
-    nav: { blog: 'Blog', gallery: 'Galerie', cv: 'CV', contact: 'Contact', langLabel: 'English version' },
+    nav: { home: 'Accueil', blog: 'Articles', gallery: 'Galerie', cv: 'CV', contact: 'Contact', langLabel: 'English version' },
     hero: {
       kicker: 'Étudiant ingénieur — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
       title: 'Futur ingénieur informatique',
       lede:
-        "Étudiant en 1ère année à l'INSA Hauts-de-France, passionné depuis toujours par l'informatique, les réseaux et la « bidouille » technique. Ce site centralise mon parcours : mes projets (NAS, serveurs), mon blog et mon CV.",
+        "Étudiant en 1ère année à l'INSA Hauts-de-France, passionné depuis toujours par l'informatique, les réseaux et la « bidouille » technique. Ce site centralise mon parcours : mes projets (NAS, serveurs), mon blog et mon CV.",
       cvButton: 'Consulter mon CV',
       contactButton: "M'écrire",
-      sketchCaption: 'Fig. 01 — topologie générative, redessinée à chaque visite.',
     },
     sections: {
       projects: 'Travaux sélectionnés',
-      infrastructure: "L'atelier — infrastructure auto-hébergée",
-      infrastructureNote:
-        "Inventaire réel de ce qui tourne chez moi et sur mon VPS. Les services listés sont des logiciels open-source que j'auto-héberge — je n'en suis pas l'auteur.",
-      writing: 'Dernières notes',
-      writingAll: 'Toutes les notes',
+      writing: 'Derniers articles',
+      writingAll: 'Tous les articles',
       contact: 'Me contacter',
       contactLede:
         "Disponible pour un stage. Intéressé par l'architecture réseau, la cybersécurité et l'auto-hébergement.",
     },
     blog: {
-      pageTitle: 'Blog — notes & tutoriels',
+      pageTitle: 'Articles & tutoriels',
       pageLede: 'Carnets de bord : réseaux, auto-hébergement et administration système, documentés pas à pas.',
       readArticle: "Lire l'article",
       publishedOn: 'Publié le',
-      backToList: 'Retour aux notes',
+      backToList: 'Retour aux articles',
       onlyInOtherLang: 'Cet article existe aussi en anglais.',
     },
     cv: {
@@ -68,7 +64,7 @@ export const UI = {
     notFound: { title: 'Page introuvable', body: "Cette page n'existe pas ou a été déplacée.", home: "Retour à l'accueil" },
   },
   en: {
-    nav: { blog: 'Blog', gallery: 'Gallery', cv: 'CV', contact: 'Contact', langLabel: 'Version française' },
+    nav: { home: 'Home', blog: 'Posts', gallery: 'Gallery', cv: 'CV', contact: 'Contact', langLabel: 'Version française' },
     hero: {
       kicker: 'Engineering student — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
@@ -77,25 +73,21 @@ export const UI = {
         'First-year student at INSA Hauts-de-France, passionate since forever about IT, networks and technical tinkering. This site gathers my work: projects (NAS, servers), my blog and my CV.',
       cvButton: 'Read my CV',
       contactButton: 'Write to me',
-      sketchCaption: 'Fig. 01 — generative topology, redrawn on every visit.',
     },
     sections: {
       projects: 'Selected work',
-      infrastructure: 'The workshop — self-hosted infrastructure',
-      infrastructureNote:
-        'A real inventory of what runs at home and on my VPS. The services listed are open-source software that I self-host — I am not their author.',
-      writing: 'Latest notes',
-      writingAll: 'All notes',
+      writing: 'Latest posts',
+      writingAll: 'All posts',
       contact: 'Get in touch',
       contactLede:
         'Available for an internship. Interested in network architecture, cybersecurity and self-hosting.',
     },
     blog: {
-      pageTitle: 'Blog — notes & tutorials',
+      pageTitle: 'Posts & tutorials',
       pageLede: 'Field notes: networking, self-hosting and system administration, documented step by step.',
       readArticle: 'Read the article',
       publishedOn: 'Published on',
-      backToList: 'Back to the notes',
+      backToList: 'Back to all posts',
       onlyInOtherLang: 'This article also exists in French.',
     },
     cv: {
