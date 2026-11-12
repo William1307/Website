@@ -1,0 +1,48 @@
+# Build the site and publish it to kwol.cloud on every push to main.
+# DEPLOY_SSH_KEY can only sync files into the web root: on the server it is
+# pinned to `rrsync /var/www/kwol.cloud/html` (no shell, no other paths).
+# DEPLOY_KNOWN_HOSTS pins the server's host key, so the upload can't be
+# redirected to an impostor.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # astro check + astro build: a type error or a malformed post fails here,
+      # before anything reaches the server.
+      - run: npm run build
+
+      - name: Publish dist/ to the VPS
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          rsync -rlz --checksum --delete --chmod=D755,F644 \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            dist/ deploy@217.182.66.185:./
