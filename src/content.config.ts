@@ -27,6 +27,7 @@ const blog = defineCollection({
     date: z.coerce.date(),          // "2025-12-08" in frontmatter
     excerpt: z.string(),            // one or two sentences, shown on listing pages
     tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false), // true = kept in the repo, never published
   }),
 });
 

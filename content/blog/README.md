@@ -19,3 +19,9 @@ tags: ["Network", "DNS"]
 That's it. The blog index, sorting (newest first), the home page's "latest
 posts", image optimization and the sitemap all update automatically at the
 next build. The schema lives in `src/content.config.ts`.
+
+**Hiding a post:** add `draft: true` to its frontmatter. It stays in the repo
+(so remember the repo itself is public) but gets no page and never appears in a
+listing or the sitemap. Remove the line to publish it again.
+
+Code blocks automatically get a "Copy" button on the post page.

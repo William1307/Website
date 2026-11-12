@@ -3,6 +3,7 @@ title: "Refonte de kwol.cloud : d'une SPA lourde à un journal statique"
 date: 2026-11-11
 excerpt: "Pourquoi j'ai jeté une app React avec 120 Mo de modèles 3D et un chatbot, pour reconstruire ce site en pages statiques Astro où publier un article revient à déposer un dossier."
 tags: ["Web", "Astro", "Design"]
+draft: true
 ---
 
 ![La page d'accueil du site, thème clair](./home-fr.png)

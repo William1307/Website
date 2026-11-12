@@ -18,9 +18,10 @@ function parseId(id: string): { slug: string; lang: Locale } {
   return { slug: slug!, lang };
 }
 
-/** All posts for one locale, newest first. The blog listing is generated from this. */
+/** All published posts for one locale, newest first. Every listing, the post
+ *  pages and the sitemap derive from this, so a `draft: true` post appears nowhere. */
 export async function getPosts(lang: Locale): Promise<Post[]> {
-  const entries = await getCollection('blog');
+  const entries = await getCollection('blog', (e) => !e.data.draft);
   const bySlug = new Map<string, Locale[]>();
   for (const e of entries) {
     const p = parseId(e.id);

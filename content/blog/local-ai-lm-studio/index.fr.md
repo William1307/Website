@@ -1,6 +1,6 @@
 ---
 title: "Faire tourner une IA chez soi avec LM Studio sur un GPU de 8 Go"
-date: 2026-11-12
+date: 2025-11-12
 excerpt: "Pas d'abonnement, pas de cloud, aucune donnée qui sort de la maison : comment fonctionne vraiment un LLM local, ce qui tient dans 8 Go de VRAM, et comment démarrer pas à pas avec LM Studio."
 tags: ["AI", "LM Studio", "GPU"]
 ---
@@ -66,9 +66,9 @@ Rien d'exotique, un PC de bureau plutôt orienté jeu :
 
 Concrètement ? Les 8 Go de VRAM sont le facteur limitant : une fois la part du bureau retirée, je compte sur environ 7 Go pour les poids plus le contexte. C'est le terrain idéal pour des modèles d'**environ 4 à 9 milliards de paramètres en Q4/Q5**. Les 32 Go de RAM me permettent de *charger* des modèles bien plus gros, mais avec de la DDR4-2666, la partie calculée par le CPU sera lente. Et comme le CPU n'a pas de graphique intégré, l'affichage tourne sur ce même GPU : une raison de plus de garder un peu de VRAM libre.
 
-### Quoi télécharger en 2026 ?
+### Quoi télécharger ? (mis à jour en novembre 2026)
 
-Ça bouge vite, voyez donc ceci comme un instantané plutôt qu'un verdict. Au moment où j'écris (novembre 2026), le catalogue de LM Studio propose notamment la famille **Qwen3.5** (avec des versions 4B et 9B), **Gemma 4**, **Ministral 3** (8B) et **IBM Granite 4.1** (8B). Ces tailles se logent confortablement dans 8 Go en Q4. Des options plus grosses comme **gpt-oss 20B**, non : OpenAI le dimensionne pour des machines dotées de 16 Go de mémoire, donc sur ma carte il déborderait en RAM.
+Ça bouge vite, voyez donc ceci comme un instantané plutôt qu'un verdict. À cette mise à jour (novembre 2026), le catalogue de LM Studio propose notamment la famille **Qwen3.5** (avec des versions 4B et 9B), **Gemma 4**, **Ministral 3** (8B) et **IBM Granite 4.1** (8B). Ces tailles se logent confortablement dans 8 Go en Q4. Des options plus grosses comme **gpt-oss 20B**, non : OpenAI le dimensionne pour des machines dotées de 16 Go de mémoire, donc sur ma carte il déborderait en RAM.
 
 Mon conseil : commencez par un modèle de 8-9B en Q4_K_M, puis comparez avec plus petit ou plus gros. Lisez la page du modèle pour sa licence et ses points forts, et ne croyez pas aveuglément les classements.
 

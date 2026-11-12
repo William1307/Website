@@ -3,6 +3,7 @@ title: "Rebuilding kwol.cloud: from a heavy SPA to a static journal"
 date: 2026-11-11
 excerpt: "Why I threw away a React app with 120 MB of 3D models and a chatbot, and rebuilt this site as static Astro pages where publishing a post means dropping a folder."
 tags: ["Web", "Astro", "Design"]
+draft: true
 ---
 
 ![The home page of the site, light theme](./home-en.png)

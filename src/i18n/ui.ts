@@ -51,6 +51,9 @@ export const UI = {
       publishedOn: 'Publié le',
       backToList: 'Retour aux posts',
       onlyInOtherLang: 'Cet article existe aussi en anglais.',
+      copy: 'Copier',
+      copied: 'Copié !',
+      copyLabel: 'Copier le code',
     },
     cv: {
       pageTitle: 'Curriculum vitæ',
@@ -131,6 +134,9 @@ export const UI = {
       publishedOn: 'Published on',
       backToList: 'Back to all posts',
       onlyInOtherLang: 'This article also exists in French.',
+      copy: 'Copy',
+      copied: 'Copied!',
+      copyLabel: 'Copy the code',
     },
     cv: {
       pageTitle: 'Curriculum vitæ',

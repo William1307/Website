@@ -1,6 +1,6 @@
 ---
 title: "Running AI at home with LM Studio on an 8 GB GPU"
-date: 2026-11-12
+date: 2025-11-12
 excerpt: "No subscription, no cloud, no data leaving the house: how a local LLM actually works, what fits in 8 GB of VRAM, and how to get started step by step with LM Studio."
 tags: ["AI", "LM Studio", "GPU"]
 ---
@@ -66,9 +66,9 @@ Nothing exotic, a regular gaming-type desktop:
 
 What does that mean in practice? The 8 GB of VRAM is the limiting factor: after the desktop takes its share, I count on roughly 7 GB for weights plus context. That's the sweet spot for models of **about 4 to 9 billion parameters in Q4/Q5**. The 32 GB of RAM lets me *load* much bigger models, but with DDR4-2666 the part running on the CPU will be slow. And since the CPU has no integrated graphics, the display runs on the same GPU, which is one more reason to keep a little VRAM free.
 
-### What to download in 2026?
+### What to download? (updated November 2026)
 
-This moves fast, so take this as a snapshot rather than a verdict. As I write this (November 2026), LM Studio's model catalog lists, among others, the **Qwen3.5** family (with 4B and 9B versions), **Gemma 4**, **Ministral 3** (8B) and **IBM Granite 4.1** (8B). Those sizes are the ones that sit comfortably in 8 GB at Q4. Bigger options like **gpt-oss 20B** don't: OpenAI sizes it for machines with 16 GB of memory, so on my card it would spill into RAM.
+This moves fast, so take this as a snapshot rather than a verdict. At this update (November 2026), LM Studio's model catalog lists, among others, the **Qwen3.5** family (with 4B and 9B versions), **Gemma 4**, **Ministral 3** (8B) and **IBM Granite 4.1** (8B). Those sizes are the ones that sit comfortably in 8 GB at Q4. Bigger options like **gpt-oss 20B** don't: OpenAI sizes it for machines with 16 GB of memory, so on my card it would spill into RAM.
 
 My advice: start with an 8-9B model in Q4_K_M, then compare with something smaller or bigger. Check the model's own page for its license and its strengths, and don't believe leaderboards blindly.
 

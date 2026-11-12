@@ -128,6 +128,11 @@ objects, no client-side language state.
   the server is two containers, hbbs + hbbr). Images are either the site's own
   (diagrams, screenshots) or freely licensed with an italic credit line under
   them — never copied from image search.
+- **Drafts:** `draft: true` in a post's frontmatter hides it everywhere
+  (filtered once, in `getPosts`). `building-kwol-cloud` is a draft, so the
+  Portfolio project card was removed (every card must link to a published post).
+- **Copy buttons** on code blocks: script in `[slug].astro`, styles in
+  `global.css` (`.code-block`, `.copy-btn`).
 
 ## 3. Problem / solution log (first rebuild)
 

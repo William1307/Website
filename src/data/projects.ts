@@ -52,14 +52,4 @@ export const PROJECTS: Project[] = [
     },
     article: 'local-ai-lm-studio',
   },
-  {
-    title: 'Portfolio — kwol.cloud',
-    category: 'Web',
-    tech: ['Astro', 'TypeScript'],
-    description: {
-      fr: 'Ce site : portfolio-blog statique, pipeline markdown automatisé.',
-      en: 'This site: static portfolio-blog with an automated markdown pipeline.',
-    },
-    article: 'building-kwol-cloud',
-  },
 ];

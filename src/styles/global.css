@@ -224,6 +224,42 @@ h4 {
   background: none;
   padding: 0;
 }
+/* Copy button on code blocks (wrapper + button are added by the post page's
+   script). The block gets a top band so the button never covers code. */
+.prose .code-block {
+  position: relative;
+}
+.prose .code-block pre {
+  padding-top: calc(var(--space-3) + 1.9em);
+}
+.prose .copy-btn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.3em 0.75em;
+  cursor: pointer;
+}
+.prose .copy-btn:hover,
+.prose .copy-btn:focus-visible {
+  color: var(--rust);
+  border-color: var(--rust);
+}
+.copy-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .prose table {
   border-collapse: collapse;
   width: 100%;
