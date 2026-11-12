@@ -1,7 +1,13 @@
 ---
-// Root URL: pick the visitor's language and forward them.
-// JS picks en for anglophone browsers; the meta refresh is the no-JS fallback
-// to French (the site's primary audience).
+// Root URL: pick the visitor's language and forward them. The site is static
+// (no server, no IP geolocation), so the browser's time zone stands in for
+// location — nothing leaves the visitor's machine:
+//   1. an explicit FR/EN choice made with the language switch always wins
+//      (remembered in localStorage by BaseLayout);
+//   2. UK & Ireland and the US → English; the rest of Europe → French;
+//   3. anywhere else, the browser language decides (fr* → French, else English).
+// No-JS visitors and crawlers get the <noscript> refresh to French, the primary
+// audience.
 import { DEFAULT_LOCALE } from '@i18n/locales';
 ---
 
@@ -11,10 +17,30 @@ import { DEFAULT_LOCALE } from '@i18n/locales';
     <meta charset="utf-8" />
     <title>kwol.cloud</title>
     <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content={`0; url=/${DEFAULT_LOCALE}/`} />
+    <noscript><meta http-equiv="refresh" content={`0; url=/${DEFAULT_LOCALE}/`} /></noscript>
     <script is:inline>
-      const lang = navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'fr';
-      location.replace('/' + lang + '/');
+      (function () {
+        var lang;
+        try {
+          var saved = localStorage.getItem('lang');
+          if (saved === 'fr' || saved === 'en') lang = saved;
+        } catch (e) {
+          /* storage blocked: fall through to the location guess */
+        }
+        if (!lang) {
+          var tz = '';
+          try {
+            tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+          } catch (e) {}
+          var UK_IE = /^Europe\/(London|Belfast|Dublin|Guernsey|Isle_of_Man|Jersey)$/;
+          var US =
+            /^(America\/(New_York|Detroit|Chicago|Denver|Phoenix|Los_Angeles|Anchorage|Juneau|Sitka|Metlakatla|Yakutat|Nome|Adak|Boise|Menominee|Indianapolis|Louisville|Indiana\/.+|Kentucky\/.+|North_Dakota\/.+)|Pacific\/Honolulu|US\/.+)$/;
+          if (UK_IE.test(tz) || US.test(tz)) lang = 'en';
+          else if (tz.indexOf('Europe/') === 0) lang = 'fr';
+          else lang = (navigator.language || '').toLowerCase().indexOf('fr') === 0 ? 'fr' : 'en';
+        }
+        location.replace('/' + lang + '/');
+      })();
     </script>
   </head>
   <body>

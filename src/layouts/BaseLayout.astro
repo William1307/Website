@@ -231,6 +231,18 @@ const cvCurrent = here === cvHref;
           root.style.setProperty('--masthead-h', `${masthead.offsetHeight}px`);
         }).observe(masthead);
       }
+
+      // Remember an explicit language choice: the root URL (/) honours it over
+      // its time-zone guess on the next visit (see src/pages/index.astro).
+      document.querySelectorAll<HTMLAnchorElement>('.lang-switch a[hreflang]').forEach((a) => {
+        a.addEventListener('click', () => {
+          try {
+            localStorage.setItem('lang', a.hreflang);
+          } catch {
+            /* storage blocked: the root URL falls back to its guess */
+          }
+        });
+      });
     </script>
 
     <style>

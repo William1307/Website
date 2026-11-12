@@ -7,7 +7,7 @@ export const UI = {
   fr: {
     nav: {
       home: 'Accueil',
-      blog: 'Articles',
+      blog: 'Posts',
       gallery: 'Galerie',
       cv: 'CV',
       contact: 'Contact',
@@ -30,7 +30,7 @@ export const UI = {
     hero: {
       kicker: 'Étudiant ingénieur — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
-      title: 'Futur ingénieur informatique',
+      title: 'Je bricole des serveurs et des réseaux',
       lede:
         "Étudiant en 2e année à l'INSA Hauts-de-France, passionné depuis toujours par l'informatique, les réseaux et la « bidouille » technique. Ce site centralise mon parcours : mes projets (NAS, serveurs), mon blog et mon CV.",
       cvButton: 'Consulter mon CV',
@@ -38,18 +38,18 @@ export const UI = {
     },
     sections: {
       projects: 'Projets',
-      writing: 'Derniers articles',
-      writingAll: 'Tous les articles',
+      writing: 'Derniers posts',
+      writingAll: 'Tous les posts',
       contact: 'Me contacter',
       contactLede:
         "À la recherche d'une alternance en infrastructure et réseaux à partir de septembre 2027. Intéressé par l'architecture réseau, la cybersécurité et l'auto-hébergement.",
     },
     blog: {
-      pageTitle: 'Articles & tutoriels',
+      pageTitle: 'Posts & tutoriels',
       pageLede: 'Carnets de bord : réseaux, auto-hébergement et administration système, documentés pas à pas.',
       readArticle: "Lire l'article",
       publishedOn: 'Publié le',
-      backToList: 'Retour aux articles',
+      backToList: 'Retour aux posts',
       onlyInOtherLang: 'Cet article existe aussi en anglais.',
     },
     cv: {
@@ -110,7 +110,7 @@ export const UI = {
     hero: {
       kicker: 'Engineering student — INSA Hauts-de-France',
       name: 'Kristofer Fauvette',
-      title: 'Future computer engineer',
+      title: 'I mess around with servers and networks',
       lede:
         'Second-year student at INSA Hauts-de-France, passionate since forever about IT, networks and technical tinkering. This site gathers my work: projects (NAS, servers), my blog and my CV.',
       cvButton: 'Read my CV',

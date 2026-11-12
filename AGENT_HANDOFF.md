@@ -92,9 +92,9 @@ objects, no client-side language state.
   and the home-page infrastructure inventory ("The workshop",
   `src/data/infrastructure.ts`). Home is now hero → selected work → latest
   posts → contact (`№ 01…04`); the hero is a single editorial column.
-- **Renamed** the blog's "notes" wording to something less formal: "Posts" (EN)
-  / "Articles" (FR) in the nav, home section, listing and back links. URLs
-  stay `/blog/`.
+- **Renamed** the blog's "notes" wording to something less formal: "Posts" in
+  both locales (FR briefly used "Articles") in the nav, home section, listing
+  and back links. URLs stay `/blog/`.
 - **Navigation** (`BaseLayout.astro`): explicit Home link; current page marked
   with `aria-current` and a rust tab (posts count as "Posts"); FR/EN shown
   side by side with the current one marked (pages outside `/<lang>/`, e.g. the
