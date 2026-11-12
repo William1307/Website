@@ -212,45 +212,60 @@ h4 {
   padding: 0.1em 0.35em;
   border-radius: 2px;
 }
+/* Code blocks sit on the lighter paper: the github-light/dark Shiki themes
+   (astro.config.mjs) were picked for contrast against it. Text is near body
+   size — inline code's 0.86em must not shrink it a second time. */
 .prose pre {
-  background: var(--paper-recessed) !important;
+  background: var(--paper-raised) !important;
   border: 1px solid var(--rule);
   padding: var(--space-3);
   overflow-x: auto;
-  font-size: var(--text-sm);
-  line-height: 1.55;
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  line-height: 1.65;
 }
 .prose pre code {
+  font-size: 1em;
   background: none;
   padding: 0;
 }
 /* Copy button on code blocks (wrapper + button are added by the post page's
-   script). The block gets a top band so the button never covers code. */
+   script). A slim top band keeps the icon clear of the first line. */
 .prose .code-block {
   position: relative;
 }
 .prose .code-block pre {
-  padding-top: calc(var(--space-3) + 1.9em);
+  padding-top: calc(var(--space-2) + 2rem);
 }
 .prose .copy-btn {
   position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  background: var(--paper-raised);
-  border: 1px solid var(--rule);
+  top: var(--space-1);
+  right: var(--space-1);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
   border-radius: 2px;
-  padding: 0.3em 0.75em;
   cursor: pointer;
+}
+.prose .copy-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 .prose .copy-btn:hover,
 .prose .copy-btn:focus-visible {
   color: var(--rust);
-  border-color: var(--rust);
+}
+.prose .copy-btn .icon-done,
+.prose .copy-btn[data-copied] .icon-copy {
+  display: none;
+}
+.prose .copy-btn[data-copied] .icon-done {
+  display: block;
+  color: var(--rust);
 }
 .copy-status {
   position: absolute;

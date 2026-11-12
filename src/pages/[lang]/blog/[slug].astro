@@ -42,20 +42,31 @@ const altPath = post.availableIn.includes(other)
         {tags.map((tag) => <span class="tag">{tag}</span>)}
       </p>
     </header>
-    <div class="prose" data-copy={t.blog.copy} data-copied={t.blog.copied} data-copy-label={t.blog.copyLabel}>
+    <div class="prose" data-copied={t.blog.copied} data-copy-label={t.blog.copyLabel}>
       <Content />
     </div>
     <p class="copy-status" aria-live="polite"></p>
+    <!-- Icons for the code-block copy buttons, cloned by the script below. -->
+    <template id="copy-icons">
+      <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="8.5" y="8.5" width="12" height="12" rx="1.5"></rect>
+        <path d="M15.5 8.5V5a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 5v9A1.5 1.5 0 0 0 5 15.5h3.5"></path>
+      </svg>
+      <svg class="icon-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4.5 12.5l5 5 10-11"></path>
+      </svg>
+    </template>
   </article>
 </BaseLayout>
 
 <script>
-  // A copy button on every code block. Each <pre> is wrapped so the button
-  // stays put while long lines scroll horizontally. Styles: .code-block and
-  // .copy-btn in global.css (these elements are created here, at runtime).
+  // A copy icon on every code block. Each <pre> is wrapped so the button stays
+  // put while long lines scroll horizontally. Styles: .code-block and .copy-btn
+  // in global.css (these elements are created here, at runtime).
   const prose = document.querySelector<HTMLElement>('.prose');
   const status = document.querySelector<HTMLElement>('.copy-status');
-  const { copy = 'Copy', copied = 'Copied!', copyLabel = 'Copy the code' } = prose?.dataset ?? {};
+  const icons = document.querySelector<HTMLTemplateElement>('#copy-icons');
+  const { copied = 'Copied!', copyLabel = 'Copy the code' } = prose?.dataset ?? {};
 
   prose?.querySelectorAll('pre').forEach((pre) => {
     const wrap = document.createElement('div');
@@ -66,18 +77,19 @@ const altPath = post.availableIn.includes(other)
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'copy-btn';
-    btn.textContent = copy;
+    btn.title = copyLabel;
     btn.setAttribute('aria-label', copyLabel);
+    if (icons) btn.append(icons.content.cloneNode(true));
     wrap.append(btn);
 
     btn.addEventListener('click', async () => {
       const text = (pre.querySelector('code') ?? pre).innerText.replace(/\n$/, '');
       try {
         await navigator.clipboard.writeText(text);
-        btn.textContent = copied;
+        btn.dataset.copied = '';
         if (status) status.textContent = copied;
         setTimeout(() => {
-          btn.textContent = copy;
+          delete btn.dataset.copied;
           if (status) status.textContent = '';
         }, 2000);
       } catch {

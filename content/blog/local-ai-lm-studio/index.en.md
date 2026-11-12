@@ -1,6 +1,6 @@
 ---
 title: "Running AI at home with LM Studio on an 8 GB GPU"
-date: 2025-11-12
+date: 2025-01-19
 excerpt: "No subscription, no cloud, no data leaving the house: how a local LLM actually works, what fits in 8 GB of VRAM, and how to get started step by step with LM Studio."
 tags: ["AI", "LM Studio", "GPU"]
 ---

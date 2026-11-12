@@ -15,7 +15,7 @@ export default defineConfig({
     // Dual Shiki themes: CSS variables emitted per token; global.css flips them
     // with the site's light/dark mechanism (data-theme attr + media query).
     shikiConfig: {
-      themes: { light: 'vitesse-light', dark: 'vitesse-dark' },
+      themes: { light: 'github-light', dark: 'github-dark' }, // chosen for contrast on paper
       defaultColor: 'light',
     },
   },

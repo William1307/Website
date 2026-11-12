@@ -1,6 +1,6 @@
 ---
 title: "Faire tourner une IA chez soi avec LM Studio sur un GPU de 8 Go"
-date: 2025-11-12
+date: 2025-01-19
 excerpt: "Pas d'abonnement, pas de cloud, aucune donnée qui sort de la maison : comment fonctionne vraiment un LLM local, ce qui tient dans 8 Go de VRAM, et comment démarrer pas à pas avec LM Studio."
 tags: ["AI", "LM Studio", "GPU"]
 ---
