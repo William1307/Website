@@ -13,6 +13,16 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
+    title: 'Kris asks Claude',
+    category: 'Video',
+    tech: ['Claude Code', 'Playwright', 'FFmpeg', 'WebAudio'],
+    description: {
+      fr: 'Un pipeline de vidéos courtes quotidiennes : motion design en code, voix mesurées, un critique qui note chaque rendu. 35k vues en 3 jours.',
+      en: 'A daily short-video pipeline: motion graphics as code, measured voices, a critic that grades every render. 35k views in 3 days.',
+    },
+    article: 'ai-video-pipeline',
+  },
+  {
     title: 'Pi-hole + Unbound DNS',
     category: 'Cybersecurity',
     tech: ['DNSSEC', 'Unbound', 'Raspberry Pi 5', 'Linux'],
