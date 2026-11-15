@@ -49,9 +49,16 @@ const plates = Object.entries(files)
         <p class="empty">{t.gallery.empty}</p>
       ) : (
         <div class="plates">
-          {plates.map((plate) => (
+          {plates.map((plate, i) => (
             <figure>
-              <Image src={plate.image} alt={plate.caption} widths={[480, 960, 1440]} sizes="(max-width: 720px) 100vw, 50vw" />
+              <Image
+                src={plate.image}
+                alt={plate.caption}
+                widths={[480, 960, 1440]}
+                sizes="(max-width: 720px) 100vw, 50vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : 'auto'}
+              />
               <figcaption class="annot">
                 {t.gallery.figure} {plate.number} — {plate.caption}
               </figcaption>
