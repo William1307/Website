@@ -5,7 +5,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://kwol.cloud',
+  site: 'https://kristoferfauvette.fr',
   output: 'static',
   integrations: [sitemap()],
   // Trailing slashes are normalized so hreflang alternates and the sitemap

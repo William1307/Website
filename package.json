@@ -1,6 +1,6 @@
 {
   "name": "kwol-cloud",
-  "description": "Kristofer Fauvette — portfolio & blog (kwol.cloud). Static Astro site; blog publishes by dropping folders into content/blog/.",
+  "description": "Kristofer Fauvette — portfolio & blog (kristoferfauvette.fr). Static Astro site; blog publishes by dropping folders into content/blog/.",
   "private": true,
   "version": "2.0.0",
   "type": "module",

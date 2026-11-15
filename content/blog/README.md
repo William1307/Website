@@ -1,7 +1,7 @@
 # Publishing a blog post (no code required)
 
 1. Create a folder here. Its name becomes the URL slug:
-   `content/blog/my-new-post/` → `kwol.cloud/fr/blog/my-new-post/`
+   `content/blog/my-new-post/` → `kristoferfauvette.fr/fr/blog/my-new-post/`
 2. Add `index.fr.md` and/or `index.en.md` (a post may exist in one language only).
 3. Put the post's images **in the same folder** and reference them relatively:
    `![My caption](./screenshot.png)`

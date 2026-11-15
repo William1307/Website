@@ -12,8 +12,14 @@ Companion document: `ACTION_PLAN.md` (the pre-rebuild audit and plan).
 **Stack:** Astro 5, fully static output (`dist/`), zero backend, TypeScript
 strict. No UI framework, no Tailwind — hand-written CSS on design tokens.
 Deploy = serve `dist/` from any static host (`npm run build`). **Production:**
-kwol.cloud is nginx on the owner's OVH VPS, web root `/var/www/kwol.cloud/html`
-(owned by a `deploy` user). `.github/workflows/deploy.yml` builds on every push to
+**kristoferfauvette.fr** (main domain since 2026-11-15; `site` in
+`astro.config.mjs` and `SITE.domain` in `src/data/site.ts`) is nginx on the
+owner's OVH VPS, web root `/var/www/kwol.cloud/html` — the path keeps the old
+name on purpose, because the deploy key is pinned to it. `kwol.cloud`,
+`www.kwol.cloud` and `www.kristoferfauvette.fr` 301 to the apex .fr, path kept
+(nginx: `sites-available/kristoferfauvette.fr` and `sites-available/kwol.cloud`;
+certs `kristoferfauvette.fr` and `www.kwol.cloud` were issued `certonly` with a
+`systemctl reload nginx` renew hook). The web root is owned by a `deploy` user. `.github/workflows/deploy.yml` builds on every push to
 `main` and rsyncs `dist/` there with a key pinned on the server to
 `rrsync /var/www/kwol.cloud/html` (secrets `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`).
 Security headers (HSTS, CSP, nosniff, frame DENY…) live in

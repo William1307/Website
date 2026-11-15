@@ -9,13 +9,14 @@
 // No-JS visitors and crawlers get the <noscript> refresh to French, the primary
 // audience.
 import { DEFAULT_LOCALE } from '@i18n/locales';
+import { SITE } from '@data/site';
 ---
 
 <!doctype html>
 <html lang={DEFAULT_LOCALE}>
   <head>
     <meta charset="utf-8" />
-    <title>kwol.cloud</title>
+    <title>{SITE.domain}</title>
     <meta name="robots" content="noindex" />
     <noscript><meta http-equiv="refresh" content={`0; url=/${DEFAULT_LOCALE}/`} /></noscript>
     <script is:inline>
@@ -44,6 +45,6 @@ import { DEFAULT_LOCALE } from '@i18n/locales';
     </script>
   </head>
   <body>
-    <p><a href={`/${DEFAULT_LOCALE}/`}>kwol.cloud</a></p>
+    <p><a href={`/${DEFAULT_LOCALE}/`}>{SITE.domain}</a></p>
   </body>
 </html>

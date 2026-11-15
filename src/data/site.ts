@@ -2,7 +2,7 @@
 // is repeated in components.
 export const SITE = {
   title: 'Kristofer Fauvette',
-  domain: 'kwol.cloud',
+  domain: 'kristoferfauvette.fr',
   description: {
     fr: "Portfolio et blog de Kristofer Fauvette — étudiant ingénieur à l'INSA Hauts-de-France. Réseaux, auto-hébergement, homelab.",
     en: 'Portfolio and blog of Kristofer Fauvette — engineering student at INSA Hauts-de-France. Networking, self-hosting, homelab.',

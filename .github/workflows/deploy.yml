@@ -1,4 +1,4 @@
-# Build the site and publish it to kwol.cloud on every push to main.
+# Build the site and publish it to kristoferfauvette.fr on every push to main.
 # DEPLOY_SSH_KEY can only sync files into the web root: on the server it is
 # pinned to `rrsync /var/www/kwol.cloud/html` (no shell, no other paths).
 # DEPLOY_KNOWN_HOSTS pins the server's host key, so the upload can't be

@@ -1,4 +1,4 @@
-# kwol.cloud — portfolio & blog
+# kristoferfauvette.fr — portfolio & blog
 
 Personal site of Kristofer Fauvette: projects, blog (FR/EN), photo gallery and CV.
 
